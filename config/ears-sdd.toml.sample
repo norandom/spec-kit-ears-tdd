@@ -1,0 +1,16 @@
+# Project-specific policy. Paths are relative to the consuming project root.
+spec_glob = "specs/*/spec.md"
+traceability_file = "traceability.toml"
+require_test_files = true
+
+# Set this to the real test command for the consuming project before the final gate.
+test_command = ""
+
+# Requirement prose and IDs must not be copied into these production-code roots.
+production_roots = ["src", "app", "lib"]
+test_roots = ["tests"]
+source_extensions = [
+  ".c", ".cc", ".cpp", ".cs", ".go", ".java", ".js", ".jsx",
+  ".kt", ".php", ".ps1", ".py", ".rb", ".rs", ".ts", ".tsx"
+]
+
