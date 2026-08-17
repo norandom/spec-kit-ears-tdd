@@ -325,7 +325,10 @@ pub(crate) fn workflow_invoking_validator(project: &Path) -> Option<String> {
 fn referenced_file_invoking_validator(project: &Path, contents: &str) -> Option<String> {
     let mut seen = std::collections::BTreeSet::new();
     for token in contents.split(|c: char| c.is_whitespace() || "\"'`,;()".contains(c)) {
-        let candidate = token.trim_matches(|c| c == '.' || c == ':');
+        // Trailing punctuation only. `trim_matches` would also eat the leading dot of a path like
+        // `.github/scripts/gate.sh`, leaving a name that resolves to nothing.
+        let candidate = token.trim_end_matches(['.', ':', ',']);
+        let candidate = candidate.strip_prefix("./").unwrap_or(candidate);
         // A path, not a URL and not a flag. Anything absolute is a runner path, not a repo file.
         if !candidate.contains('/')
             || candidate.contains("://")
@@ -499,6 +502,31 @@ mod tests {
             "the report must name where the gate actually is: {}",
             check.detail
         );
+    }
+
+    /// Dot-prefixed and `./`-prefixed references have to survive tokenisation, since a repository
+    /// that keeps its gate script beside its workflows writes exactly these.
+    #[test]
+    fn a_dot_prefixed_reference_still_resolves() {
+        for reference in [".github/scripts/gate.sh", "./scripts/gate.sh"] {
+            let project = tempfile::tempdir().expect("a temporary directory");
+            let workflows = project.path().join(".github/workflows");
+            std::fs::create_dir_all(&workflows).expect("the workflows directory");
+            let script = project.path().join(reference.trim_start_matches("./"));
+            std::fs::create_dir_all(script.parent().expect("a parent")).expect("the script dir");
+            std::fs::write(&script, "ears-sdd validate --phase final --all\n").expect("the script");
+            std::fs::write(
+                workflows.join("ci.yml"),
+                format!("- run: bash {reference}\n"),
+            )
+            .expect("the workflow");
+
+            assert_eq!(
+                enforcement(project.path()).level,
+                Level::Ok,
+                "{reference} was not followed"
+            );
+        }
     }
 
     /// A workflow naming a file that does not run the gate must not be read as enforcement.

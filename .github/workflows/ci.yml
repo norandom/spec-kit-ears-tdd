@@ -79,6 +79,14 @@ jobs:
       - name: Release build
         run: cargo build --release
 
+      # Against this repository rather than a fixture. Every doctor unit test builds a synthetic
+      # directory, so none of them exercises a real .specify tree, a real specs/ glob, or the path
+      # handling that differs between a Windows verbatim path and a POSIX one. It must also stay
+      # exit-zero here: this project is correctly configured, and a doctor that fails on a healthy
+      # project is a doctor nobody runs.
+      - name: Doctor
+        run: cargo run --release -- doctor
+
   integrity:
     name: Repository integrity
     runs-on: ubuntu-latest
