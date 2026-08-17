@@ -20,17 +20,40 @@ def _display_command(arguments: list[str]) -> str:
 
 
 def _run(arguments: list[str], project: Path) -> None:
-    print(f"> {_display_command(arguments)}")
+    # Flushed so the mutation trace stays ordered when stdout is a pipe. Without it the echoes
+    # are buffered while the subprocess writes straight through, and CI logs -- the one place
+    # the trace matters -- show every command after the output it was meant to announce.
+    print(f"> {_display_command(arguments)}", flush=True)
     subprocess.run(arguments, cwd=project, check=True)
 
 
 def _specify_executable() -> str:
     executable = "specify.exe" if sys.platform == "win32" else "specify"
-    sibling = Path(sys.executable).resolve().parent / executable
-    if sibling.is_file():
-        return str(sibling)
+    # Deliberately not resolved: on POSIX every install method (uv tool, pipx, venv) makes
+    # <venv>/bin/python a symlink to the base interpreter, so resolving leaves the environment
+    # that holds the console script. Windows copies python.exe instead, which is why the old
+    # resolved lookup only ever worked there.
+    interpreter_directory = Path(sys.executable).parent
+    candidates = (
+        interpreter_directory / executable,
+        interpreter_directory.parent / "bin" / executable,
+        interpreter_directory.parent / "Scripts" / executable,
+        Path(sys.prefix) / "bin" / executable,
+        Path(sys.prefix) / "Scripts" / executable,
+    )
+    for candidate in candidates:
+        if candidate.is_file():
+            return str(candidate)
+    # A tool environment exposes only the requested package's entry points, so a dependency's
+    # console script is usually absent from PATH. Fail with an instruction, never a bare name.
     discovered = shutil.which("specify")
-    return discovered or executable
+    if discovered:
+        return discovered
+    raise SystemExit(
+        "specify-cli was not found next to this interpreter or on PATH. Install it alongside "
+        "this tool, for example:\n"
+        "  uv tool install spec-kit-ears-tdd --with specify-cli==0.16.3"
+    )
 
 
 def _init_project(args: argparse.Namespace) -> int:
@@ -168,6 +191,9 @@ def main(arguments: list[str] | None = None) -> int:
             return _init_project(args)
         except subprocess.CalledProcessError as error:
             return error.returncode or 1
+        except OSError as error:
+            print(f"Failed to run specify: {error}", file=sys.stderr)
+            return 2
 
     validator_args = [
         args.command,

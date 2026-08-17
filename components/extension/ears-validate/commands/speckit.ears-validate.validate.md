@@ -1,8 +1,9 @@
 ---
 description: Run the deterministic EARS/TDD validator and report actionable failures.
 scripts:
-  sh: ../scripts/ears-sdd.sh
-  ps: ../scripts/ears-sdd.ps1
+  py: scripts/ears_sdd.py
+  sh: scripts/ears-sdd.sh
+  ps: scripts/ears-sdd.ps1
 ---
 
 ## Human command
