@@ -8,6 +8,7 @@ use serde_json::json;
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
 
+use crate::adjudicate::{classify, intent_of, Intents, Precedence, Verdict};
 use crate::enumerate::{satisfying_sets, verify_witness};
 use crate::guard::{self, Guard, Literal};
 use crate::model::{decompose, Component, ModelFile, ModelledRequirement};
@@ -180,8 +181,90 @@ pub fn partition_is_sound(
     Ok(())
 }
 
-fn witness_detail(finding: Finding, description: &str) -> Finding {
-    finding.detail("witness", description.to_string())
+/// A conflict, classified by the intentions its two requirements serve.
+///
+/// Note the conflict itself is always a *pair* here, and its minimal form is therefore the pair.
+/// That is a property of the model shape rather than a shortcut: requirements react to state, they
+/// do not constrain it, so there is no way for three guards to be jointly unsatisfiable while every
+/// pair of them is fine. Larger minimal sets need declared invariants — facts that restrict which
+/// states are reachable — which this version does not have.
+fn conflict_finding(
+    first: &ModelledRequirement,
+    second: &ModelledRequirement,
+    witness: &str,
+    component: usize,
+    intents: &Intents,
+    precedence: &Precedence,
+    source: &str,
+) -> Finding {
+    let verdict = classify(
+        &[
+            intent_of(intents, &first.feature, &first.identifier),
+            intent_of(intents, &second.feature, &second.identifier),
+        ],
+        precedence,
+    );
+
+    let (code, message, severity) = match &verdict {
+        Verdict::Defect { intention } => (
+            "MODEL_CONFLICT_DEFECT",
+            format!(
+                "{} and {} contradict each other and both serve `{intention}`. No precedence can                  adjudicate this: one goal cannot outrank itself, so one of the two rules is wrong.",
+                first.identifier, second.identifier
+            ),
+            Severity::Error,
+        ),
+        Verdict::Adjudicated { winner } => (
+            "MODEL_CONFLICT_ADJUDICATED",
+            format!(
+                "{} and {} contradict each other; `{winner}` takes precedence, so this is a                  recorded decision rather than a defect.",
+                first.identifier, second.identifier
+            ),
+            Severity::Advisory,
+        ),
+        Verdict::Unadjudicated { missing } => (
+            "MODEL_CONFLICT_UNADJUDICATED",
+            format!(
+                "{} and {} contradict each other and nothing says which wins. Declare precedence                  between {}.",
+                first.identifier,
+                second.identifier,
+                missing
+                    .iter()
+                    .map(|(left, right)| format!("`{left}` and `{right}`"))
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            ),
+            Severity::Error,
+        ),
+        Verdict::Unclassified => (
+            "MODEL_CONFLICT",
+            format!(
+                "{} and {} both apply, but `{}` and `{}` cannot both hold.",
+                first.identifier, second.identifier, first.effect, second.effect
+            ),
+            Severity::Error,
+        ),
+    };
+
+    let mut finding = Finding::new(code, message, source.to_string())
+        .feature(&first.feature)
+        .requirement(&first.identifier)
+        .severity(severity)
+        .detail("with", second.identifier.clone())
+        .detail("component", component as u64)
+        .detail("witness", witness.to_string());
+    if let Verdict::Unadjudicated { missing } = &verdict {
+        finding = finding.detail(
+            "declare_precedence_between",
+            serde_json::Value::Array(
+                missing
+                    .iter()
+                    .map(|(left, right)| json!({ "a": left, "b": right }))
+                    .collect(),
+            ),
+        );
+    }
+    finding
 }
 
 fn analyze_component(
@@ -189,6 +272,8 @@ fn analyze_component(
     pairs: &BTreeSet<(String, String)>,
     budget: u64,
     source: &str,
+    intents: &Intents,
+    precedence: &Precedence,
 ) -> Vec<Finding> {
     let mut findings = Vec::new();
     if component.state_space() > budget {
@@ -226,23 +311,14 @@ fn analyze_component(
             if conflicts(pairs, &first.effect, &second.effect) {
                 if let Some(index) = sets[left].first_common(&sets[right]) {
                     match verify_witness(index, component, &[first, second]) {
-                        Ok(witness) => findings.push(witness_detail(
-                            Finding::new(
-                                "MODEL_CONFLICT",
-                                format!(
-                                    "{} and {} both apply, but `{}` and `{}` cannot both hold.",
-                                    first.identifier,
-                                    second.identifier,
-                                    first.effect,
-                                    second.effect
-                                ),
-                                source.to_string(),
-                            )
-                            .feature(&first.feature)
-                            .requirement(&first.identifier)
-                            .detail("with", second.identifier.clone())
-                            .detail("component", component.index as u64),
+                        Ok(witness) => findings.push(conflict_finding(
+                            first,
+                            second,
                             &witness.description,
+                            component.index,
+                            intents,
+                            precedence,
+                            source,
                         )),
                         Err(message) => {
                             findings.push(crate::enumerate::internal_error(message, source))
@@ -280,6 +356,17 @@ fn analyze_component(
     findings
 }
 
+/// Everything the model layer needs that is the same for every feature.
+///
+/// Bundled rather than passed one by one: these four are loaded once per run and travel together,
+/// and threading them separately made the entry point's signature a list nobody could read.
+pub struct ModelContext<'a> {
+    pub terms: &'a BTreeMap<String, (Term, String)>,
+    pub budget: u64,
+    pub intents: &'a Intents,
+    pub precedence: &'a Precedence,
+}
+
 pub struct Outcome {
     pub findings: Vec<Finding>,
     pub modelled: usize,
@@ -292,8 +379,7 @@ pub fn validate(
     feature: &str,
     directory: &Path,
     declared: &BTreeSet<String>,
-    terms: &BTreeMap<String, (Term, String)>,
-    budget: u64,
+    context: &ModelContext<'_>,
 ) -> Outcome {
     let path = directory.join("model.toml");
     let source = crate::report::relative(&path, root);
@@ -369,10 +455,10 @@ pub fn validate(
     }
 
     for requirement in &requirements {
-        findings.extend(check_types(requirement, terms, &source));
+        findings.extend(check_types(requirement, context.terms, &source));
     }
 
-    let components = decompose(&requirements, terms);
+    let components = decompose(&requirements, context.terms);
     if let Err(message) = partition_is_sound(&requirements, &components) {
         findings.push(crate::enumerate::internal_error(message, &source));
         return Outcome {
@@ -384,7 +470,14 @@ pub fn validate(
 
     let pairs = conflict_pairs(&model);
     for component in &components {
-        findings.extend(analyze_component(component, &pairs, budget, &source));
+        findings.extend(analyze_component(
+            component,
+            &pairs,
+            context.budget,
+            &source,
+            context.intents,
+            context.precedence,
+        ));
     }
 
     // Recorded rather than reported as an error: the model layer is opt-in per requirement, and a
@@ -417,7 +510,31 @@ pub fn analyze_for_test(
     pairs: &BTreeSet<(String, String)>,
     budget: u64,
 ) -> Vec<Finding> {
-    analyze_component(component, pairs, budget, "model.toml")
+    analyze_component(
+        component,
+        pairs,
+        budget,
+        "model.toml",
+        &Intents::new(),
+        &Precedence::new(&BTreeSet::new()),
+    )
+}
+
+/// As above, with the intention layer supplied.
+pub fn analyze_with_intents(
+    component: &Component,
+    pairs: &BTreeSet<(String, String)>,
+    intents: &Intents,
+    precedence: &Precedence,
+) -> Vec<Finding> {
+    analyze_component(
+        component,
+        pairs,
+        1_000_000,
+        "model.toml",
+        intents,
+        precedence,
+    )
 }
 
 #[cfg(test)]

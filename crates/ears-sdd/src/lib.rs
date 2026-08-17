@@ -1,3 +1,4 @@
+pub mod adjudicate;
 pub mod analysis;
 pub mod assets;
 pub mod config;

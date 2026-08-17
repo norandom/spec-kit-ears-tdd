@@ -344,6 +344,22 @@ fn check_tags(terms: &BTreeMap<String, (Term, String)>, mappings: &[Mapping]) ->
     findings
 }
 
+/// Declared precedence between intentions, as `(over, under)` pairs.
+///
+/// Exposed because the constraint layer needs it to decide whether a conflict has been adjudicated,
+/// and reading the file twice would let the two layers disagree about what was declared.
+pub fn load_precedence(root: &Path) -> BTreeSet<(String, String)> {
+    let path = root.join(".specify").join("intentions.toml");
+    match read_toml::<IntentionsFile>(&path, PROJECT_INTENTIONS, "INTENT_INVALID") {
+        Ok(Some(file)) => file
+            .precedence
+            .iter()
+            .map(|edge| (edge.over.clone(), edge.under.clone()))
+            .collect(),
+        _ => BTreeSet::new(),
+    }
+}
+
 fn check_intentions(root: &Path, mappings: &[Mapping]) -> Vec<Finding> {
     let mut findings = Vec::new();
     let path = root.join(".specify").join("intentions.toml");
