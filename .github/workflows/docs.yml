@@ -32,7 +32,7 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       # These three are on majors that run on Node 24. The previous versions targeted Node 20,
       # which the runners now force onto 24 while warning about it, and a warning nobody can act on

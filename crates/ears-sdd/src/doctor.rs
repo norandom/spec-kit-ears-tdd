@@ -86,7 +86,10 @@ pub fn inspect(project: &Path) -> Vec<Check> {
     if !specify.is_dir() {
         return vec![Check::fail(
             "Spec Kit project",
-            format!("no .specify directory in {}", project.display()),
+            format!(
+                "no .specify directory in {}",
+                crate::report::plain_path(project)
+            ),
             "ears-sdd init",
         )];
     }
