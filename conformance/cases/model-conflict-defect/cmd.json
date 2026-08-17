@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan"
+  ],
+  "note": "two contradictory rules serving one goal is a defect no precedence can adjudicate"
+}

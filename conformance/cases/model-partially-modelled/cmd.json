@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan"
+  ],
+  "note": "the layer is opt-in per requirement; an unmodelled one is recorded, not failed"
+}

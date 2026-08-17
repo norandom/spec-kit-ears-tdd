@@ -151,6 +151,7 @@ fn over_budget(component: &Component, budget: u64, source: &str) -> Finding {
     )
 }
 
+/// ears-sdd:allow-requirement-id: citing the requirement this contract enforces
 /// The contract from REQ-026: a conditional requirement belongs to exactly one component.
 ///
 /// Unconditional ones deliberately appear in every component, because their guard always holds and
@@ -584,8 +585,8 @@ mod tests {
         let component = component(
             vec![boolean("a"), boolean("b")],
             vec![
-                requirement("REQ-001", "a", "persist"),
-                requirement("REQ-002", "a and b", "reject"),
+                requirement("R-001", "a", "persist"),
+                requirement("R-002", "a and b", "reject"),
             ],
         );
         let findings = analyze_for_test(&component, &conflicting("persist", "reject"), 1000);
@@ -606,8 +607,8 @@ mod tests {
         let component = component(
             vec![boolean("a")],
             vec![
-                requirement("REQ-001", "a", "persist"),
-                requirement("REQ-002", "not a", "reject"),
+                requirement("R-001", "a", "persist"),
+                requirement("R-002", "not a", "reject"),
             ],
         );
         assert!(analyze_for_test(&component, &conflicting("persist", "reject"), 1000).is_empty());
@@ -617,7 +618,7 @@ mod tests {
     fn a_guard_that_can_never_hold_is_reported() {
         let component = component(
             vec![boolean("a")],
-            vec![requirement("REQ-001", "a and not a", "persist")],
+            vec![requirement("R-001", "a and not a", "persist")],
         );
         assert_eq!(
             codes(&analyze_for_test(&component, &BTreeSet::new(), 1000)),
@@ -630,13 +631,13 @@ mod tests {
         let component = component(
             vec![boolean("a"), boolean("b")],
             vec![
-                requirement("REQ-001", "a and b", "persist"),
-                requirement("REQ-002", "a", "persist"),
+                requirement("R-001", "a and b", "persist"),
+                requirement("R-002", "a", "persist"),
             ],
         );
         let findings = analyze_for_test(&component, &BTreeSet::new(), 1000);
         assert_eq!(codes(&findings), vec!["MODEL_SUBSUMED"]);
-        assert_eq!(findings[0].requirement.as_deref(), Some("REQ-001"));
+        assert_eq!(findings[0].requirement.as_deref(), Some("R-001"));
     }
 
     #[test]
@@ -654,7 +655,7 @@ mod tests {
             finitize("other", &wide, &comparisons),
             boolean("a"),
         ];
-        let component = component(variables, vec![requirement("REQ-001", "a", "persist")]);
+        let component = component(variables, vec![requirement("R-001", "a", "persist")]);
 
         let findings = analyze_for_test(&component, &BTreeSet::new(), 100);
         assert_eq!(codes(&findings), vec!["MODEL_BUDGET_EXCEEDED"]);
@@ -679,9 +680,9 @@ mod tests {
         // conflict with either, so it has to appear in both or those conflicts are lost.
         let terms = BTreeMap::new();
         let requirements = vec![
-            requirement("REQ-001", "a", "persist"),
-            requirement("REQ-002", "b", "persist"),
-            requirement("REQ-003", "", "reject"),
+            requirement("R-001", "a", "persist"),
+            requirement("R-002", "b", "persist"),
+            requirement("R-003", "", "reject"),
         ];
         let components = decompose(&requirements, &terms);
         assert_eq!(components.len(), 2);
@@ -690,7 +691,7 @@ mod tests {
             assert!(component
                 .requirements
                 .iter()
-                .any(|r| r.identifier == "REQ-003"));
+                .any(|r| r.identifier == "R-003"));
         }
     }
 }

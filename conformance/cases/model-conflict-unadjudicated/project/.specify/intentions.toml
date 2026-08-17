@@ -1,0 +1,9 @@
+schema_version = "1.0"
+
+[intentions.integrity-first]
+statement = "No mutation on unverified state."
+rationale = "A stale export silently produces the wrong result."
+
+[intentions.always-available]
+statement = "Routine work is never blocked."
+rationale = "An operator blocked ten times a day stops reading the reason."

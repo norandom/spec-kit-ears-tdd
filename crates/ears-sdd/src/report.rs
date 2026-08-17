@@ -163,6 +163,13 @@ pub struct Summary {
     /// did not run".
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub separation_exempted: Option<usize>,
+    /// Requirements carrying a constraint model, and the independent components they decomposed
+    /// into. Present wherever the model layer runs, so "nothing modelled" is distinguishable from
+    /// "the layer did not run".
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub modelled: Option<usize>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub components: Option<usize>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

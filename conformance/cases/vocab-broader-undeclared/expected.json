@@ -12,7 +12,9 @@
     "specs_examined": 1,
     "errors": 1,
     "warnings": 0,
-    "advisories": 0
+    "advisories": 0,
+    "modelled": 0,
+    "components": 0
   },
   "findings": [
     {

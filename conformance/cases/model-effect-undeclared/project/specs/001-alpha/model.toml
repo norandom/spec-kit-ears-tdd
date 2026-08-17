@@ -1,0 +1,9 @@
+schema_version = "1.0"
+
+[effects]
+persist = { conflicts_with = ["reject"] }
+reject = { conflicts_with = [] }
+
+[requirements.REQ-001]
+when = "integrity-verified"
+then = "vanish"

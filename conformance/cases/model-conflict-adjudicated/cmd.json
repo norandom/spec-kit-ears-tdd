@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan"
+  ],
+  "note": "a declared precedence turns the conflict into a recorded decision, still reported"
+}

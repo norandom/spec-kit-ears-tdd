@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0",
+  "ok": false,
+  "phase": "plan",
+  "scope": {
+    "source": "glob",
+    "value": "specs/*/spec.md"
+  },
+  "summary": {
+    "features": 1,
+    "requirements": 1,
+    "specs_examined": 1,
+    "errors": 1,
+    "warnings": 0,
+    "advisories": 3,
+    "modelled": 1,
+    "components": 1
+  },
+  "findings": [
+    {
+      "code": "MODEL_DEAD_GUARD",
+      "path": "specs/001-alpha/model.toml",
+      "feature": "specs/001-alpha",
+      "requirement": "REQ-001",
+      "line": null,
+      "severity": "error"
+    },
+    {
+      "code": "TERM_UNUSED",
+      "path": ".specify/vocabulary.toml",
+      "feature": null,
+      "requirement": null,
+      "line": null,
+      "severity": "advisory"
+    },
+    {
+      "code": "TERM_UNUSED",
+      "path": ".specify/vocabulary.toml",
+      "feature": null,
+      "requirement": null,
+      "line": null,
+      "severity": "advisory"
+    },
+    {
+      "code": "TERM_UNUSED",
+      "path": ".specify/vocabulary.toml",
+      "feature": null,
+      "requirement": null,
+      "line": null,
+      "severity": "advisory"
+    }
+  ]
+}

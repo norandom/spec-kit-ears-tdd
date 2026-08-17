@@ -13,7 +13,9 @@
     "errors": 0,
     "warnings": 0,
     "advisories": 0,
-    "tasks_covered": 3
+    "tasks_covered": 3,
+    "modelled": 0,
+    "components": 0
   },
   "findings": []
 }

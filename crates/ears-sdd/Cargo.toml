@@ -9,6 +9,7 @@ repository.workspace = true
 
 [dependencies]
 aho-corasick = "1"
+biodivine-lib-bdd = "0.5.27"
 clap = { version = "4", features = ["derive"] }
 globset = "0.4"
 ignore = "0.4"

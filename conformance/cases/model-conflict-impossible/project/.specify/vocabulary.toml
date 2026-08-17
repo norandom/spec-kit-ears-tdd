@@ -1,0 +1,16 @@
+schema_version = "1.0"
+
+[terms.operating-mode]
+label = "Operating mode"
+definition = "Which service mode the workstation is running in."
+domain = { kind = "enum", values = ["normal", "maintenance"] }
+
+[terms.integrity-verified]
+label = "Integrity verified"
+definition = "Whether the captured policy digest matched."
+domain = { kind = "bool" }
+
+[terms.queue-depth]
+label = "Queue depth"
+definition = "Pending operations awaiting processing."
+domain = { kind = "int", min = 0, max = 10000 }

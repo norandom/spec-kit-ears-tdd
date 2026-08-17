@@ -122,6 +122,7 @@ fn integer_regions(low: i64, high: i64, comparisons: &[(Op, i64)]) -> Vec<Value>
     regions
 }
 
+/// ears-sdd:allow-requirement-id: citing the requirement this contract enforces
 /// The contract from REQ-025: the regions of an integer domain cover it exactly once. A gap hides
 /// whole assignments, and a conflict living in the gap would never be found.
 pub fn regions_cover_domain(regions: &[Value], low: i64, high: i64) -> bool {

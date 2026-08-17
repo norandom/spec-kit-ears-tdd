@@ -1,6 +1,7 @@
 pub mod adjudicate;
 pub mod analysis;
 pub mod assets;
+pub mod bdd;
 pub mod config;
 pub mod discovery;
 pub mod ears;
@@ -56,7 +57,13 @@ pub fn validate(request: Request<'_>) -> Report {
     let mut features: Vec<FeatureResult> = Vec::new();
     let mut all_requirements: Vec<Requirement> = Vec::new();
     let mut tasks_covered = 0usize;
+    let mut modelled = 0usize;
+    let mut components = 0usize;
     let mut mappings: Vec<vocabulary::Mapping> = Vec::new();
+    let mut declared_by_feature: std::collections::BTreeMap<
+        String,
+        std::collections::BTreeSet<String>,
+    > = std::collections::BTreeMap::new();
     let mut feature_dirs: Vec<(String, std::path::PathBuf)> = Vec::new();
 
     for location in &discovered.specs {
@@ -77,6 +84,13 @@ pub fn validate(request: Request<'_>) -> Report {
         if let Some(parent) = location.path.parent() {
             feature_dirs.push((location.feature.clone(), parent.to_path_buf()));
         }
+        declared_by_feature.insert(
+            location.feature.clone(),
+            requirements
+                .iter()
+                .map(|requirement| requirement.identifier.clone())
+                .collect(),
+        );
         // The tasks gate is the only phase that opens tasks.md, which is what finally makes it
         // distinct from the plan gate rather than a second copy of it.
         if request.phase == Phase::Tasks {
@@ -98,6 +112,39 @@ pub fn validate(request: Request<'_>) -> Report {
             .map(|(feature, path)| (feature.clone(), path.as_path()))
             .collect();
         findings.extend(vocabulary::validate(root, &mappings, &borrowed));
+
+        // The constraint model needs the same term map the vocabulary gate used, and the intention
+        // layer it classifies conflicts by. Loaded once for the whole run rather than per feature,
+        // because a term collision spans features and so does a precedence declaration.
+        let (terms, _) = vocabulary::load_terms(root, &borrowed);
+        let precedence = adjudicate::Precedence::new(&vocabulary::load_precedence(root));
+        let intents: adjudicate::Intents = mappings
+            .iter()
+            .filter_map(|mapping| {
+                mapping.intent.as_ref().map(|intent| {
+                    (
+                        (mapping.feature.clone(), mapping.requirement.clone()),
+                        intent.clone(),
+                    )
+                })
+            })
+            .collect();
+        let context = analysis::ModelContext {
+            terms: &terms,
+            budget: config.state_space_budget,
+            intents: &intents,
+            precedence: &precedence,
+        };
+        for (feature, directory) in &feature_dirs {
+            let declared = declared_by_feature
+                .get(feature)
+                .cloned()
+                .unwrap_or_default();
+            let outcome = analysis::validate(root, feature, directory, &declared, &context);
+            findings.extend(outcome.findings);
+            modelled += outcome.modelled;
+            components += outcome.components;
+        }
     }
 
     let mut production_files_scanned = 0usize;
@@ -151,6 +198,8 @@ pub fn validate(request: Request<'_>) -> Report {
             advisories,
             tasks_covered: (request.phase == Phase::Tasks).then_some(tasks_covered),
             separation_exempted,
+            modelled: request.phase.checks_traceability().then_some(modelled),
+            components: request.phase.checks_traceability().then_some(components),
         },
         features,
         findings,

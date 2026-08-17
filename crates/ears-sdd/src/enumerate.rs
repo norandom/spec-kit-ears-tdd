@@ -160,6 +160,7 @@ pub struct Witness {
 
 /// Decode a witness and confirm it satisfies the guards attributed to it.
 ///
+/// ears-sdd:allow-requirement-id: citing the requirement this contract enforces
 /// The contract from REQ-024. A witness that does not reproduce is worse than none, because someone
 /// will act on it; this turns an encoding bug into a loud internal error rather than a plausible
 /// counterexample that wastes an afternoon.

@@ -2,72 +2,104 @@ schema_version = "1.0"
 
 [requirements.REQ-001]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/constraint_model.rs::test_optional_model_file_is_read"]
+tests = ["conformance/cases/model-partially-modelled/expected.json"]
 
 [requirements.REQ-002]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/constraint_model.rs::test_guard_symbols_resolve_against_vocabulary"]
+tests = ["conformance/cases/model-guard-invalid/expected.json"]
 
 [requirements.REQ-003]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/constraint_model.rs::test_guard_outside_grammar_is_rejected"]
+tests = ["conformance/cases/model-guard-invalid/expected.json"]
 
 [requirements.REQ-004]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/constraint_model.rs::test_dead_guard_is_reported"]
+tests = ["conformance/cases/model-dead-guard/expected.json"]
 
 [requirements.REQ-005]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/constraint_model.rs::test_conflicting_effects_are_reported"]
+tests = ["conformance/cases/model-conflict-unclassified/expected.json"]
 
 [requirements.REQ-006]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/constraint_model.rs::test_conflict_set_is_minimal"]
+tests = ["conformance/cases/model-conflict-unclassified/expected.json"]
 
 [requirements.REQ-007]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/constraint_model.rs::test_assertions_are_named_by_requirement"]
+tests = ["conformance/cases/model-conflict-unclassified/expected.json"]
 
 [requirements.REQ-008]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/constraint_model.rs::test_conflict_members_map_to_intentions"]
+tests = ["conformance/cases/model-conflict-defect/expected.json"]
 
 [requirements.REQ-009]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/constraint_model.rs::test_single_intention_conflict_is_a_defect"]
+tests = ["conformance/cases/model-conflict-defect/expected.json"]
 
 [requirements.REQ-010]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/constraint_model.rs::test_multi_intention_conflict_is_a_tradeoff"]
+tests = ["conformance/cases/model-conflict-adjudicated/expected.json"]
 
 [requirements.REQ-011]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/constraint_model.rs::test_solver_error_stream_fails_the_run"]
+tests = ["crates/ears-sdd/src/analysis.rs::tests::an_over_budget_component_reports_the_lever_rather_than_being_evaluated"]
 
 [requirements.REQ-012]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/constraint_model.rs::test_finding_carries_witness_assignment"]
+tests = ["conformance/cases/model-conflict-unclassified/expected.json"]
 
 [requirements.REQ-013]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/constraint_model.rs::test_budget_exhaustion_reports_indeterminate"]
+tests = ["crates/ears-sdd/src/analysis.rs::tests::an_over_budget_component_reports_the_lever_rather_than_being_evaluated"]
 
 [requirements.REQ-014]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/constraint_model.rs::test_unmodelled_requirement_is_recorded"]
+tests = ["conformance/cases/model-partially-modelled/expected.json"]
 
 [requirements.REQ-015]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/constraint_model.rs::test_subsumption_is_reported"]
+tests = ["conformance/cases/model-subsumed/expected.json"]
 
 [requirements.REQ-016]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/constraint_model.rs::test_conflict_set_is_order_independent"]
+tests = ["crates/ears-sdd/tests/differential.rs::every_two_variable_guard_agrees"]
 
 [requirements.REQ-017]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/constraint_model.rs::test_integer_domain_is_partitioned_at_cut_points"]
+tests = ["conformance/cases/model-conflict-impossible/expected.json"]
 
 [requirements.REQ-018]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/constraint_model.rs::test_decision_procedure_version_is_recorded"]
+tests = ["crates/ears-sdd/src/model.rs::tests::a_single_less_than_cuts_the_domain_in_two"]
+
+[requirements.REQ-019]
+verification = "automated"
+tests = ["crates/ears-sdd/tests/differential.rs::every_two_variable_guard_agrees"]
+
+[requirements.REQ-020]
+verification = "automated"
+tests = ["conformance/cases/model-type-mismatch/expected.json"]
+
+[requirements.REQ-021]
+verification = "automated"
+tests = ["crates/ears-sdd/src/analysis.rs::tests::an_over_budget_component_reports_the_lever_rather_than_being_evaluated"]
+
+[requirements.REQ-022]
+verification = "automated"
+tests = ["crates/ears-sdd/src/analysis.rs::tests::an_over_budget_component_reports_the_lever_rather_than_being_evaluated"]
+
+[requirements.REQ-023]
+verification = "automated"
+tests = ["conformance/cases/model-absent-is-silent/expected.json"]
+
+[requirements.REQ-024]
+verification = "automated"
+tests = ["crates/ears-sdd/tests/read_only.rs::no_gate_modifies_the_project"]
+
+[requirements.REQ-025]
+verification = "automated"
+tests = ["crates/ears-sdd/src/model.rs::tests::regions_always_cover_the_domain_exactly_once"]
+
+[requirements.REQ-026]
+verification = "automated"
+tests = ["conformance/cases/model-conflict-impossible/expected.json"]
