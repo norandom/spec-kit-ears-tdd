@@ -11,7 +11,6 @@ use std::path::Path;
 
 pub static COMPONENTS: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/../../components");
 pub static CONFIG: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/../../config");
-pub static LAUNCHERS: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/../../launchers");
 
 pub fn config_sample() -> &'static str {
     CONFIG
@@ -25,13 +24,6 @@ pub fn traceability_sample() -> &'static str {
         .get_file("traceability.toml.sample")
         .and_then(|file| file.contents_utf8())
         .expect("the traceability sample is embedded at build time")
-}
-
-pub fn launcher(name: &str) -> &'static [u8] {
-    LAUNCHERS
-        .get_file(name)
-        .map(|file| file.contents())
-        .expect("both launchers are embedded at build time")
 }
 
 /// Write an embedded tree to disk so `specify ... --dev <path>` has something to read.
@@ -68,14 +60,27 @@ mod tests {
         assert!(!traceability_sample().is_empty());
     }
 
-    /// The POSIX launcher is copied into consuming projects verbatim. If a build ever happens on a
-    /// worktree with CRLF, that corruption would be baked into every binary we ship.
+    fn walk(directory: &Dir<'_>, found: &mut Vec<String>) {
+        for file in directory.files() {
+            found.push(file.path().to_string_lossy().replace('\\', "/"));
+        }
+        for child in directory.dirs() {
+            walk(child, found);
+        }
+    }
+
+    /// Nothing shipped in the binary may reference an interpreter. The launchers and shims existed
+    /// only to locate Python; if one comes back, the single-binary property has quietly been lost.
     #[test]
-    fn the_posix_launcher_is_embedded_with_unix_line_endings() {
-        let bytes = launcher("ears-sdd");
-        assert!(
-            !bytes.windows(2).any(|pair| pair == b"\r\n"),
-            "the embedded POSIX launcher contains CRLF"
-        );
+    fn no_component_shells_out_to_an_interpreter() {
+        let mut found = Vec::new();
+        walk(&COMPONENTS, &mut found);
+        assert!(!found.is_empty(), "no components were embedded at all");
+        for path in found {
+            assert!(
+                !path.ends_with(".py") && !path.ends_with(".sh") && !path.ends_with(".ps1"),
+                "an interpreter script is embedded in the binary: {path}"
+            );
+        }
     }
 }

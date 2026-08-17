@@ -78,29 +78,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # These checks read the git index, and Dagger's default upload filter excludes `.git`. Rather
-      # than fight that, they run outside any container -- which is also where they are cheapest.
-      - name: POSIX entry points stay LF
+      # This reads the git index, and Dagger's default upload filter excludes `.git`. Rather than
+      # fight that, it runs outside any container -- which is also where it is cheapest.
+      #
+      # The tool is a single binary with no interpreter. The launcher and shim scripts that used to
+      # live here existed only to locate Python, and they carried the two worst defects this
+      # repository has had: CRLF corruption on Windows clones and a lost execute bit. Nothing may
+      # reintroduce that class of file.
+      #
+      # Two exemptions, both legitimate: .specify/ holds Spec Kit's own vendored scripts, and
+      # conformance/ holds inert test fixtures that only ever get read.
+      - name: No interpreter scripts creep back in
         run: |
           set -euo pipefail
-          status=0
-          for script in launchers/ears-sdd components/extension/ears-validate/scripts/ears-sdd.sh; do
-            if grep -qU $'\r' "$script"; then
-              echo "::error file=$script::contains CRLF; it must stay LF to run on Linux and macOS"
-              status=1
-            fi
-          done
-          exit $status
-
-      - name: POSIX entry points stay executable
-        run: |
-          set -euo pipefail
-          status=0
-          for script in launchers/ears-sdd components/extension/ears-validate/scripts/ears-sdd.sh; do
-            mode=$(git ls-files -s "$script" | cut -d' ' -f1)
-            if [ "$mode" != "100755" ]; then
-              echo "::error file=$script::mode is $mode; it must be 100755"
-              status=1
-            fi
-          done
-          exit $status
+          offenders=$(git ls-files -- '*.py' '*.sh' '*.ps1' \
+            ':(exclude).specify/**' ':(exclude)conformance/**' || true)
+          if [ -n "$offenders" ]; then
+            echo "$offenders" | while read -r f; do
+              echo "::error file=$f::interpreter script committed; ears-sdd ships as one binary"
+            done
+            exit 1
+          fi
+          echo "no interpreter scripts outside .specify/ and conformance/"

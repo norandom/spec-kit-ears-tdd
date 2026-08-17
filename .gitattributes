@@ -1,26 +1,19 @@
-# Normalize to LF in the repository. Without this, a clone on a default Windows
-# Git install (core.autocrlf=true) rewrites the POSIX launchers with CRLF, and
-# `sh` on Linux/macOS/WSL then fails with `bad interpreter: no such file or
-# directory` on the shebang line.
+# Normalize to LF in the repository. Kept after the Python removal even though the POSIX launcher
+# scripts that originally motivated it are gone: Spec Kit vendors its own shell and PowerShell
+# scripts under .specify/, and conformance fixtures are compared byte for byte.
 * text=auto eol=lf
 
-# POSIX shell entry points must stay LF on every platform, including a Windows
-# working tree, because they are copied verbatim into consuming projects and
-# packaged verbatim into the wheel.
-launchers/ears-sdd                                        text eol=lf
-components/extension/ears-validate/scripts/ears-sdd.sh    text eol=lf
-
-# PowerShell entry points are read by both Windows PowerShell 5.1 and
-# PowerShell 7; LF is accepted by both, so keep them normalized too.
-*.ps1   text eol=lf
-
-*.py    text eol=lf
-*.md    text eol=lf
+*.rs    text eol=lf
 *.toml  text eol=lf
+*.md    text eol=lf
 *.yml   text eol=lf
-*.sh    text eol=lf
+*.json  text eol=lf
+*.dag   text eol=lf
 
-# Binary artifacts must never be line-ending converted.
-*.whl   binary
+# Conformance fixtures are inputs to a byte-comparing test. One of them is deliberately not valid
+# UTF-8, and none of them may be rewritten by a checkout.
+conformance/cases/**  -text
+
+*.whl    binary
 *.tar.gz binary
-*.png   binary
+*.png    binary

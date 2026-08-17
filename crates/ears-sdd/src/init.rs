@@ -6,7 +6,9 @@
 //!   and a failure to find it is a message rather than a traceback.
 //! * A second run is an upgrade rather than an abort: components already present are reinstalled
 //!   with `--force` where the subcommand supports it, and reported as kept where it does not.
-//! * The POSIX launcher is written with LF and marked executable, regardless of the host.
+//! * No launcher scripts are installed. The Python bootstrap copied a `.sh` and a `.ps1` into every
+//!   project whose only job was to locate an interpreter; a single binary on PATH makes both
+//!   redundant, and with them go the CRLF hazard and the lost execute bit they carried.
 //! * The traceability sample is written into the project, so the file the documentation tells
 //!   authors to copy actually exists locally.
 
@@ -110,20 +112,8 @@ pub fn run(options: &Options) -> Result<(), String> {
         assets::traceability_sample().as_bytes(),
     )?;
 
-    install_launcher(
-        &project.join("ears-sdd.ps1"),
-        assets::launcher("ears-sdd.ps1"),
-        false,
-    )?;
-    install_launcher(
-        &project.join("ears-sdd"),
-        assets::launcher("ears-sdd"),
-        true,
-    )?;
-    warn_about_line_endings(&project);
-
     println!("Installed EARS/TDD policy components.");
-    println!("Next: edit .specify/ears-sdd.toml, then run `ears-sdd validate --phase spec`.");
+    println!("Next: edit .specify/ears-sdd.toml, then run `ears-sdd validate --phase spec --all`.");
     Ok(())
 }
 
@@ -225,67 +215,3 @@ fn write_if_absent(path: &Path, contents: &[u8]) -> Result<(), String> {
     Ok(())
 }
 
-fn install_launcher(path: &Path, contents: &[u8], posix: bool) -> Result<(), String> {
-    if path.exists() {
-        println!("Kept existing {}", display(path));
-        return Ok(());
-    }
-    // Written from embedded bytes that a build-time test proves are LF, so a Windows host cannot
-    // produce a launcher that fails on Linux.
-    std::fs::write(path, contents)
-        .map_err(|error| format!("Could not write {}: {error}", display(path)))?;
-    if posix {
-        set_executable(path)?;
-    }
-    println!("Created {}", display(path));
-    Ok(())
-}
-
-#[cfg(unix)]
-fn set_executable(path: &Path) -> Result<(), String> {
-    use std::os::unix::fs::PermissionsExt;
-    let mut permissions = std::fs::metadata(path)
-        .map_err(|error| error.to_string())?
-        .permissions();
-    permissions.set_mode(permissions.mode() | 0o111);
-    std::fs::set_permissions(path, permissions).map_err(|error| error.to_string())
-}
-
-/// On Windows the mode bit does not exist in the filesystem, so the only place it can survive is
-/// the index. Ask git to record it rather than leaving a POSIX clone with `Permission denied`.
-#[cfg(not(unix))]
-fn set_executable(path: &Path) -> Result<(), String> {
-    let Some(parent) = path.parent() else {
-        return Ok(());
-    };
-    let name = path
-        .file_name()
-        .unwrap_or_default()
-        .to_string_lossy()
-        .to_string();
-    let recorded = Command::new("git")
-        .args(["update-index", "--chmod=+x", "--add", &name])
-        .current_dir(parent)
-        .status();
-    match recorded {
-        Ok(status) if status.success() => Ok(()),
-        _ => {
-            println!(
-                "Note: could not record the execute bit for {name}. On a POSIX checkout run \
-                 `chmod +x {name}` or `git update-index --chmod=+x {name}`."
-            );
-            Ok(())
-        }
-    }
-}
-
-fn warn_about_line_endings(project: &Path) {
-    if project.join(".gitattributes").exists() {
-        return;
-    }
-    println!(
-        "Note: this project has no .gitattributes. On a Windows clone with core.autocrlf=true git \
-         rewrites `ears-sdd` with CRLF and it stops working on Linux and macOS. Add:\n    \
-         ears-sdd text eol=lf"
-    );
-}

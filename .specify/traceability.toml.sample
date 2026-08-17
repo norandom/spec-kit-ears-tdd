@@ -1,0 +1,10 @@
+schema_version = "1.0"
+
+[requirements.REQ-001]
+verification = "automated"
+tests = ["tests/test_example.py::test_expected_response"]
+
+[requirements.REQ-002]
+verification = "manual"
+rationale = "Requires a physical device that is unavailable in automated test environments."
+
