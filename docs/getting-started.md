@@ -21,13 +21,13 @@ range rather than failing in a way you have to diagnose.
 
     ```sh
     curl --proto '=https' --tlsv1.2 -LsSf \
-      https://github.com/norandom/spec-kit-ears-tdd/releases/download/v0.2.0/ears-sdd-installer.sh | sh
+      https://github.com/norandom/spec-kit-ears-tdd/releases/latest/download/ears-sdd-installer.sh | sh
     ```
 
 === "Windows"
 
     ```powershell
-    powershell -c "irm https://github.com/norandom/spec-kit-ears-tdd/releases/download/v0.2.0/ears-sdd-installer.ps1 | iex"
+    powershell -c "irm https://github.com/norandom/spec-kit-ears-tdd/releases/latest/download/ears-sdd-installer.ps1 | iex"
     ```
 
 === "From source"
@@ -35,6 +35,18 @@ range rather than failing in a way you have to diagnose.
     ```sh
     cargo install --git https://github.com/norandom/spec-kit-ears-tdd ears-sdd
     ```
+
+These install the most recent release. Swap `latest/download` for
+`download/v0.2.0` to pin a specific version, and see
+[all releases](https://github.com/norandom/spec-kit-ears-tdd/releases) for what is available.
+
+!!! note "The CI gate pins deliberately"
+
+    `ears-sdd init --ci` writes a workflow pinned to the version of the binary that generated it,
+    and that is the opposite choice on purpose. A developer installing the tool wants the current
+    release. A gate whose verdict can change without a commit to your repository is not a gate: the
+    same tree would pass today and fail tomorrow, and the failure would look like the author's
+    fault. Re-run `ears-sdd init --ci` after upgrading to move the pin deliberately.
 
 It is one binary. There are no launcher scripts to copy into your project and nothing to mark
 executable. Validation never invokes Python, a shell, or Spec Kit.

@@ -34,7 +34,12 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      # These three are on majors that run on Node 24. The previous versions targeted Node 20,
+      # which the runners now force onto 24 while warning about it, and a warning nobody can act on
+      # is one people stop reading. upload-pages-artifact@v5 matters for a second reason: it is a
+      # composite action, and the deprecated runtime was in the upload-artifact it delegates to
+      # rather than in anything written here.
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
@@ -46,7 +51,7 @@ jobs:
       - name: Build
         run: mkdocs build --strict
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: site
 
@@ -63,4 +68,4 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

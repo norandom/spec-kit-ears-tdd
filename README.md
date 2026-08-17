@@ -42,14 +42,17 @@ across features requires knowing that two features mean the same thing by the sa
 uv tool install specify-cli==0.16.3
 
 curl --proto '=https' --tlsv1.2 -LsSf \
-  https://github.com/norandom/spec-kit-ears-tdd/releases/download/v0.2.0/ears-sdd-installer.sh | sh
+  https://github.com/norandom/spec-kit-ears-tdd/releases/latest/download/ears-sdd-installer.sh | sh
 ```
 
 On Windows:
 
 ```powershell
-powershell -c "irm https://github.com/norandom/spec-kit-ears-tdd/releases/download/v0.2.0/ears-sdd-installer.ps1 | iex"
+powershell -c "irm https://github.com/norandom/spec-kit-ears-tdd/releases/latest/download/ears-sdd-installer.ps1 | iex"
 ```
+
+See [all releases](https://github.com/norandom/spec-kit-ears-tdd/releases) to install a specific
+version instead.
 
 ## Use
 
