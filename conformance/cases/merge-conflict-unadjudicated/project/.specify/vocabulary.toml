@@ -1,0 +1,11 @@
+schema_version = "1.0"
+
+[terms.maintenance-window]
+label = "Maintenance window"
+definition = "Whether the workstation is inside a scheduled maintenance window."
+domain = { kind = "bool" }
+
+[terms.operating-mode]
+label = "Operating mode"
+definition = "Which service mode the workstation is running in."
+domain = { kind = "enum", values = ["normal", "maintenance"] }

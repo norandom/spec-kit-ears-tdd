@@ -1,0 +1,9 @@
+schema_version = "1.0"
+
+[intentions.protect-data]
+statement = "No write proceeds against unverified state."
+rationale = "A lost write is discovered long after the cause is gone."
+
+[intentions.stay-available]
+statement = "Scheduled work is never blocked."
+rationale = "Blocked routine work is worked around, and workarounds are unaudited."

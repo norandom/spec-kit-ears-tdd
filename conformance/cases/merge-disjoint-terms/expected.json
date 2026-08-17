@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "ok": true,
+  "phase": "plan",
+  "scope": {
+    "source": "glob",
+    "value": "specs/*/spec.md"
+  },
+  "summary": {
+    "features": 2,
+    "requirements": 2,
+    "specs_examined": 2,
+    "errors": 0,
+    "warnings": 0,
+    "advisories": 2,
+    "modelled": 2,
+    "components": 2,
+    "merged_components": 2
+  },
+  "findings": [
+    {
+      "code": "TERM_UNUSED",
+      "path": ".specify/vocabulary.toml",
+      "feature": null,
+      "requirement": null,
+      "line": null,
+      "severity": "advisory"
+    },
+    {
+      "code": "TERM_UNUSED",
+      "path": ".specify/vocabulary.toml",
+      "feature": null,
+      "requirement": null,
+      "line": null,
+      "severity": "advisory"
+    }
+  ]
+}

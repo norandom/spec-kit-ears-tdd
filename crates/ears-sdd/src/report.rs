@@ -170,6 +170,10 @@ pub struct Summary {
     pub modelled: Option<usize>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub components: Option<usize>,
+    /// Components in the merged graph across every specification. Absent when fewer than two
+    /// specifications were in scope, because there was nothing to merge.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub merged_components: Option<usize>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

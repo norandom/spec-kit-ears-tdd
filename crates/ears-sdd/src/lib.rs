@@ -59,6 +59,7 @@ pub fn validate(request: Request<'_>) -> Report {
     let mut tasks_covered = 0usize;
     let mut modelled = 0usize;
     let mut components = 0usize;
+    let mut merged_components: Option<usize> = None;
     let mut mappings: Vec<vocabulary::Mapping> = Vec::new();
     let mut declared_by_feature: std::collections::BTreeMap<
         String,
@@ -135,6 +136,7 @@ pub fn validate(request: Request<'_>) -> Report {
             intents: &intents,
             precedence: &precedence,
         };
+        let mut feature_models = Vec::new();
         for (feature, directory) in &feature_dirs {
             let declared = declared_by_feature
                 .get(feature)
@@ -144,6 +146,19 @@ pub fn validate(request: Request<'_>) -> Report {
             findings.extend(outcome.findings);
             modelled += outcome.modelled;
             components += outcome.components;
+            feature_models.push(analysis::FeatureModel {
+                feature: feature.clone(),
+                directory: directory.clone(),
+                declared,
+            });
+        }
+
+        // The merge only means anything across more than one specification. Asking for all-features
+        // scope is what asks for it: constraints never in the same room cannot contradict.
+        if feature_models.len() > 1 {
+            let merged = analysis::validate_merged(&feature_models, &context);
+            findings.extend(merged.findings);
+            merged_components = Some(merged.components);
         }
     }
 
@@ -200,6 +215,7 @@ pub fn validate(request: Request<'_>) -> Report {
             separation_exempted,
             modelled: request.phase.checks_traceability().then_some(modelled),
             components: request.phase.checks_traceability().then_some(components),
+            merged_components,
         },
         features,
         findings,

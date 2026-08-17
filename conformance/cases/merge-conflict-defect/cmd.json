@@ -1,0 +1,9 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan",
+    "--all"
+  ],
+  "note": "two specifications contradicting in service of one goal is a defect, not a trade-off"
+}

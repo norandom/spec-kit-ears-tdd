@@ -162,24 +162,60 @@ pub fn partition_is_sound(
 ) -> Result<(), String> {
     for requirement in requirements {
         let unconditional = requirement.guard.terms().is_empty();
+        // Compared on feature and identifier together. Identifiers restart at the first number in
+        // every feature, so matching on the identifier alone conflates one specification's
+        // requirement with another's -- which is exactly what happens in a merge, and is how this
+        // contract caught its own first real bug.
         let appearances = components
             .iter()
             .filter(|component| {
-                component
-                    .requirements
-                    .iter()
-                    .any(|member| member.identifier == requirement.identifier)
+                component.requirements.iter().any(|member| {
+                    member.identifier == requirement.identifier
+                        && member.feature == requirement.feature
+                })
             })
             .count();
         let expected = if unconditional { components.len() } else { 1 };
         if appearances != expected {
             return Err(format!(
-                "{} appears in {appearances} components, expected {expected}",
-                requirement.identifier
+                "{}:{} appears in {appearances} components, expected {expected}",
+                requirement.feature, requirement.identifier
             ));
         }
     }
     Ok(())
+}
+
+fn defect_code(prefix: &str) -> &'static str {
+    if prefix == "MERGE" {
+        "MERGE_CONFLICT_DEFECT"
+    } else {
+        "MODEL_CONFLICT_DEFECT"
+    }
+}
+
+fn adjudicated_code(prefix: &str) -> &'static str {
+    if prefix == "MERGE" {
+        "MERGE_CONFLICT_ADJUDICATED"
+    } else {
+        "MODEL_CONFLICT_ADJUDICATED"
+    }
+}
+
+fn unadjudicated_code(prefix: &str) -> &'static str {
+    if prefix == "MERGE" {
+        "MERGE_CONFLICT_UNADJUDICATED"
+    } else {
+        "MODEL_CONFLICT_UNADJUDICATED"
+    }
+}
+
+fn plain_code(prefix: &str) -> &'static str {
+    if prefix == "MERGE" {
+        "MERGE_CONFLICT"
+    } else {
+        "MODEL_CONFLICT"
+    }
 }
 
 /// A conflict, classified by the intentions its two requirements serve.
@@ -189,7 +225,9 @@ pub fn partition_is_sound(
 /// do not constrain it, so there is no way for three guards to be jointly unsatisfiable while every
 /// pair of them is fine. Larger minimal sets need declared invariants — facts that restrict which
 /// states are reachable — which this version does not have.
+#[allow(clippy::too_many_arguments)]
 fn conflict_finding(
+    prefix: &str,
     first: &ModelledRequirement,
     second: &ModelledRequirement,
     witness: &str,
@@ -208,7 +246,7 @@ fn conflict_finding(
 
     let (code, message, severity) = match &verdict {
         Verdict::Defect { intention } => (
-            "MODEL_CONFLICT_DEFECT",
+            defect_code(prefix),
             format!(
                 "{} and {} contradict each other and both serve `{intention}`. No precedence can                  adjudicate this: one goal cannot outrank itself, so one of the two rules is wrong.",
                 first.identifier, second.identifier
@@ -216,7 +254,7 @@ fn conflict_finding(
             Severity::Error,
         ),
         Verdict::Adjudicated { winner } => (
-            "MODEL_CONFLICT_ADJUDICATED",
+            adjudicated_code(prefix),
             format!(
                 "{} and {} contradict each other; `{winner}` takes precedence, so this is a                  recorded decision rather than a defect.",
                 first.identifier, second.identifier
@@ -224,7 +262,7 @@ fn conflict_finding(
             Severity::Advisory,
         ),
         Verdict::Unadjudicated { missing } => (
-            "MODEL_CONFLICT_UNADJUDICATED",
+            unadjudicated_code(prefix),
             format!(
                 "{} and {} contradict each other and nothing says which wins. Declare precedence                  between {}.",
                 first.identifier,
@@ -238,7 +276,7 @@ fn conflict_finding(
             Severity::Error,
         ),
         Verdict::Unclassified => (
-            "MODEL_CONFLICT",
+            plain_code(prefix),
             format!(
                 "{} and {} both apply, but `{}` and `{}` cannot both hold.",
                 first.identifier, second.identifier, first.effect, second.effect
@@ -268,6 +306,7 @@ fn conflict_finding(
     finding
 }
 
+#[allow(clippy::too_many_arguments)]
 fn analyze_component(
     component: &Component,
     pairs: &BTreeSet<(String, String)>,
@@ -275,6 +314,8 @@ fn analyze_component(
     source: &str,
     intents: &Intents,
     precedence: &Precedence,
+    prefix: &str,
+    cross_feature_only: bool,
 ) -> Vec<Finding> {
     let mut findings = Vec::new();
     if component.state_space() > budget {
@@ -285,6 +326,9 @@ fn analyze_component(
     let sets = satisfying_sets(component);
 
     for (position, requirement) in component.requirements.iter().enumerate() {
+        if cross_feature_only {
+            break;
+        }
         if sets[position].is_empty() {
             findings.push(
                 Finding::new(
@@ -308,11 +352,18 @@ fn analyze_component(
             if sets[left].is_empty() || sets[right].is_empty() {
                 continue;
             }
+            // In merge mode a same-specification pair has already been reported by that
+            // specification's own run. Repeating it would double every finding and bury the
+            // cross-specification ones this gate exists to surface.
+            if cross_feature_only && first.feature == second.feature {
+                continue;
+            }
 
             if conflicts(pairs, &first.effect, &second.effect) {
                 if let Some(index) = sets[left].first_common(&sets[right]) {
                     match verify_witness(index, component, &[first, second]) {
                         Ok(witness) => findings.push(conflict_finding(
+                            prefix,
                             first,
                             second,
                             &witness.description,
@@ -337,9 +388,14 @@ fn analyze_component(
                 } else {
                     continue;
                 };
+                let code = if prefix == "MERGE" {
+                    "MERGE_SHADOW"
+                } else {
+                    "MODEL_SUBSUMED"
+                };
                 findings.push(
                     Finding::new(
-                        "MODEL_SUBSUMED",
+                        code,
                         format!(
                             "{} applies only where {} already does, and both assert `{}`.",
                             stricter.identifier, looser.identifier, stricter.effect
@@ -478,6 +534,8 @@ pub fn validate(
             &source,
             context.intents,
             context.precedence,
+            "MODEL",
+            false,
         ));
     }
 
@@ -518,6 +576,8 @@ pub fn analyze_for_test(
         "model.toml",
         &Intents::new(),
         &Precedence::new(&BTreeSet::new()),
+        "MODEL",
+        false,
     )
 }
 
@@ -535,7 +595,151 @@ pub fn analyze_with_intents(
         "model.toml",
         intents,
         precedence,
+        "MODEL",
+        false,
     )
+}
+
+/// One specification's contribution to the merge.
+pub struct FeatureModel {
+    pub feature: String,
+    pub directory: std::path::PathBuf,
+    pub declared: BTreeSet<String>,
+}
+
+/// Check every specification's constraints together.
+///
+/// This is the gate the whole layer exists to feed. Specifications that each pass on their own can
+/// still describe a system that cannot exist, and no per-feature check can see it: the contradiction
+/// only appears once both sets of constraints are in the same room.
+///
+/// The merge is a graph union on shared terms, which is why grounded vocabulary is a precondition
+/// rather than a nicety. Two features naming the same setting differently never share a component,
+/// so their conflict stays structurally invisible and the gate reports a confident pass.
+pub fn validate_merged(features: &[FeatureModel], context: &ModelContext<'_>) -> Outcome {
+    let mut findings = Vec::new();
+    let mut requirements: Vec<ModelledRequirement> = Vec::new();
+    let mut unmerged: Vec<String> = Vec::new();
+    let mut pairs: BTreeSet<(String, String)> = BTreeSet::new();
+    let source = ".specify/ears-sdd.toml".to_string();
+
+    for entry in features {
+        let path = entry.directory.join("model.toml");
+        let Ok(text) = std::fs::read_to_string(&path) else {
+            unmerged.push(entry.feature.clone());
+            continue;
+        };
+        let Ok(model) = toml::from_str::<ModelFile>(&text) else {
+            continue; // already reported by the per-feature run
+        };
+        pairs.extend(conflict_pairs(&model));
+        for (identifier, requirement_entry) in &model.requirements {
+            if !entry.declared.contains(identifier) {
+                continue;
+            }
+            if !model.effects.contains_key(&requirement_entry.then) {
+                continue;
+            }
+            let Ok(parsed) = requirement_entry
+                .when
+                .as_deref()
+                .map(guard::parse)
+                .transpose()
+            else {
+                continue;
+            };
+            requirements.push(ModelledRequirement {
+                identifier: identifier.clone(),
+                feature: entry.feature.clone(),
+                guard: parsed.unwrap_or(Guard::Always),
+                effect: requirement_entry.then.clone(),
+            });
+        }
+    }
+
+    let contributing: BTreeSet<&str> = requirements
+        .iter()
+        .map(|requirement| requirement.feature.as_str())
+        .collect();
+    if contributing.len() < 2 {
+        // Nothing to merge: one specification's constraints have already been checked against
+        // themselves, and a project using none of this layer should hear nothing from it.
+        return Outcome {
+            findings,
+            modelled: requirements.len(),
+            components: 0,
+        };
+    }
+
+    // Reported only once a merge actually happened. A specification left out of a real merge is a
+    // gap in what was checked, and a gap nobody can see is the failure this project exists to
+    // prevent -- but saying so in a project that declares no models at all is just noise.
+    for feature in &unmerged {
+        findings.push(
+            Finding::new(
+                "MERGE_UNMERGED",
+                "Specification declares no constraint model and was excluded from the merge."
+                    .to_string(),
+                source.clone(),
+            )
+            .feature(feature)
+            .severity(Severity::Advisory),
+        );
+    }
+
+    let components = decompose(&requirements, context.terms);
+    if let Err(message) = partition_is_sound(&requirements, &components) {
+        findings.push(crate::enumerate::internal_error(message, &source));
+        return Outcome {
+            findings,
+            modelled: requirements.len(),
+            components: components.len(),
+        };
+    }
+
+    for component in &components {
+        let spanning: BTreeSet<&str> = component
+            .requirements
+            .iter()
+            .map(|requirement| requirement.feature.as_str())
+            .collect();
+        if spanning.len() < 2 {
+            continue;
+        }
+        let shared: Vec<String> = component
+            .variables
+            .iter()
+            .map(|variable| variable.term.clone())
+            .collect();
+        for mut finding in analyze_component(
+            component,
+            &pairs,
+            context.budget,
+            &source,
+            context.intents,
+            context.precedence,
+            "MERGE",
+            true,
+        ) {
+            finding = finding
+                .detail("component", component.index as u64)
+                .detail(
+                    "specifications",
+                    serde_json::Value::Array(spanning.iter().map(|name| json!(name)).collect()),
+                )
+                .detail(
+                    "shared_terms",
+                    serde_json::Value::Array(shared.iter().map(|term| json!(term)).collect()),
+                );
+            findings.push(finding);
+        }
+    }
+
+    Outcome {
+        findings,
+        modelled: requirements.len(),
+        components: components.len(),
+    }
 }
 
 #[cfg(test)]
