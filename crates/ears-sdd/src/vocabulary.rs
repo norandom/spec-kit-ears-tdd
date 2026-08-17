@@ -25,7 +25,7 @@ pub const PROJECT_INTENTIONS: &str = ".specify/intentions.toml";
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(tag = "kind", rename_all = "lowercase")]
-enum Domain {
+pub enum Domain {
     Entity,
     Bool,
     Enum { values: Vec<String> },
@@ -34,18 +34,18 @@ enum Domain {
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
-struct Term {
-    label: String,
-    definition: String,
-    domain: Domain,
+pub struct Term {
+    pub label: String,
+    pub definition: String,
+    pub domain: Domain,
     #[serde(default)]
-    broader: Vec<String>,
+    pub broader: Vec<String>,
     #[serde(default)]
-    alt_labels: Vec<String>,
+    pub alt_labels: Vec<String>,
     #[serde(default)]
-    deprecated: bool,
+    pub deprecated: bool,
     #[serde(default)]
-    replaced_by: Option<String>,
+    pub replaced_by: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -126,6 +126,23 @@ pub fn validate(
     mappings: &[Mapping],
     feature_dirs: &[(String, &Path)],
 ) -> Vec<Finding> {
+    let (terms, mut findings) = load_terms(root, feature_dirs);
+    findings.extend(check_labels(&terms));
+    findings.extend(check_broader(&terms));
+    findings.extend(check_tags(&terms, mappings));
+    findings.extend(check_intentions(root, mappings));
+    findings
+}
+
+/// The merged vocabulary, project-level then feature-local.
+///
+/// Split out of `validate` because the constraint model needs the same term map to know each
+/// term's domain, and reading the files twice would let the two layers disagree about what was
+/// declared.
+pub fn load_terms(
+    root: &Path,
+    feature_dirs: &[(String, &Path)],
+) -> (BTreeMap<String, (Term, String)>, Vec<Finding>) {
     let mut findings = Vec::new();
     let mut terms: BTreeMap<String, (Term, String)> = BTreeMap::new();
 
@@ -177,11 +194,7 @@ pub fn validate(
         }
     }
 
-    findings.extend(check_labels(&terms));
-    findings.extend(check_broader(&terms));
-    findings.extend(check_tags(&terms, mappings));
-    findings.extend(check_intentions(root, mappings));
-    findings
+    (terms, findings)
 }
 
 fn check_labels(terms: &BTreeMap<String, (Term, String)>) -> Vec<Finding> {

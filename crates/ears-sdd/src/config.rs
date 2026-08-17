@@ -25,6 +25,14 @@ pub struct Config {
     /// reach. Kept separate from the marker so a broad exemption is visible in configuration rather
     /// than scattered through source.
     pub separation_exempt: Vec<String>,
+    /// The largest state space a single component may have before the validator declines to
+    /// evaluate it.
+    ///
+    /// A count rather than a duration, deliberately. A time limit makes the verdict depend on the
+    /// machine, and a gate whose answer changes with load is not evidence. Versioned here rather
+    /// than exposed as a flag, because raising it is a decision about how much the project is
+    /// willing to leave unchecked, not a knob for making a red build green.
+    pub state_space_budget: u64,
     #[serde(flatten)]
     pub unknown: BTreeMap<String, toml::Value>,
 }
@@ -49,6 +57,10 @@ impl Default for Config {
             .map(|s| s.to_string())
             .collect(),
             separation_exempt: Vec::new(),
+            // A million states is microseconds to enumerate and far above anything a component
+            // reaches once decomposition has done its work. A component that exceeds it is
+            // signalling a modelling problem rather than a performance one.
+            state_space_budget: 1_000_000,
             unknown: BTreeMap::new(),
         }
     }
