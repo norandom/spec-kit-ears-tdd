@@ -35,13 +35,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # The CLI is installed directly rather than through dagger/dagger-for-github. The action wraps
+      # the command in `dagger run`, which opens a session; invoking `dagger` inside that is a
+      # nested client and fails with "http2: frame too large". Installing the CLI runs the pipeline
+      # exactly as it runs on a developer machine, which is the property that makes it worth having.
+      - name: Install Dagger
+        run: |
+          curl -fsSL https://dl.dagger.io/dagger/install.sh \
+            | DAGGER_VERSION=0.21.8 BIN_DIR="$HOME/.local/bin" sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
       - name: fmt, clippy, test, build, dogfood
-        uses: dagger/dagger-for-github@v8.4.1
-        with:
-          # Pinned deliberately. Dagger is 0.x and its minor releases carry breaking changes.
-          version: "v0.21.8"
-          verb: run
-          args: dagger --progress plain -M ci/rust.dag
+        run: dagger --progress plain -M ci/rust.dag
+        env:
+          DAGGER_NO_NAG: "1"
 
   native:
     name: ${{ matrix.os }}
