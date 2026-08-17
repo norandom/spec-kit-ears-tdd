@@ -456,20 +456,65 @@ fn check_precedence_cycles(edges: &[Precedence]) -> Vec<Finding> {
 ///
 /// A blank vocabulary file is the most likely way this feature dies in adoption, so the tool pays
 /// the authoring cost rather than the author. The candidates are the subjects of existing EARS
-/// requirements -- the thing each one is *about* -- plus anything already written in backticks,
-/// which is how authors mark a term they consider significant.
+/// requirements -- the thing each one is *about* -- the conditions their When, While, Where and If
+/// clauses test, and anything already written in backticks, which is how authors mark a term they
+/// consider significant.
+///
+/// Conditions matter most and were the original omission. A constraint model's guards are built
+/// from them, so a scaffold that reads only subjects proposes the nouns a system is about and none
+/// of the states it distinguishes, which is most of what a vocabulary is for.
+///
+/// Terms already declared are excluded, so a second run is a diff rather than the same list again.
 ///
 /// Definitions are emitted empty on purpose. An empty definition fails the gate, so a scaffold
 /// cannot be committed unread; the alternative is a file of plausible-looking terms nobody has
 /// actually agreed on.
-pub fn scaffold(requirements: &[crate::requirements::Requirement]) -> String {
-    let mut candidates: BTreeMap<String, String> = BTreeMap::new();
+pub fn scaffold(
+    requirements: &[crate::requirements::Requirement],
+    existing: &BTreeMap<String, (Term, String)>,
+) -> String {
+    let mut candidates: BTreeMap<String, Candidate> = BTreeMap::new();
+    let mut collisions: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
+
+    // Slugs already spoken for, including the alternative labels a term declares. Re-proposing a
+    // term someone has already defined, or has already decided to call something else, is how a
+    // second run of this command becomes noise instead of a diff.
+    let mut taken: BTreeSet<String> = existing.keys().cloned().collect();
+    for (term, _) in existing.values() {
+        for label in &term.alt_labels {
+            taken.insert(slugify(label));
+        }
+    }
 
     for requirement in requirements {
-        for phrase in subject_phrases(&requirement.text) {
+        for (phrase, origin) in phrases(&requirement.text) {
             let slug = slugify(&phrase);
-            if slug.len() >= 3 {
-                candidates.entry(slug).or_insert(phrase);
+            if slug.len() < 3 || taken.contains(&slug) {
+                continue;
+            }
+            let entry = candidates.entry(slug.clone()).or_insert_with(|| Candidate {
+                label: phrase.clone(),
+                origin,
+                requirements: BTreeSet::new(),
+            });
+            // A term seen in a condition is a condition, whatever else it was seen as. That is the
+            // reading that matters downstream: conditions become guard terms.
+            if origin == Origin::Condition {
+                entry.origin = Origin::Condition;
+            }
+            entry.requirements.insert(format!(
+                "{}:{}",
+                requirement.feature, requirement.identifier
+            ));
+            if entry.label != phrase {
+                collisions
+                    .entry(slug)
+                    .or_default()
+                    .insert(entry.label.clone());
+                collisions
+                    .entry(slugify(&phrase))
+                    .or_default()
+                    .insert(phrase);
             }
         }
     }
@@ -479,53 +524,241 @@ pub fn scaffold(requirements: &[crate::requirements::Requirement]) -> String {
          #\n\
          # Every definition is empty and every empty definition fails the gate. That is deliberate:\n\
          # a scaffold you can commit without reading is a scaffold that grounds nothing. Delete the\n\
-         # terms that are not real concepts, then write a sentence for each one that survives.\n\n\
+         # terms that are not real concepts, then write a sentence for each one that survives.\n\
+         #\n\
+         # Terms already declared are not repeated here, so running this again after editing your\n\
+         # vocabulary proposes only what is new.\n\
+         #\n\
+         # Ordered by how many requirements mention each candidate, most first. That ordering is the\n\
+         # triage: the concepts your specifications actually turn on are at the top, and the tail is\n\
+         # where the extraction guessed wrong and you delete.\n\n\
          schema_version = \"1.0\"\n",
     );
-    for (slug, label) in &candidates {
+
+    // Said once, at the top, because it is the only number that helps you decide where to stop
+    // reading. A phrase several requirements share is usually a concept; a phrase one requirement
+    // uses is as likely to be a fragment the extraction guessed at.
+    let repeated = candidates
+        .values()
+        .filter(|candidate| candidate.requirements.len() > 1)
+        .count();
+    if !candidates.is_empty() {
         out.push_str(&format!(
-            "\n[terms.{slug}]\nlabel = \"{label}\"\ndefinition = \"\"\ndomain = {{ kind = \"entity\" }}\n"
+            "\n# {repeated} candidate(s) appear in more than one requirement and come first.\n\
+             # The remaining {} appear once, and that tail is where the extraction is least sure.\n",
+            candidates.len() - repeated
         ));
     }
-    if candidates.is_empty() {
-        out.push_str("\n# No candidates found. Requirements may not be in EARS form yet.\n");
+
+    // Frequency first, then slug, so the output is stable for the same input.
+    let mut ranked: Vec<(&String, &Candidate)> = candidates.iter().collect();
+    ranked.sort_by(|left, right| {
+        right
+            .1
+            .requirements
+            .len()
+            .cmp(&left.1.requirements.len())
+            .then_with(|| left.0.cmp(right.0))
+    });
+
+    for (slug, candidate) in ranked {
+        let count = candidate.requirements.len();
+        let sample: Vec<&str> = candidate
+            .requirements
+            .iter()
+            .take(3)
+            .map(String::as_str)
+            .collect();
+        let more = count.saturating_sub(sample.len());
+        let trailer = if more > 0 {
+            format!(" and {more} more")
+        } else {
+            String::new()
+        };
+        out.push_str(&format!(
+            "\n# {count} requirement(s): {}{trailer}\n# seen as: {}\n[terms.{slug}]\nlabel = \"{}\"\ndefinition = \"\"\ndomain = {{ kind = \"{}\" }}\n",
+            sample.join(", "),
+            candidate.origin.describe(),
+            candidate.label,
+            candidate.origin.domain(),
+        ));
     }
+
+    if candidates.is_empty() {
+        out.push_str(
+            "\n# No new candidates. Either every term is already declared, or the requirements are\n\
+             # not in EARS form yet and there is nothing structural to read.\n",
+        );
+    }
+
+    let real: Vec<_> = collisions
+        .iter()
+        .filter(|(_, labels)| labels.len() > 1)
+        .collect();
+    if !real.is_empty() {
+        out.push_str(
+            "\n# Distinct phrases that reduce to the same identifier. Each pair is either one\n\
+             # concept written two ways, which is what alt_labels records, or two concepts that need\n\
+             # different names. It is reported rather than silently resolved because guessing here\n\
+             # is how a vocabulary acquires a term nobody meant.\n",
+        );
+        for (slug, labels) in real {
+            let joined: Vec<&str> = labels.iter().map(String::as_str).collect();
+            out.push_str(&format!("#   {slug}: {}\n", joined.join(" | ")));
+        }
+    }
+
     out
 }
 
-/// The noun phrase a requirement is about: what stands between the EARS condition and `shall`,
-/// plus any backticked span anywhere in the sentence.
-fn subject_phrases(sentence: &str) -> Vec<String> {
-    let mut phrases = Vec::new();
+/// Where a candidate was found, which is the only honest basis for guessing its domain.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Origin {
+    /// Inside a When, While, Where or If clause. These are the phrases that become guard terms, so
+    /// a boolean is the better default even though it is still a guess.
+    Condition,
+    /// The thing the requirement is about, which is almost always a thing rather than a state.
+    Subject,
+    /// Written in backticks, which is how an author marks a term they already consider significant.
+    Marked,
+}
+
+impl Origin {
+    fn domain(self) -> &'static str {
+        match self {
+            Origin::Condition => "bool",
+            Origin::Subject | Origin::Marked => "entity",
+        }
+    }
+
+    fn describe(self) -> &'static str {
+        match self {
+            Origin::Condition => "a condition, so it is likely a guard term",
+            Origin::Subject => "the subject of a requirement",
+            Origin::Marked => "marked in backticks by the author",
+        }
+    }
+}
+
+struct Candidate {
+    label: String,
+    origin: Origin,
+    requirements: BTreeSet<String>,
+}
+
+/// Leading words that are never part of a concept's name. Stripped rather than rejected, because
+/// the phrase after them usually is the concept.
+const LEADING_NOISE: [&str; 11] = [
+    "the ", "a ", "an ", "and ", "or ", "its ", "their ", "every ", "each ", "any ", "that ",
+];
+
+/// Candidate phrases in a requirement, each with where it came from.
+///
+/// Three sources, and the first is the one the previous implementation missed entirely. A guard in
+/// a constraint model is built from the condition clause, so a scaffold that reads only subjects
+/// proposes the nouns a system is about and none of the states it distinguishes, which is most of
+/// what the vocabulary is for.
+fn phrases(sentence: &str) -> Vec<(String, Origin)> {
+    let mut found = Vec::new();
+
+    if let Some(condition) = condition_clause(sentence) {
+        if let Some(cleaned) = clean(&condition, 8) {
+            found.push((cleaned, Origin::Condition));
+        }
+    }
 
     let lower = sentence.to_lowercase();
     if let Some(shall) = lower.find(" shall ") {
         let head = &sentence[..shall];
-        // Drop the leading EARS clause, which describes the trigger rather than the subject.
+        // Drop the trigger, which `condition_clause` has already taken, and keep what it qualifies.
         let subject = head.rsplit(", then ").next().unwrap_or(head);
-        let subject = subject.rsplit(',').next().unwrap_or(subject);
-        let cleaned = subject
-            .trim()
-            .trim_start_matches("The ")
-            .trim_start_matches("the ")
-            .trim();
-        if !cleaned.is_empty() && cleaned.split_whitespace().count() <= 6 {
-            phrases.push(cleaned.to_string());
+        let subject = subject.rsplit(", ").next().unwrap_or(subject);
+        if let Some(cleaned) = clean(subject, 6) {
+            found.push((cleaned, Origin::Subject));
         }
     }
 
+    for span in backticked(sentence) {
+        if let Some(cleaned) = clean(&span, 6) {
+            found.push((cleaned, Origin::Marked));
+        }
+    }
+
+    found
+}
+
+/// The text of a When, While, Where or If clause, without its keyword or its closing comma.
+fn condition_clause(sentence: &str) -> Option<String> {
+    let trimmed = sentence.trim();
+    let lower = trimmed.to_lowercase();
+    let keyword = ["when ", "while ", "where ", "if "]
+        .into_iter()
+        .find(|word| lower.starts_with(word))?;
+
+    let body = &trimmed[keyword.len()..];
+    // `If X, then ...` closes with `, then`; the others close at the first comma. Taking the first
+    // rather than the last keeps a condition that itself contains a list from swallowing the
+    // response.
+    let end = body
+        .to_lowercase()
+        .find(", then ")
+        .or_else(|| body.find(','))?;
+    Some(body[..end].to_string())
+}
+
+/// Balanced backticked spans.
+///
+/// Counting the delimiters first is what makes this robust. An odd count means the pairing is
+/// ambiguous, and pairing anyway is how a scaffold ends up proposing a term like `and jshell`: the
+/// scan latches onto a closing delimiter as though it opened a span and captures the prose between
+/// two real spans. Refusing the whole sentence loses a little and invents nothing.
+fn backticked(sentence: &str) -> Vec<String> {
+    if sentence.matches('`').count() % 2 != 0 {
+        return Vec::new();
+    }
+    let mut spans = Vec::new();
     let mut rest = sentence;
     while let Some(open) = rest.find('`') {
         let after = &rest[open + 1..];
         let Some(close) = after.find('`') else { break };
         let span = after[..close].trim();
-        if !span.is_empty() && span.split_whitespace().count() <= 6 {
-            phrases.push(span.to_string());
+        if !span.is_empty() {
+            spans.push(span.to_string());
         }
         rest = &after[close + 1..];
     }
+    spans
+}
 
-    phrases
+/// Normalise a candidate phrase, or reject it.
+fn clean(phrase: &str, limit: usize) -> Option<String> {
+    // Backticks are markup, not part of the name. Leaving them in makes the same term arrive twice,
+    // once from the marked span and once from the surrounding clause, differing only by punctuation
+    // that slugifies away.
+    let without_markup = phrase.replace('`', " ");
+    let mut current = without_markup
+        .trim()
+        .trim_end_matches(['.', ',', ';', ':'])
+        .trim();
+
+    // Repeatedly, because "and the registry" needs both words removed.
+    loop {
+        let lower = current.to_lowercase();
+        match LEADING_NOISE
+            .iter()
+            .find(|prefix| lower.starts_with(*prefix))
+        {
+            Some(prefix) => current = current[prefix.len()..].trim_start(),
+            None => break,
+        }
+    }
+
+    // A phrase spanning a comma is two phrases the extraction failed to separate, and a phrase this
+    // long is a sentence fragment rather than a name for something.
+    if current.is_empty() || current.contains(',') || current.split_whitespace().count() > limit {
+        return None;
+    }
+    Some(current.to_string())
 }
 
 fn slugify(value: &str) -> String {
@@ -561,13 +794,17 @@ mod tests {
         }
     }
 
+    fn nothing_declared() -> BTreeMap<String, (Term, String)> {
+        BTreeMap::new()
+    }
+
     #[test]
     fn scaffold_proposes_terms_from_prose() {
         let requirements = vec![
             requirement("When the digest differs, the workstation manager shall stop."),
             requirement("The `captured policy` shall be pinned with its digest."),
         ];
-        let out = scaffold(&requirements);
+        let out = scaffold(&requirements, &nothing_declared());
 
         // the subject of an event-driven requirement, taken from after the condition clause
         assert!(out.contains("[terms.workstation-manager]"), "{out}");
@@ -577,8 +814,96 @@ mod tests {
         assert!(out.contains("definition = \"\""), "{out}");
     }
 
+    /// The omission that made the command mostly useless: guards are built from conditions, and
+    /// none of them were being proposed.
+    #[test]
+    fn a_condition_is_proposed_and_defaults_to_boolean() {
+        let requirements = vec![requirement(
+            "While the legacy mirror is enabled, the registry shall accept the artifact.",
+        )];
+        let out = scaffold(&requirements, &nothing_declared());
+
+        assert!(out.contains("[terms.legacy-mirror-is-enabled]"), "{out}");
+        let block = out
+            .split("[terms.legacy-mirror-is-enabled]")
+            .nth(1)
+            .expect("the term is present");
+        assert!(
+            block.contains("kind = \"bool\""),
+            "a condition should default to boolean, got: {block}"
+        );
+    }
+
+    #[test]
+    fn declared_terms_are_not_proposed_again() {
+        let requirements = vec![requirement(
+            "When the digest differs, the workstation manager shall stop.",
+        )];
+        let mut declared = BTreeMap::new();
+        declared.insert(
+            "workstation-manager".to_string(),
+            (
+                Term {
+                    label: "Workstation manager".to_string(),
+                    definition: "The thing that manages the workstation.".to_string(),
+                    domain: Domain::Entity,
+                    broader: Vec::new(),
+                    alt_labels: vec!["workstation orchestrator".to_string()],
+                    deprecated: false,
+                    replaced_by: None,
+                },
+                ".specify/vocabulary.toml".to_string(),
+            ),
+        );
+
+        let out = scaffold(&requirements, &declared);
+
+        assert!(!out.contains("[terms.workstation-manager]"), "{out}");
+        // An alternative label is a decision about naming, so proposing it as a new term would
+        // reopen a question someone has already closed.
+        assert!(!out.contains("[terms.workstation-orchestrator]"), "{out}");
+    }
+
+    /// Unbalanced delimiters used to make the scan treat a closing backtick as an opening one and
+    /// capture the prose between two real spans, which is where `and jshell` came from.
+    #[test]
+    fn an_unbalanced_backtick_proposes_nothing_rather_than_prose() {
+        let spans = backticked("exposes `javac`, `java`, and `jshell");
+        assert!(spans.is_empty(), "{spans:?}");
+
+        let balanced = backticked("exposes `javac`, `java`, and `jshell`");
+        assert_eq!(balanced, vec!["javac", "java", "jshell"]);
+    }
+
+    /// Distinct identifiers, because provenance is counted per requirement and the shared helper
+    /// gives every requirement the same one.
+    fn numbered(identifier: &str, text: &str) -> Requirement {
+        Requirement {
+            identifier: identifier.to_string(),
+            ..requirement(text)
+        }
+    }
+
+    #[test]
+    fn candidates_are_ordered_by_how_many_requirements_mention_them() {
+        let requirements = vec![
+            numbered("R-001", "The registry shall accept the artifact."),
+            numbered("R-002", "The registry shall reject the artifact."),
+            numbered("R-003", "The mirror shall replicate the artifact."),
+        ];
+        let out = scaffold(&requirements, &nothing_declared());
+
+        let registry = out.find("[terms.registry]").expect("registry proposed");
+        let mirror = out.find("[terms.mirror]").expect("mirror proposed");
+        assert!(
+            registry < mirror,
+            "the term used twice must rank above the term used once:\n{out}"
+        );
+        assert!(out.contains("2 requirement(s)"), "{out}");
+    }
+
     #[test]
     fn scaffold_says_so_when_it_finds_nothing() {
-        assert!(scaffold(&[]).contains("No candidates found"));
+        assert!(scaffold(&[], &nothing_declared()).contains("No new candidates"));
     }
 }

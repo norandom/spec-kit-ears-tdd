@@ -276,5 +276,19 @@ pub fn scaffold_vocabulary(root: &Path, feature: Option<&str>, all: bool) -> Str
         let (found, _) = requirements::parse(root, &location.path, &location.feature);
         requirements.extend(found);
     }
-    vocabulary::scaffold(&requirements)
+    // The existing vocabulary is loaded so the scaffold can leave it out. Without this a second run
+    // reproposes every term the author has already defined, and every term they deliberately
+    // deleted, which makes the command useful exactly once.
+    let feature_dirs: Vec<(String, &Path)> = discovered
+        .specs
+        .iter()
+        .filter_map(|location| {
+            location
+                .path
+                .parent()
+                .map(|directory| (location.feature.clone(), directory))
+        })
+        .collect();
+    let (existing, _) = vocabulary::load_terms(root, &feature_dirs);
+    vocabulary::scaffold(&requirements, &existing)
 }
