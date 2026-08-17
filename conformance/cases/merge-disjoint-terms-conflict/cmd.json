@@ -1,0 +1,9 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan",
+    "--all"
+  ],
+  "note": "disjoint guards still interact when the effects conflict: maintenance-window and operating-mode == 'maintenance' can hold at once, forcing allow_write and block_write together. Decomposing on shared terms alone splits these into two satisfiable components and reports a pass that was never earned."
+}

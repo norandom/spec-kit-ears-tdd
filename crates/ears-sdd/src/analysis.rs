@@ -156,10 +156,39 @@ fn over_budget(component: &Component, budget: u64, source: &str) -> Finding {
 ///
 /// Unconditional ones deliberately appear in every component, because their guard always holds and
 /// isolating them would lose exactly the conflicts they can take part in.
+///
+/// Counting memberships is not enough on its own. A partition can give every requirement exactly
+/// one component and still be unsound, by separating two requirements whose effects conflict: each
+/// component then comes back satisfiable and the contradiction is never looked for. That is the
+/// failure this function missed once, so the conflict reachability check below is the part that
+/// actually earns it.
 pub fn partition_is_sound(
     requirements: &[ModelledRequirement],
     components: &[Component],
+    conflict_pairs: &BTreeSet<(String, String)>,
 ) -> Result<(), String> {
+    for (index, left) in requirements.iter().enumerate() {
+        for right in &requirements[index + 1..] {
+            if !conflicts(conflict_pairs, &left.effect, &right.effect) {
+                continue;
+            }
+            let together = components.iter().any(|component| {
+                let has = |target: &ModelledRequirement| {
+                    component.requirements.iter().any(|member| {
+                        member.identifier == target.identifier && member.feature == target.feature
+                    })
+                };
+                has(left) && has(right)
+            });
+            if !together {
+                return Err(format!(
+                    "{}:{} and {}:{} assert conflicting effects but share no component",
+                    left.feature, left.identifier, right.feature, right.identifier
+                ));
+            }
+        }
+    }
+
     for requirement in requirements {
         let unconditional = requirement.guard.terms().is_empty();
         // Compared on feature and identifier together. Identifiers restart at the first number in
@@ -515,8 +544,11 @@ pub fn validate(
         findings.extend(check_types(requirement, context.terms, &source));
     }
 
-    let components = decompose(&requirements, context.terms);
-    if let Err(message) = partition_is_sound(&requirements, &components) {
+    // Built before decomposition, which needs it: requirements asserting conflicting effects have
+    // to land in the same component or the conflict is never looked for.
+    let pairs = conflict_pairs(&model);
+    let components = decompose(&requirements, context.terms, &pairs);
+    if let Err(message) = partition_is_sound(&requirements, &components, &pairs) {
         findings.push(crate::enumerate::internal_error(message, &source));
         return Outcome {
             findings,
@@ -525,7 +557,6 @@ pub fn validate(
         };
     }
 
-    let pairs = conflict_pairs(&model);
     for component in &components {
         findings.extend(analyze_component(
             component,
@@ -687,8 +718,8 @@ pub fn validate_merged(features: &[FeatureModel], context: &ModelContext<'_>) ->
         );
     }
 
-    let components = decompose(&requirements, context.terms);
-    if let Err(message) = partition_is_sound(&requirements, &components) {
+    let components = decompose(&requirements, context.terms, &pairs);
+    if let Err(message) = partition_is_sound(&requirements, &components, &pairs) {
         findings.push(crate::enumerate::internal_error(message, &source));
         return Outcome {
             findings,
@@ -888,14 +919,81 @@ mod tests {
             requirement("R-002", "b", "persist"),
             requirement("R-003", "", "reject"),
         ];
-        let components = decompose(&requirements, &terms);
+        let components = decompose(&requirements, &terms, &BTreeSet::new());
         assert_eq!(components.len(), 2);
-        assert!(partition_is_sound(&requirements, &components).is_ok());
+        assert!(partition_is_sound(&requirements, &components, &BTreeSet::new()).is_ok());
         for component in &components {
             assert!(component
                 .requirements
                 .iter()
                 .any(|r| r.identifier == "R-003"));
         }
+    }
+
+    /// The cross-specification shape: two features guard on different conditions and assert effects
+    /// that cannot both hold. Decomposing by shared guard terms alone puts them in separate
+    /// components, each satisfiable, and the merge reports a pass it has not earned.
+    ///
+    /// This is not hypothetical. It shipped, and a two-specification project modelling an exploit
+    /// mitigation against a native toolchain reported no findings at all.
+    #[test]
+    fn conflicting_effects_share_a_component_even_with_disjoint_guards() {
+        let terms = BTreeMap::new();
+        let requirements = vec![
+            requirement("R-001", "mitigation-enforced", "block_dynamic_code"),
+            requirement("R-002", "toolchain-building", "permit_dynamic_code"),
+        ];
+        let pairs = conflicting("block_dynamic_code", "permit_dynamic_code");
+
+        let components = decompose(&requirements, &terms, &pairs);
+
+        assert_eq!(
+            components.len(),
+            1,
+            "conflicting requirements must be evaluated together"
+        );
+        assert!(partition_is_sound(&requirements, &components, &pairs).is_ok());
+    }
+
+    /// Non-conflicting requirements must still decompose, or the optimisation is gone and every
+    /// project pays the state space of its whole specification set at once.
+    #[test]
+    fn disjoint_guards_still_decompose_when_no_effects_conflict() {
+        let terms = BTreeMap::new();
+        let requirements = vec![
+            requirement("R-001", "mitigation-enforced", "block_dynamic_code"),
+            requirement("R-002", "toolchain-building", "emit_audit_entry"),
+        ];
+
+        let components = decompose(&requirements, &terms, &BTreeSet::new());
+
+        assert_eq!(components.len(), 2);
+    }
+
+    /// The contract has to reject the partition the old decomposition produced, not merely accept
+    /// the new one. Without this, a future change could reintroduce the split silently.
+    #[test]
+    fn the_contract_rejects_a_partition_that_separates_conflicting_requirements() {
+        let terms = BTreeMap::new();
+        let requirements = vec![
+            requirement("R-001", "mitigation-enforced", "block_dynamic_code"),
+            requirement("R-002", "toolchain-building", "permit_dynamic_code"),
+        ];
+        let pairs = conflicting("block_dynamic_code", "permit_dynamic_code");
+        // Exactly what decompose returned before the fix: split by guard term.
+        let split = decompose(&requirements, &terms, &BTreeSet::new());
+        assert_eq!(
+            split.len(),
+            2,
+            "precondition: the old partition splits them"
+        );
+
+        let verdict = partition_is_sound(&requirements, &split, &pairs);
+
+        assert!(
+            verdict.is_err(),
+            "a partition hiding a conflict must not be reported as sound"
+        );
+        assert!(verdict.unwrap_err().contains("share no component"));
     }
 }

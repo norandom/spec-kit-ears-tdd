@@ -5,5 +5,5 @@
     "plan",
     "--all"
   ],
-  "note": "requirements sharing no term cannot interact and form separate components"
+  "note": "requirements sharing no term and asserting no conflicting effect form separate components; see merge-disjoint-terms-conflict for why the second half of that condition is required"
 }

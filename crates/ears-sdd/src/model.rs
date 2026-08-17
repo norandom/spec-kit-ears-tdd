@@ -253,9 +253,26 @@ impl DisjointSets {
 /// An unconditional requirement joins *every* component. Its guard always holds, so it can conflict
 /// with anything, and isolating it in a component of its own would silently lose exactly those
 /// conflicts. That is the one case where the "shares a term" rule is not the whole story.
+/// Whether two requirements assert effects that cannot both hold.
+///
+/// `conflicts` is the symmetric, normalized pair set built from the effect declarations.
+fn effects_conflict(
+    conflicts: &BTreeSet<(String, String)>,
+    left: &ModelledRequirement,
+    right: &ModelledRequirement,
+) -> bool {
+    let key = if left.effect <= right.effect {
+        (left.effect.clone(), right.effect.clone())
+    } else {
+        (right.effect.clone(), left.effect.clone())
+    };
+    conflicts.contains(&key)
+}
+
 pub fn decompose(
     requirements: &[ModelledRequirement],
     terms: &BTreeMap<String, (Term, String)>,
+    conflicts: &BTreeSet<(String, String)>,
 ) -> Vec<Component> {
     let mut sets = DisjointSets::new();
     for requirement in requirements {
@@ -265,6 +282,32 @@ pub fn decompose(
         }
         for term in &mentioned {
             sets.find(term);
+        }
+    }
+
+    // Sharing a guard term is not the only way two requirements can depend on each other. Two that
+    // assert conflicting effects must be evaluated together, because the assignment making both
+    // guards true forces both effects, and that is a contradiction no matter how unrelated the
+    // guards look.
+    //
+    // Splitting them leaves each component satisfiable and the contradiction invisible, which is
+    // the worst available outcome: the gate reports a pass it has not earned. It is also the
+    // ordinary cross-specification shape, since two features naturally guard on different
+    // conditions -- one on `mitigation-enforced`, the other on `toolchain-building`.
+    //
+    // Requirements with empty guards need no union: they already join every component.
+    for (index, left) in requirements.iter().enumerate() {
+        for right in &requirements[index + 1..] {
+            if !effects_conflict(conflicts, left, right) {
+                continue;
+            }
+            let (Some(left_term), Some(right_term)) = (
+                left.guard.terms().into_iter().next(),
+                right.guard.terms().into_iter().next(),
+            ) else {
+                continue;
+            };
+            sets.union(&left_term, &right_term);
         }
     }
 
