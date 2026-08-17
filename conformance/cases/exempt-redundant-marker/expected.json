@@ -17,11 +17,11 @@
   },
   "findings": [
     {
-      "code": "PRODUCTION_ROOT_MISSING",
-      "path": "app",
+      "code": "SEPARATION_EXEMPT_UNUSED",
+      "path": "src/lib.rs",
       "feature": null,
       "requirement": null,
-      "line": null,
+      "line": 1,
       "severity": "warning"
     }
   ]

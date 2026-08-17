@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "final"
+  ],
+  "note": "copied requirement prose is exemptible on the same terms as an identifier"
+}

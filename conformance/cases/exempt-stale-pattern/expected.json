@@ -17,8 +17,8 @@
   },
   "findings": [
     {
-      "code": "PRODUCTION_ROOT_MISSING",
-      "path": "app",
+      "code": "SEPARATION_EXEMPT_STALE",
+      "path": ".specify/ears-sdd.toml",
       "feature": null,
       "requirement": null,
       "line": null,

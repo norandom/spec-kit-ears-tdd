@@ -13,6 +13,7 @@ use std::collections::BTreeSet;
 use std::path::Path;
 
 use crate::config::Config;
+use crate::exemptions;
 use crate::report::{relative, Finding, Severity};
 use crate::requirements::Requirement;
 
@@ -22,6 +23,30 @@ const MIN_PROSE_CHARS: usize = 40;
 pub struct Outcome {
     pub findings: Vec<Finding>,
     pub files_scanned: usize,
+    /// How many separation findings an exemption removed. Reported so the mechanism cannot quietly
+    /// grow: an escape hatch that hides its own use turns a loud gate into a silent one.
+    pub exempted: usize,
+}
+
+/// Where copied prose begins, approximately.
+///
+/// Detection runs over the whole file normalized, so that a requirement sentence reformatted across
+/// several lines is still caught. That costs the line number, which an exemption marker needs. The
+/// first line substantial enough to be part of the sentence is close enough to point a reader at,
+/// and a wrong-by-one line is better than a finding nobody can locate.
+fn locate_prose(content: &str, normalized_requirement: &str) -> Option<usize> {
+    content.lines().enumerate().find_map(|(index, line)| {
+        let normalized = normalized_prose(line);
+        if normalized.chars().count() < 20 {
+            return None;
+        }
+        // Both directions matter. The whole sentence on one line means that line contains the
+        // requirement; a sentence reflowed across several lines means each line is a fragment of
+        // it. Checking only the second case misses the common one entirely.
+        let whole_sentence_here = normalized.contains(normalized_requirement);
+        let fragment_of_sentence = normalized_requirement.contains(&normalized);
+        (whole_sentence_here || fragment_of_sentence).then_some(index + 1)
+    })
 }
 
 fn normalized_prose(value: &str) -> String {
@@ -52,6 +77,7 @@ pub fn validate(root: &Path, requirements: &[Requirement], config: &Config) -> O
         return Outcome {
             findings,
             files_scanned,
+            exempted: 0,
         };
     }
 
@@ -68,9 +94,16 @@ pub fn validate(root: &Path, requirements: &[Requirement], config: &Config) -> O
             return Outcome {
                 findings,
                 files_scanned,
+                exempted: 0,
             };
         }
     };
+
+    let (exempt_paths, mut pattern_findings) =
+        exemptions::build_exempt_set(&config.separation_exempt);
+    findings.append(&mut pattern_findings);
+    let mut pattern_matched = false;
+    let mut exempted = 0usize;
 
     for declared_root in &config.production_roots {
         let production_root = root.join(declared_root);
@@ -152,14 +185,64 @@ pub fn validate(root: &Path, requirements: &[Requirement], config: &Config) -> O
                 continue;
             };
             files_scanned += 1;
+            let mut raw = Vec::new();
             scan(
-                &mut findings,
+                &mut raw,
                 &automaton,
                 &identifiers,
                 requirements,
                 &content,
                 &display,
             );
+
+            let path_exempt = exempt_paths.is_match(&display);
+            pattern_matched |= path_exempt;
+            let mut markers = exemptions::markers(&content);
+
+            for finding in raw {
+                if path_exempt {
+                    exempted += 1;
+                    findings.push(exemptions::applied(
+                        &display,
+                        finding.line,
+                        "matched a configured separation_exempt pattern",
+                    ));
+                    continue;
+                }
+                // A marker with no reason is not a marker. Without that rule the mechanism becomes
+                // a one-word way to silence the gate, which is the outcome it exists to prevent.
+                let reason = finding
+                    .line
+                    .and_then(|line| exemptions::covering(&mut markers, line))
+                    .and_then(|marker| {
+                        marker.reason.clone().inspect(|_| {
+                            marker.used = true;
+                        })
+                    });
+                match reason {
+                    Some(reason) => {
+                        exempted += 1;
+                        findings.push(exemptions::applied(&display, finding.line, &reason));
+                    }
+                    None => findings.push(finding),
+                }
+            }
+
+            for marker in &markers {
+                match (&marker.reason, marker.used) {
+                    (None, _) => {
+                        findings.push(exemptions::marker_without_reason(&display, marker.line))
+                    }
+                    (Some(_), false) => findings.push(exemptions::redundant(&display, marker.line)),
+                    (Some(_), true) => {}
+                }
+            }
+        }
+    }
+
+    if !pattern_matched {
+        for pattern in &config.separation_exempt {
+            findings.push(exemptions::stale_pattern(pattern));
         }
     }
 
@@ -168,6 +251,7 @@ pub fn validate(root: &Path, requirements: &[Requirement], config: &Config) -> O
     Outcome {
         findings,
         files_scanned,
+        exempted,
     }
 }
 
@@ -220,15 +304,17 @@ fn scan(
         let normalized = normalized_prose(&requirement.text);
         if normalized.chars().count() >= MIN_PROSE_CHARS && normalized_content.contains(&normalized)
         {
-            findings.push(
-                Finding::new(
-                    "CODE_REQ_PROSE",
-                    "Production code contains copied requirement prose.",
-                    display.to_string(),
-                )
-                .feature(&requirement.feature)
-                .requirement(&requirement.identifier),
-            );
+            let mut finding = Finding::new(
+                "CODE_REQ_PROSE",
+                "Production code contains copied requirement prose.",
+                display.to_string(),
+            )
+            .feature(&requirement.feature)
+            .requirement(&requirement.identifier);
+            if let Some(line) = locate_prose(content, &normalized) {
+                finding = finding.line(line);
+            }
+            findings.push(finding);
         }
     }
 }

@@ -139,6 +139,11 @@ pub struct Summary {
     /// is absent elsewhere rather than reported as a misleading zero.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub tasks_covered: Option<usize>,
+    /// Separation findings an exemption removed. Present only on the phase that scans production
+    /// code, and present even when zero, so a reader can tell "none were exempted" from "the scan
+    /// did not run".
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub separation_exempted: Option<usize>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

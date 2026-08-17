@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "final"
+  ],
+  "note": "a configured pattern reaches files a per-line marker cannot"
+}

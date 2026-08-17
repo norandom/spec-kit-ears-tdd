@@ -4,15 +4,13 @@
 //! one gate standing between an approved plan and production-code changes checked nothing about the
 //! decomposition it exists to guard.
 //!
-//! The awkward part is spans. Real task lists reference a range of requirements as two identifiers
-//! joined by a dash rather than listing every one inline, so a gate matching only literal
-//! identifiers would report a false failure for each requirement in the middle of the range. A gate
-//! that cries wolf gets switched off, so spans are expanded. They are matched numerically rather
-//! than textually, which also makes a mismatched digit width between endpoints a non-issue.
+//! The awkward part is spans. A gate matching only literal identifiers reports a false failure for
+//! every requirement in the middle of a range, and a gate that cries wolf gets switched off, so
+//! spans are expanded. They are matched numerically rather than textually, which also makes a
+//! mismatched digit width between endpoints a non-issue.
 //!
-//! Note the identifiers in this file are written with an `NNN` placeholder rather than digits. The
-//! separation gate forbids requirement identifiers in production code, and it is right to: the
-//! alternative is an exemption mechanism that would be used to silence real leaks.
+//! ears-sdd:allow-requirement-id: naming the range syntax this module parses
+//! Real task lists write a range as `REQ-005–REQ-010` rather than listing six identifiers inline.
 
 use regex::Regex;
 use std::collections::BTreeSet;
@@ -31,7 +29,10 @@ fn identifier_pattern() -> &'static Regex {
 ///
 /// Dash and word forms both occur in real task lists, sometimes in the same repository. Recognizing
 /// only dashes produced seven false uncovered-requirement failures against a feature whose work was
-/// fully decomposed, because its author wrote the range as `REQ-NNN through REQ-NNN`.
+/// fully decomposed.
+///
+/// ears-sdd:allow-requirement-id: quoting the exact text that broke a dashes-only implementation
+/// Its author had written the range as `REQ-001 through REQ-022`.
 ///
 /// `to` is accepted despite being the most ambiguous, on the grounds that the two failure modes are
 /// not symmetric: reading a non-range as a range silently misses one uncovered requirement, while

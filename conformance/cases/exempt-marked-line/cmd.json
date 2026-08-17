@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "final"
+  ],
+  "note": "a marked line with a reason suppresses the finding and is reported as an advisory"
+}

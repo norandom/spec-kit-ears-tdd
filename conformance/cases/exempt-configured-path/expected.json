@@ -11,18 +11,18 @@
     "requirements": 1,
     "specs_examined": 1,
     "errors": 0,
-    "warnings": 1,
-    "advisories": 0,
-    "separation_exempted": 0
+    "warnings": 0,
+    "advisories": 1,
+    "separation_exempted": 1
   },
   "findings": [
     {
-      "code": "PRODUCTION_ROOT_MISSING",
-      "path": "app",
+      "code": "SEPARATION_EXEMPT",
+      "path": "src/fixtures/sample.rs",
       "feature": null,
       "requirement": null,
-      "line": null,
-      "severity": "warning"
+      "line": 1,
+      "severity": "advisory"
     }
   ]
 }

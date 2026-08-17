@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "final"
+  ],
+  "note": "a marker carrying no reason is rejected and the separation finding stands"
+}

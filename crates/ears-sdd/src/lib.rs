@@ -2,6 +2,7 @@ pub mod assets;
 pub mod config;
 pub mod discovery;
 pub mod ears;
+pub mod exemptions;
 pub mod init;
 pub mod report;
 pub mod requirements;
@@ -95,6 +96,7 @@ pub fn validate(request: Request<'_>) -> Report {
     }
 
     let mut production_files_scanned = 0usize;
+    let mut separation_exempted: Option<usize> = None;
     if request.phase == Phase::Final {
         if config.test_command.trim().is_empty() {
             findings.push(Finding::new(
@@ -105,6 +107,7 @@ pub fn validate(request: Request<'_>) -> Report {
         }
         let outcome = separation::validate(root, &all_requirements, &config);
         production_files_scanned = outcome.files_scanned;
+        separation_exempted = Some(outcome.exempted);
         findings.extend(outcome.findings);
     }
 
@@ -142,6 +145,7 @@ pub fn validate(request: Request<'_>) -> Report {
             warnings,
             advisories,
             tasks_covered: (request.phase == Phase::Tasks).then_some(tasks_covered),
+            separation_exempted,
         },
         features,
         findings,

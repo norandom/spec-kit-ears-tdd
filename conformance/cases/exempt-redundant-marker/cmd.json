@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "final"
+  ],
+  "note": "an exemption that suppresses nothing is dead weight and is reported"
+}

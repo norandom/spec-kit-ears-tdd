@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "final"
+  ],
+  "note": "an unmarked identifier in production code still fails, which is the whole point"
+}

@@ -7,30 +7,30 @@
     "value": "specs/*/spec.md"
   },
   "summary": {
-    "features": 2,
-    "requirements": 2,
-    "specs_examined": 2,
-    "errors": 2,
-    "warnings": 0,
+    "features": 1,
+    "requirements": 1,
+    "specs_examined": 1,
+    "errors": 1,
+    "warnings": 1,
     "advisories": 0,
     "separation_exempted": 0
   },
   "findings": [
     {
       "code": "CODE_REQ_ID",
-      "path": "src/leak.py",
+      "path": "src/lib.rs",
       "feature": "specs/001-alpha",
       "requirement": "REQ-001",
       "line": 1,
       "severity": "error"
     },
     {
-      "code": "CODE_REQ_ID",
-      "path": "src/leak.py",
-      "feature": "specs/002-bravo",
-      "requirement": "REQ-001",
+      "code": "SEPARATION_EXEMPT_NO_REASON",
+      "path": "src/lib.rs",
+      "feature": null,
+      "requirement": null,
       "line": 1,
-      "severity": "error"
+      "severity": "warning"
     }
   ]
 }

@@ -21,6 +21,10 @@ pub struct Config {
     pub production_roots: Vec<String>,
     pub test_roots: Vec<String>,
     pub source_extensions: Vec<String>,
+    /// Globs whose separation findings are suppressed wholesale, for cases a per-line marker cannot
+    /// reach. Kept separate from the marker so a broad exemption is visible in configuration rather
+    /// than scattered through source.
+    pub separation_exempt: Vec<String>,
     #[serde(flatten)]
     pub unknown: BTreeMap<String, toml::Value>,
 }
@@ -44,6 +48,7 @@ impl Default for Config {
             .iter()
             .map(|s| s.to_string())
             .collect(),
+            separation_exempt: Vec::new(),
             unknown: BTreeMap::new(),
         }
     }
