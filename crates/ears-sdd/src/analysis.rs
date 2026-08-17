@@ -277,7 +277,8 @@ fn conflict_finding(
         Verdict::Defect { intention } => (
             defect_code(prefix),
             format!(
-                "{} and {} contradict each other and both serve `{intention}`. No precedence can                  adjudicate this: one goal cannot outrank itself, so one of the two rules is wrong.",
+                "{} and {} contradict each other and both serve `{intention}`. No precedence can \
+                 adjudicate this: one goal cannot outrank itself, so one of the two rules is wrong.",
                 first.identifier, second.identifier
             ),
             Severity::Error,
@@ -285,7 +286,8 @@ fn conflict_finding(
         Verdict::Adjudicated { winner } => (
             adjudicated_code(prefix),
             format!(
-                "{} and {} contradict each other; `{winner}` takes precedence, so this is a                  recorded decision rather than a defect.",
+                "{} and {} contradict each other; `{winner}` takes precedence, so this is a \
+                 recorded decision rather than a defect.",
                 first.identifier, second.identifier
             ),
             Severity::Advisory,
@@ -293,7 +295,8 @@ fn conflict_finding(
         Verdict::Unadjudicated { missing } => (
             unadjudicated_code(prefix),
             format!(
-                "{} and {} contradict each other and nothing says which wins. Declare precedence                  between {}.",
+                "{} and {} contradict each other and nothing says which wins. Declare precedence \
+                 between {}.",
                 first.identifier,
                 second.identifier,
                 missing

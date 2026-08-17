@@ -1,0 +1,69 @@
+site_name: Spec Kit EARS/TDD
+site_description: Requirements an AI agent cannot quietly contradict.
+site_url: https://norandom.github.io/spec-kit-ears-tdd/
+repo_url: https://github.com/norandom/spec-kit-ears-tdd
+repo_name: norandom/spec-kit-ears-tdd
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - content.action.edit
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+
+nav:
+  - Start here:
+      - Why this exists: index.md
+      - Install and gate a project: getting-started.md
+      - A contradiction, end to end: example.md
+  - Concepts:
+      - Requirements that hold their shape: concepts/ears.md
+      - "Grounding: vocabulary and intentions": concepts/grounding.md
+      - Finding contradictions: concepts/contradictions.md
+  - Reference:
+      - Gates: reference/gates.md
+      - Configuration: reference/configuration.md
+      - Findings: reference/findings.md
+      - EARS and verification policy: ears-policy.md
+  - Design notes:
+      - Architecture: architecture.md
+      - Decisions and their reasons: design/decisions.md
+
+strict: true

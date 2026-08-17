@@ -11,3 +11,6 @@ dist/
 review/
 
 target/
+
+# MkDocs build output. The published site is built by CI from docs/, never committed.
+site/

@@ -1,94 +1,115 @@
 # Spec Kit EARS/TDD
 
-A reusable policy layer for [GitHub Spec Kit](https://github.com/github/spec-kit). It keeps
-requirements in EARS form, requires explicit requirement-to-test traceability, and prevents
-requirement prose from leaking into production code.
+Requirements an AI agent cannot quietly contradict.
 
-This repository extends Spec Kit; it does not fork or vendor it.
+**[Documentation](https://norandom.github.io/spec-kit-ears-tdd/)**
 
-`ears-sdd` is a single self-contained binary. Validation has no runtime dependency at all — not on
-Python, not on Spec Kit. Only `ears-sdd init` shells out to `specify`, because installing components
-is Spec Kit's job.
+## The problem
 
-## What is installed
+You asked an agent to write the specification. It did, and the result reads well. Twelve features,
+several hundred requirements, every sentence plausible.
 
-- `ears-tdd` preset: composes with the upstream specification, plan, task, and implementation
-  commands and templates.
-- `ears-validate` extension: adds the deterministic, read-only validator and the
-  `speckit.ears-validate.validate` agent command.
-- `ears-sdd` workflow: adds validation and human approval gates to the normal SDD cycle.
+Feature 11 says the workstation blocks dynamic code generation whenever the exploit mitigation is
+enforced. Feature 5 says it permits dynamic code generation while the native toolchain is building.
+Both are correct alone. Both passed review, because nobody reviews feature 5 and feature 11 in the
+same sitting. The machine that has to satisfy both cannot.
 
-The default output is for people. Add `--json` when another tool or agent consumes it.
+You find out when the build breaks, and the fix is an argument held six weeks after either
+requirement could be changed cheaply.
 
-## Use it
+## What this does
+
+`ears-sdd` is a policy layer for [GitHub Spec Kit](https://github.com/github/spec-kit). It extends
+Spec Kit through its supported preset, extension, and workflow components; it does not fork or vendor
+it.
+
+- **Requirements hold a fixed shape.** EARS form: one trigger, one subject, one `shall`. A sentence
+  that will not fit is usually two requirements or an unresolved question.
+- **Words mean one thing.** Requirements declare the vocabulary terms they are about and the single
+  intention they serve. An undeclared term fails the gate.
+- **Contradictions surface before implementation.** Constraint models are merged across every
+  specification and searched for a state where two incompatible requirements both apply. The report
+  names both requirements and the exact state that reaches them.
+
+The third is the one people want, and it does not work without the first two. Comparing requirements
+across features requires knowing that two features mean the same thing by the same word.
+
+## Install
 
 ```sh
-ears-sdd init --project /path/to/project --integration codex
-ears-sdd validate --phase spec --all
-ears-sdd status  --phase final --all
+uv tool install specify-cli==0.16.3
+
+curl --proto '=https' --tlsv1.2 -LsSf \
+  https://github.com/norandom/spec-kit-ears-tdd/releases/download/v0.2.0/ears-sdd-installer.sh | sh
+```
+
+On Windows:
+
+```powershell
+powershell -c "irm https://github.com/norandom/spec-kit-ears-tdd/releases/download/v0.2.0/ears-sdd-installer.ps1 | iex"
+```
+
+## Use
+
+```sh
+ears-sdd init --project . --integration codex --ci   # install the policy and the CI gate
+ears-sdd doctor                                      # what is installed, what is not
+ears-sdd validate --phase spec --all                 # run a gate
 ```
 
 The same commands work identically on Windows, Linux, and macOS. There are no launcher scripts to
-copy into your project and nothing to mark executable.
+copy into your project and nothing to mark executable. Validation has no runtime dependency at all,
+not on Python and not on Spec Kit.
 
-After planning, create `traceability.toml` beside each feature's `spec.md`; `init` writes a sample to
-`.specify/traceability.toml.sample`. Set the project's real `test_command` in
-`.specify/ears-sdd.toml` before using the final gate. The validator checks the command is declared;
-it never runs it.
+Add `--json` when a tool or an agent consumes the result.
 
-## Gates
+**Always pass `--all`.** Spec Kit gitignores the file holding the current feature pointer, so without
+it the same commit is evaluated over one feature locally and every feature in CI, and both print a
+pass.
 
-| Phase | Checks |
+## The gates
+
+| Phase | Adds |
 | --- | --- |
-| `spec` | Requirement IDs, EARS form, one `shall`, no competing modal verbs |
-| `plan` | Spec checks plus complete automated/manual verification mapping |
-| `tasks` | Same deterministic mapping gate before implementation |
-| `final` | All checks, referenced test files, declared test command, no requirement IDs/prose in production roots |
+| `spec` | Requirement identifiers, EARS form, one `shall`, no competing modals, terms resolve |
+| `plan` | Verification mapping complete, constraint models checked within and across specifications |
+| `tasks` | Every requirement covered by a task before anyone writes code |
+| `final` | Named tests exist, test command declared, no requirement prose in production code |
 
-## Scope, and why it is printed
+Every run prints the specifications it evaluated and where that scope came from. A gate that silently
+evaluates less than the project contains looks identical to one that passed.
 
-Every run states which specifications it evaluated and where that scope came from:
+## Documentation
 
-```text
-EARS/TDD spec gate: PASS
-Scope: specs/*/spec.md (all matching specifications)
-Features: 4  Requirements: 67  Errors: 0  Warnings: 0
-```
-
-Scope resolves as `--feature` > `SPECIFY_FEATURE_DIRECTORY` > `.specify/feature.json` > the
-configured glob, and `--all` overrides all of them. This matters more than it looks: Spec Kit
-gitignores `feature.json`, so without `--all` the same commit is evaluated over one feature on the
-author's machine and over every feature in CI. **Use `--all` in CI.** A narrowed run emits a
-`SPEC_SCOPE` warning rather than passing quietly.
-
-## Evidence
-
-`--json` carries a `schema_version` and a `provenance` block — validator version, timestamp, the
-scope and its source, and counts of what was actually read. Two runs against different commits or
-different configurations no longer produce identical evidence, and a report can no longer claim a
-pass over files it never opened.
-
-## Conformance corpus
-
-`conformance/cases/` holds the behavioural contract as data: a project fixture, the invocation, and
-the expected result. `crates/ears-sdd/tests/conformance.rs` runs every case through the
-command-line interface. Any reimplementation can be held to the same cases by writing a runner of
-that size.
+| Page | For |
+| --- | --- |
+| [Why this exists](https://norandom.github.io/spec-kit-ears-tdd/) | The motive, in one page |
+| [Install and gate a project](https://norandom.github.io/spec-kit-ears-tdd/getting-started/) | Adopting it |
+| [A contradiction, end to end](https://norandom.github.io/spec-kit-ears-tdd/example/) | A real run, output copied from a terminal |
+| [Finding contradictions](https://norandom.github.io/spec-kit-ears-tdd/concepts/contradictions/) | What a BDD is and why it suits this problem |
+| [Grounding](https://norandom.github.io/spec-kit-ears-tdd/concepts/grounding/) | Vocabulary and intentions, without the ontology jargon |
+| [Decisions and their reasons](https://norandom.github.io/spec-kit-ears-tdd/design/decisions/) | Why it is built this way |
 
 ## Develop
 
 ```sh
-cargo nextest run          # unit tests and the conformance corpus
+cargo nextest run                          # unit tests and the conformance corpus
 cargo clippy --all-targets -- -D warnings
 cargo fmt --all --check
-dagger -M ci/rust.dag      # the whole Linux CI leg, locally
+dagger -M ci/rust.dag                      # the whole Linux CI leg, locally
+uv run --with-requirements docs/requirements.txt mkdocs serve
 ```
 
-CI runs Dagger on Linux and native `cargo` on Windows and macOS. That split is forced rather than
-chosen — Dagger executes Linux containers only, GitHub's macOS runners cannot run Docker, and its
-Windows runners cannot run Linux containers. Since this tool exists to get path separators, line
-endings, and filesystem case sensitivity right, the platforms it must be tested on are exactly the
-ones Dagger cannot reach.
+`conformance/cases/` holds the behavioural contract as data: a project fixture, the invocation, and
+the expected result. Any reimplementation can be held to the same cases by writing a runner of that
+size.
 
-See [EARS policy](docs/ears-policy.md) and [architecture](docs/architecture.md) for the detailed
-contracts.
+CI runs Dagger on Linux and native `cargo` on Windows and macOS. That split is forced: Dagger
+executes Linux containers only, GitHub's macOS runners cannot run Docker, and its Windows runners
+cannot run Linux containers. Since this tool exists partly to get path separators, line endings, and
+filesystem case sensitivity right, the platforms it must be tested on are the ones Dagger cannot
+reach.
+
+## License
+
+MIT
