@@ -14,6 +14,7 @@ pub mod model;
 pub mod report;
 pub mod requirements;
 pub mod separation;
+pub mod skos;
 pub mod tasks;
 pub mod traceability;
 pub mod vocabulary;
@@ -291,4 +292,22 @@ pub fn scaffold_vocabulary(root: &Path, feature: Option<&str>, all: bool) -> Str
         .collect();
     let (existing, _) = vocabulary::load_terms(root, &feature_dirs);
     vocabulary::scaffold(&requirements, &existing)
+}
+
+/// The project's vocabulary as a SKOS concept scheme in Turtle.
+pub fn export_vocabulary(root: &Path, feature: Option<&str>, all: bool, base: &str) -> String {
+    let (config, _) = config::load(root);
+    let discovered = discovery::discover(root, &config, feature, all);
+    let feature_dirs: Vec<(String, &Path)> = discovered
+        .specs
+        .iter()
+        .filter_map(|location| {
+            location
+                .path
+                .parent()
+                .map(|directory| (location.feature.clone(), directory))
+        })
+        .collect();
+    let (terms, _) = vocabulary::load_terms(root, &feature_dirs);
+    skos::export(&terms, base)
 }

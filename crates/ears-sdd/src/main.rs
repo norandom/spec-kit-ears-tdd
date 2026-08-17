@@ -28,6 +28,25 @@ enum Command {
     Status(GateArgs),
     /// Propose vocabulary stubs from existing specification prose, on standard output.
     VocabInit(GateArgs),
+    /// Write the vocabulary as a SKOS concept scheme in Turtle, on standard output.
+    VocabExport(ExportArgs),
+    /// Convert a SKOS concept scheme into a vocabulary file, on standard output.
+    VocabImport(ImportArgs),
+}
+
+#[derive(clap::Args)]
+struct ExportArgs {
+    #[command(flatten)]
+    gate: GateArgs,
+    /// The IRI the concept scheme is published under. Concepts are named relative to it.
+    #[arg(long, default_value = "https://example.org/vocabulary")]
+    base: String,
+}
+
+#[derive(clap::Args)]
+struct ImportArgs {
+    /// The Turtle file to read.
+    file: PathBuf,
 }
 
 #[derive(clap::Args)]
@@ -130,6 +149,48 @@ fn main() -> ExitCode {
                 ears_sdd::scaffold_vocabulary(&root, args.feature.as_deref(), args.all)
             );
             return ExitCode::SUCCESS;
+        }
+        Command::VocabExport(args) => {
+            let root = match args.gate.project.canonicalize() {
+                Ok(root) => root,
+                Err(error) => {
+                    eprintln!("Project directory is unusable: {error}");
+                    return ExitCode::from(2);
+                }
+            };
+            print!(
+                "{}",
+                ears_sdd::export_vocabulary(
+                    &root,
+                    args.gate.feature.as_deref(),
+                    args.gate.all,
+                    &args.base
+                )
+            );
+            return ExitCode::SUCCESS;
+        }
+        Command::VocabImport(args) => {
+            let bytes = match std::fs::read(&args.file) {
+                Ok(bytes) => bytes,
+                Err(error) => {
+                    eprintln!("Could not read {}: {error}", args.file.display());
+                    return ExitCode::from(2);
+                }
+            };
+            // Printed rather than written, for the same reason a scaffold is: an imported
+            // vocabulary nobody has read grounds nothing, and redirecting it is a deliberate act.
+            match ears_sdd::skos::import(&bytes) {
+                Ok(toml) => {
+                    print!("{toml}");
+                    return ExitCode::SUCCESS;
+                }
+                Err(errors) => {
+                    for error in errors {
+                        eprintln!("{error}");
+                    }
+                    return ExitCode::from(2);
+                }
+            }
         }
         Command::Validate(args) => (args, false),
         Command::Status(args) => (args, true),

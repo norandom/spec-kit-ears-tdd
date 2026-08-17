@@ -147,6 +147,53 @@ including the part a human would have assumed. That is the difference between a 
 None of this makes an agent correct. It makes an agent consistent, and it makes the specific failure
 of quiet synonym invention impossible rather than unlikely.
 
+## Starting from a vocabulary that already exists
+
+Extracting candidates from prose assumes there is prose. On a new project there is not, and in many
+domains there is something better: a vocabulary someone has already agreed.
+
+```sh
+ears-sdd vocab-import security-concepts.ttl > .specify/vocabulary.toml
+```
+
+The importer reads a SKOS concept scheme and maps it onto this format. `skos:prefLabel` becomes the
+label, `skos:definition` the definition, `skos:broader` the hierarchy, `skos:altLabel` the synonyms,
+`owl:deprecated` and `dcterms:isReplacedBy` the retirement fields. A `skos:narrower` assertion is
+read as `broader` on the other concept, since SKOS treats them as inverses and a published
+vocabulary may state either. Anything that is not a `skos:Concept`, such as a scheme or a
+collection, does not become a term.
+
+Two things do not survive, and both are deliberate.
+
+**Definitions the source did not carry arrive empty**, which fails the gate until someone writes
+one. An imported term nobody has read grounds nothing, exactly like a scaffolded one.
+
+**Domains default to `entity`.** SKOS says which concepts exist, not which of them are booleans or
+what values they range over. Turning an imported vocabulary into one a guard can be built from is
+the work, and the tool does not pretend to do it for you.
+
+Going the other way publishes what you have:
+
+```sh
+ears-sdd vocab-export --all --base https://id.example.org/vocab > vocab.ttl
+```
+
+The domain travels in a private namespace, so a consumer that does not understand it ignores it and
+one that does can round-trip without loss. The round trip is tested: the twelve-feature example's 28
+terms export, import, and still produce exactly the same contradiction across its 383 requirements.
+
+## Why the vocabulary is not authored in SKOS
+
+The bridge is deliberately a bridge rather than a migration.
+
+Turtle reviews badly in a pull request, and a gate has no use for a triple store. More to the point,
+SKOS has no place for the field the constraint model depends on. A term's domain is a statement
+about the values a variable ranges over, which is a datatype constraint rather than a fact about a
+concept. Expressing it means SHACL or a private extension, and at that point the file is no longer
+standard SKOS anyway.
+
+So TOML stays the authoring format, and SKOS is how the vocabulary arrives and how it leaves.
+
 ## What this is not
 
 It is not an ontology in the formal sense, and the project does not claim to be one.
