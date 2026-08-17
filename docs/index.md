@@ -1,5 +1,7 @@
 # Why this exists
 
+![A cucumber sliced into segments rendered as streams of binary, the slices reassembling along a green wireframe into a key that enters a lock. Around them float labels reading WHEN, IF, SHALL, TEST, CONFLICT and CONSTRAINT, with a listening ear and a waveform above.](assets/spec-kit-ears-tdd.png)
+
 You asked an agent to write the specification. It did, and the result reads well. Twelve features,
 several hundred requirements, every sentence plausible.
 

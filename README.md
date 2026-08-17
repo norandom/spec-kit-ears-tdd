@@ -2,6 +2,8 @@
 
 Requirements an AI agent cannot quietly contradict.
 
+![A cucumber sliced into segments rendered as streams of binary, the slices reassembling along a green wireframe into a key that enters a lock. Around them float labels reading WHEN, IF, SHALL, TEST, CONFLICT and CONSTRAINT, with a listening ear and a waveform above.](docs/assets/spec-kit-ears-tdd.png)
+
 **[Documentation](https://norandom.github.io/spec-kit-ears-tdd/)**
 
 ## The problem
