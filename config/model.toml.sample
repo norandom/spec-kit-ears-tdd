@@ -1,0 +1,54 @@
+# Constraint model. Copy beside a feature's spec.md as model.toml and edit.
+#
+# Optional per requirement and optional per feature. A requirement with no entry here is recorded as
+# unmodelled rather than assumed consistent, and a project with no model file behaves exactly as it
+# did before this layer existed.
+#
+# Every symbol a guard mentions is a term declared in the vocabulary, with the domain declared
+# there. That is what makes a guard checkable and what lets constraints from different
+# specifications be merged later: two features mean the same thing by the same name, or the
+# vocabulary gate has already failed.
+
+schema_version = "1.0"
+
+# The observable consequences requirements may assert, and which of them cannot both hold.
+#
+# The conflict relation is symmetric and is read that way regardless of which side declares it.
+# Preference-based reasoning is only sound over a symmetric attack relation, and requirement
+# contradiction genuinely is symmetric -- A contradicts B exactly when B contradicts A. The moment
+# someone wants "A weakens B", that reasoning stops applying.
+[effects]
+persist_record = { conflicts_with = ["reject_write"] }
+reject_write = {}
+fail_fast = {}
+emit_audit_entry = {}
+
+# Guards use a deliberately small language:
+#
+#   and  or  not  ( )
+#   ==  !=  <  <=  >  >=
+#   a bare term name means that boolean term is true
+#   literals are integers, single-quoted strings, and true / false
+#
+# Anything outside it is rejected rather than interpreted. A guard language that quietly accepts
+# what it does not understand is worse than one that refuses.
+[requirements.REQ-001]
+when = "operating-mode == 'maintenance'"
+then = "reject_write"
+
+[requirements.REQ-002]
+when = "integrity-verified and queue-depth < 1000"
+then = "persist_record"
+
+# A ubiquitous requirement has no condition. Omitting `when` means "always", which is not the same
+# as a guard that happens to be true -- it says the requirement was never conditional.
+[requirements.REQ-003]
+then = "emit_audit_entry"
+
+# Comparisons are against literal constants only. That restriction is what lets a bounded integer be
+# partitioned into a handful of regions at the constants its guards mention, rather than enumerated
+# across its whole declared range. Comparing two terms against each other needs arithmetic the
+# fragment does not have.
+[requirements.REQ-004]
+when = "not integrity-verified"
+then = "fail_fast"

@@ -65,24 +65,35 @@ specification-defect finding; change one intention and assert it becomes a trade
 
 ### User Story 3 - The gate never passes on a result it did not compute (Priority: P1)
 
-A solver can time out, exceed a budget, or reject malformed input while still emitting a
-satisfiability verdict on its reply stream. Any of those must be distinguishable from success.
+A decision procedure can exceed its budget or fail to reach a verdict. Either must be
+distinguishable from success, and neither may be reported as a pass.
 
-**Why this priority**: A gate that reports success because it misread an error stream is worse than
-no gate, and this failure mode has been observed in practice with duplicate assertion names.
+**Why this priority**: A gate that reports success because it misread a non-answer is worse than no
+gate at all.
 
-**Independent Test**: Feed the solver malformed input and assert the run fails rather than reporting
-a verdict.
+**Independent Test**: Configure a budget smaller than the model requires and assert the run reports
+indeterminate rather than passing.
 
 **Acceptance Scenarios**:
 
-1. **Given** an error on the solver reply stream, **When** the gate runs, **Then** the run fails
-   regardless of any verdict on that stream.
-2. **Given** an analysis that exceeds its budget, **When** the gate runs, **Then** the outcome is
+1. **Given** an analysis that exceeds its budget, **When** the gate runs, **Then** the outcome is
    indeterminate rather than passing.
+2. **Given** a model evaluated by two different decision procedures, **When** both complete, **Then**
+   they report the same findings.
+3. **Given** a term whose domain is an enumeration, **When** the model is evaluated, **Then** no
+   assignment outside that enumeration is considered.
 
 ### Edge Cases
 
+- A component's state space is large enough that evaluating it would not finish. Its size is a
+  product of declared domain sizes and so is known before any search begins; there is no reason to
+  start one.
+- The same analysis is run on a fast machine and a loaded one. A bound measured in elapsed time
+  would give different verdicts, which would make the corpus stop being a contract.
+- A reported witness does not actually satisfy the guards attributed to it, because the encoding is
+  wrong rather than the model.
+- An integer domain's regions leave a gap, so some values are never considered and a conflict hides
+  in the gap.
 - The same model is evaluated twice with requirements declared in a different order.
 - A minimal conflict set changes size after a solver version change.
 - An integer term is compared against a constant outside its declared bounds, which is both a static
@@ -104,7 +115,15 @@ a verdict.
 - REQ-008: When a minimal conflict set is reported, the validator shall map each contributing requirement to the intention it serves.
 - REQ-009: If every requirement in a minimal conflict set serves one intention, then the validator shall report a specification-defect finding.
 - REQ-010: Where a minimal conflict set spans two or more intentions, the validator shall report the conflict as a trade-off.
-- REQ-011: If the solver reply stream carries an error, then the validator shall treat the run as failed.
+- REQ-011: If the decision procedure does not return a verdict, then the validator shall treat the run as failed rather than as passing.
+- REQ-019: The validator shall produce the same findings for one model under every decision procedure it supports.
+- REQ-020: Where a term's domain is an enumeration or a bounded integer, the validator shall encode it so that no assignment outside that domain is considered.
+- REQ-021: Before evaluating a component, the validator shall compute the size of its state space and report an over-budget component without evaluating it.
+- REQ-022: The validator shall bound every analysis by a count rather than by elapsed time.
+- REQ-023: When a component exceeds its budget, the validator shall name the component, its variable count, its state count, and the terms contributing most to that count.
+- REQ-024: Before reporting a witness, the validator shall confirm that the witness satisfies the guards the finding attributes to it.
+- REQ-025: The validator shall confirm that the regions of an integer domain cover that domain exactly once.
+- REQ-026: The validator shall confirm that every modelled requirement belongs to exactly one component.
 - REQ-012: The validator shall accompany every satisfiability finding with a witness assignment over the referenced terms.
 - REQ-013: If an analysis exceeds its configured budget, then the validator shall report an indeterminate outcome distinguishable from a passing outcome.
 - REQ-014: Where a requirement has no constraint model entry, the validator shall record that requirement as unmodelled.
@@ -131,12 +150,25 @@ a verdict.
 - SC-001: Every satisfiability finding includes a witness a reader can act on without rerunning the tool.
 - SC-002: Repeated runs over an unchanged model produce identical minimal conflict sets.
 - SC-003: A project may adopt the model for one requirement without any other requirement changing.
-- SC-004: No solver outcome other than a computed verdict is ever reported as a pass.
+- SC-004: No outcome other than a computed verdict is ever reported as a pass.
+- SC-005: An over-budget component is reported without any state of it being evaluated.
+- SC-006: The same model and budget produce the same verdict on any machine.
+- SC-007: An over-budget report names a specific lever, so the reader's next action is narrowing a
+  named term rather than raising the budget.
 
 ## Assumptions
 
 - Guards range over booleans, small enumerations, and integers compared against literal constants.
   Real-valued and string-valued terms are out of scope for this version.
+- Two decision procedures are implemented rather than one: exhaustive enumeration over the finitized
+  domains, which is obviously correct and trivially deterministic, and a reduced ordered binary
+  decision diagram, which scales past enumeration when a component is large but structured. The
+  enumerator exists as much to check the diagram's encoding as to answer queries — one-hot
+  constraints, interval boundaries, and variable order are where a decision-diagram encoding goes
+  quietly wrong, and disagreement between two independent procedures is the cheapest way to catch it.
+- An integer domain is partitioned at the constants its guards compare against, so a bound of ten
+  thousand costs a handful of regions rather than ten thousand values. This is sound and complete
+  only while comparisons are against literals, which is what the fragment above allows.
 - Temporal and ordering properties are out of scope, and the model file reserves room for them so
   that adding them later is not a breaking change.
 - The decision procedure is an implementation choice. Whichever is chosen, the constraint graph is

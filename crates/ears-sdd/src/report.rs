@@ -2,6 +2,7 @@
 //! carries a schema version and enough provenance for a reader to tell two runs apart.
 
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 use std::path::Path;
 
 /// Bumped whenever the shape below changes in a way a consumer could notice.
@@ -61,6 +62,14 @@ pub struct Finding {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub line: Option<usize>,
     pub severity: Severity,
+    /// Structured particulars for findings a reader has to act on rather than merely locate.
+    ///
+    /// A budget failure that says only "budget exceeded" is a shrug. The consumer here is usually
+    /// an agent, so the numbers it needs to choose a next step -- which component, how large, which
+    /// terms contribute most -- belong in fields rather than buried in prose it has to parse back
+    /// out of a sentence.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub detail: Option<BTreeMap<String, serde_json::Value>>,
 }
 
 impl Finding {
@@ -73,7 +82,17 @@ impl Finding {
             requirement: None,
             line: None,
             severity: Severity::Error,
+            detail: None,
         }
+    }
+
+    /// Attach one structured particular. Findings that carry these are the ones whose next action
+    /// depends on a number rather than on a location.
+    pub fn detail(mut self, key: &str, value: impl Into<serde_json::Value>) -> Self {
+        self.detail
+            .get_or_insert_with(BTreeMap::new)
+            .insert(key.to_string(), value.into());
+        self
     }
 
     pub fn feature(mut self, feature: impl Into<String>) -> Self {
