@@ -54,13 +54,35 @@ powershell -c "irm https://github.com/norandom/spec-kit-ears-tdd/releases/latest
 See [all releases](https://github.com/norandom/spec-kit-ears-tdd/releases) to install a specific
 version instead.
 
-## Use
+## Register it with Spec Kit
+
+The binary runs the gates. The policy is three components registered into Spec Kit, and that
+registration is the part that matters: it composes EARS into the specification step and test-first
+into the task step, so the agent writes EARS requirements because its own instructions say to.
 
 ```sh
-ears-sdd init --project . --integration codex --ci   # install the policy and the CI gate
+ears-sdd init --project . --integration codex --ci   # register the policy and the CI gate
 ears-sdd doctor                                      # what is installed, what is not
 ears-sdd validate --phase spec --all                 # run a gate
 ```
+
+`init` uses Spec Kit's own `preset add`, `extension add` and `workflow add`, and never edits its
+registries directly. The project need not exist yet: in a directory with no `.specify` it runs
+`specify init` first and registers on top.
+
+Confirm with Spec Kit rather than with this tool:
+
+```sh
+specify preset list      # EARS Requirements and TDD (ears-tdd) v0.2.0 — enabled — priority 5
+specify extension list   # ✓ EARS/TDD Validator (v0.1.0)  ears-validate
+specify workflow list    # EARS/TDD SDD Cycle (ears-sdd) v0.3.0
+```
+
+| Component | Registered as | What it changes |
+| --- | --- | --- |
+| `ears-tdd` | preset | EARS and traceability postconditions composed into `speckit.specify`, `plan`, `tasks`, `implement` |
+| `ears-validate` | extension | `speckit.ears-validate.validate` as a command the agent can run |
+| `ears-sdd` | workflow | The specify to implement cycle, with validation steps and review gates |
 
 The same commands work identically on Windows, Linux, and macOS. There are no launcher scripts to
 copy into your project and nothing to mark executable. Validation has no runtime dependency at all,

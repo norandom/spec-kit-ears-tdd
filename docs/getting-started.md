@@ -1,21 +1,42 @@
 # Install and gate a project
 
-This page takes an existing Spec Kit project to a state where a contradiction between two
+This page takes a project, new or existing, to a state where a contradiction between two
 specifications fails the build. It assumes nothing about EARS or constraint solving. Concepts come
 later.
 
-## Before you start
+## What you are installing
 
-You need [Spec Kit](https://github.com/github/spec-kit) itself:
+Two things, and the difference between them is the whole design.
+
+**The binary** is installed once per machine and runs the gates. It has no runtime dependency on
+Spec Kit, Python, or any interpreter.
+
+**The policy** is three components registered into Spec Kit, once per project. This is the part that
+matters, and it is easy to miss because the binary gets all the attention. Registration is what puts
+EARS into the specification step and test-first into the task step. Spec Kit composes the policy into
+the commands your agent already runs, so the agent writes EARS requirements because its own
+instructions now say to, not because a human remembered to ask.
+
+| Component | Registered as | What it changes |
+| --- | --- | --- |
+| `ears-tdd` | preset | Composes EARS and traceability postconditions into `speckit.specify`, `plan`, `tasks` and `implement` |
+| `ears-validate` | extension | Adds `speckit.ears-validate.validate` as a command the agent can run |
+| `ears-sdd` | workflow | The specify to implement cycle, with validation steps and review gates |
+
+A validator nobody registered is a linter someone runs occasionally. A registered policy changes
+what the agent produces in the first place, which is the cheaper place to fix a requirement.
+
+## 1. Install Spec Kit
 
 ```sh
 uv tool install specify-cli==0.16.3
 ```
 
-`ears-sdd` supports Spec Kit 0.16.3 and later 0.16 releases. It says so if you are outside that
-range rather than failing in a way you have to diagnose.
+`ears-sdd` declares a supported range of `>=0.16.3,<0.17.0` and the components refuse to install
+outside it. `ears-sdd doctor` reports the version your project was initialized with, so a mismatch
+shows up as a sentence rather than as a failure you have to diagnose.
 
-## 1. Install the binary
+## 2. Install the binary
 
 === "Linux and macOS"
 
@@ -51,29 +72,71 @@ These install the most recent release. Swap `latest/download` for
 It is one binary. There are no launcher scripts to copy into your project and nothing to mark
 executable. Validation never invokes Python, a shell, or Spec Kit.
 
-## 2. Install the policy
+## 3. Register the policy
 
 ```sh
 ears-sdd init --project . --integration codex --ci
 ```
 
-This installs three Spec Kit components through Spec Kit's own commands, and writes a starting
-configuration:
+This registers the three components through Spec Kit's own `preset add`, `extension add` and
+`workflow add` commands, and writes a starting configuration. It never edits Spec Kit's registries
+directly, so an uninstall is Spec Kit's `remove` and not a hunt through its state.
 
-| Component | What it adds |
-| --- | --- |
-| `ears-tdd` preset | EARS and traceability guidance composed into the specify, plan, tasks and implement commands |
-| `ears-validate` extension | The validator as an agent command |
-| `ears-sdd` workflow | The specify to implement cycle with validation steps and review gates |
+The project does not have to exist yet:
+
+- In a directory with no `.specify`, `init` runs `specify init` first and registers on top of it.
+- In a project that already has one, it registers only, and leaves the existing setup alone.
+
+Every command it runs is printed before it runs, so what changed is on screen rather than inferred.
 
 `--ci` also writes `.github/workflows/ears-sdd.yml`, pinned to the version of the binary that wrote
 it. Leave it off if you do not use GitHub Actions, but read
-[why the gate needs somewhere to run](#4-make-the-gate-run) before you decide.
+[why the gate needs somewhere to run](#6-make-the-gate-run) before you decide.
 
-Running `init` a second time is an upgrade, not an error. Files you have edited are kept and
-reported as kept.
+Running `init` a second time is an upgrade, not an error. Files you have edited are kept and reported
+as kept.
 
-## 3. Check what you got
+## 4. Confirm the registration
+
+Ask Spec Kit, not the binary. These are its own listings, and they are the evidence that the policy
+is part of the toolchain rather than sitting beside it:
+
+```console
+$ specify preset list
+EARS Requirements and TDD (ears-tdd) v0.2.0 — enabled — priority 5
+
+$ specify extension list
+✓ EARS/TDD Validator (v0.1.0)  ears-validate
+
+$ specify workflow list
+EARS/TDD SDD Cycle (ears-sdd) v0.3.0
+```
+
+The effect on your agent is visible in the composed commands. Spec Kit wraps its own specification
+command with the preset's postcondition, so the instruction the agent reads now ends with this:
+
+```console
+$ grep -A3 'EARS postcondition' .agents/skills/speckit-specify/SKILL.md
+## EARS postcondition
+
+Before finishing, ensure each normative requirement has a unique `REQ-NNN` ID, contains exactly
+one `shall`, and uses an EARS form documented in the resolved specification template.
+```
+
+and the task command with the test-first one:
+
+```console
+$ grep -A3 'Test-first postcondition' .agents/skills/speckit-tasks/SKILL.md
+## Test-first postcondition
+
+Tests are mandatory. Place each failing-test task before its corresponding implementation task.
+Every behavior task must identify its `REQ-NNN` coverage and test selector.
+```
+
+That is the registration doing its work. The gate checks the result; the preset is what makes the
+result likely to pass.
+
+## 5. Check what you got
 
 ```sh
 ears-sdd doctor
@@ -97,7 +160,7 @@ ears-sdd 0.2.0 checking /home/you/project
 Every warning names the command that resolves it. The check worth reading twice is the last one,
 for the reason in the next section.
 
-## 4. Make the gate run
+## 6. Make the gate run
 
 A project with no specifications passes every gate. So does a project whose gate nobody runs. Both
 look exactly like a project that is clean.
@@ -117,7 +180,7 @@ If you skipped `--ci`, add it now:
 ears-sdd init --ci
 ```
 
-## 5. Run your first gate
+## 7. Run your first gate
 
 ```sh
 ears-sdd validate --phase spec --all
@@ -141,7 +204,7 @@ file, the feature, the requirement, and what to change. Start with the
     every feature in CI. A narrowed run prints a `SPEC_SCOPE` warning rather than passing quietly,
     and every run prints the scope it used.
 
-## 6. Work the cycle
+## 8. Work the cycle
 
 There are four gates, one per phase, each a superset of the one before. Run them where they belong:
 
