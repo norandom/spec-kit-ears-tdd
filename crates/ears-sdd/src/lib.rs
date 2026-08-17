@@ -1,3 +1,4 @@
+pub mod analysis;
 pub mod assets;
 pub mod config;
 pub mod discovery;
