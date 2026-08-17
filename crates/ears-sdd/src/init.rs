@@ -214,4 +214,3 @@ fn write_if_absent(path: &Path, contents: &[u8]) -> Result<(), String> {
     println!("Created {}", display(path));
     Ok(())
 }
-
