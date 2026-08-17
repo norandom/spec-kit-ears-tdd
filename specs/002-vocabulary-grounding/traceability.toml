@@ -1,0 +1,73 @@
+schema_version = "1.0"
+
+[requirements.REQ-001]
+verification = "automated"
+tests = ["tests/test_vocabulary.py::test_project_vocabulary_is_read"]
+
+[requirements.REQ-002]
+verification = "automated"
+tests = ["tests/test_vocabulary.py::test_term_declares_id_label_definition_domain"]
+
+[requirements.REQ-003]
+verification = "automated"
+tests = ["tests/test_vocabulary.py::test_term_without_definition_is_reported"]
+
+[requirements.REQ-004]
+verification = "automated"
+tests = ["tests/test_vocabulary.py::test_undeclared_term_reference_is_reported"]
+
+[requirements.REQ-005]
+verification = "automated"
+tests = ["tests/test_vocabulary.py::test_broader_relation_is_transitively_closed"]
+
+[requirements.REQ-006]
+verification = "automated"
+tests = ["tests/test_vocabulary.py::test_vocabulary_cycle_is_reported"]
+
+[requirements.REQ-007]
+verification = "automated"
+tests = ["tests/test_vocabulary.py::test_broader_naming_undeclared_term_is_reported"]
+
+[requirements.REQ-008]
+verification = "automated"
+tests = ["tests/test_vocabulary.py::test_duplicate_normalized_label_is_reported"]
+
+[requirements.REQ-009]
+verification = "automated"
+tests = ["tests/test_vocabulary.py::test_term_collision_across_specs_is_reported"]
+
+[requirements.REQ-010]
+verification = "automated"
+tests = ["tests/test_vocabulary.py::test_unreferenced_term_is_advisory"]
+
+[requirements.REQ-011]
+verification = "automated"
+tests = ["tests/test_intentions.py::test_intention_registry_is_read"]
+
+[requirements.REQ-012]
+verification = "automated"
+tests = ["tests/test_intentions.py::test_undeclared_intention_reference_is_reported"]
+
+[requirements.REQ-013]
+verification = "automated"
+tests = ["tests/test_intentions.py::test_unserved_intention_is_advisory"]
+
+[requirements.REQ-014]
+verification = "automated"
+tests = ["tests/test_intentions.py::test_precedence_is_a_strict_partial_order"]
+
+[requirements.REQ-015]
+verification = "automated"
+tests = ["tests/test_intentions.py::test_precedence_cycle_is_reported"]
+
+[requirements.REQ-016]
+verification = "automated"
+tests = ["tests/test_vocabulary.py::test_deprecated_term_warns_with_replacement"]
+
+[requirements.REQ-017]
+verification = "automated"
+tests = ["tests/test_vocabulary.py::test_scaffold_proposes_terms_from_prose"]
+
+[requirements.REQ-018]
+verification = "automated"
+tests = ["tests/test_vocabulary.py::test_vocabulary_runs_without_a_model"]

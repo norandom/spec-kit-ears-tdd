@@ -1,0 +1,68 @@
+schema_version = "1.0"
+
+# Test selectors name files that do not exist yet. That is intentional: the plan and tasks gates
+# fail until the failing tests are written, which is the test-first ordering this policy enforces.
+
+[requirements.REQ-001]
+verification = "automated"
+tests = ["tests/test_discovery.py::test_all_markdown_forms_are_discovered"]
+
+[requirements.REQ-002]
+verification = "automated"
+tests = ["tests/test_discovery.py::test_fenced_code_block_is_not_a_requirement"]
+
+[requirements.REQ-003]
+verification = "automated"
+tests = ["tests/test_discovery.py::test_duplicate_identifier_is_reported"]
+
+[requirements.REQ-004]
+verification = "automated"
+tests = ["tests/test_discovery.py::test_identifier_accepts_three_or_more_digits"]
+
+[requirements.REQ-005]
+verification = "automated"
+tests = ["tests/test_discovery.py::test_all_features_mode_evaluates_every_spec"]
+
+[requirements.REQ-006]
+verification = "automated"
+tests = ["tests/test_discovery.py::test_missing_active_feature_reports_finding"]
+
+[requirements.REQ-007]
+verification = "automated"
+tests = ["tests/test_contract.py::test_result_reports_examined_file_count"]
+
+[requirements.REQ-008]
+verification = "automated"
+tests = ["tests/test_contract.py::test_result_carries_schema_version"]
+
+[requirements.REQ-009]
+verification = "automated"
+tests = ["tests/test_discovery.py::test_selector_outside_test_roots_is_reported"]
+
+[requirements.REQ-010]
+verification = "automated"
+tests = ["tests/test_discovery.py::test_undecodable_spec_reports_finding"]
+
+[requirements.REQ-011]
+verification = "automated"
+tests = ["tests/test_contract.py::test_validation_run_mutates_nothing"]
+
+[requirements.REQ-012]
+verification = "automated"
+tests = ["tests/test_discovery.py::test_modal_inside_quoted_literal_is_non_normative"]
+
+[requirements.REQ-013]
+verification = "automated"
+tests = ["tests/test_discovery.py::test_identifiers_are_qualified_by_feature"]
+
+[requirements.REQ-014]
+verification = "automated"
+tests = ["tests/test_discovery.py::test_separation_finding_is_not_duplicated_across_features"]
+
+[requirements.REQ-015]
+verification = "automated"
+tests = ["tests/test_conformance.py::test_every_case_has_a_fixture_and_expected_result"]
+
+[requirements.REQ-016]
+verification = "automated"
+tests = ["tests/test_conformance.py::test_cases_run_through_the_command_line_interface"]
