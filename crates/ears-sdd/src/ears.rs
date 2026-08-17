@@ -87,31 +87,6 @@ fn mask_quoted(sentence: &str) -> String {
     masked
 }
 
-#[cfg(test)]
-mod tests {
-    use super::mask_quoted;
-
-    #[test]
-    fn possessive_apostrophe_is_not_a_quote() {
-        let sentence = "When the research tree's physical root changes, the manager shall recreate it.";
-        assert!(mask_quoted(sentence).contains("shall"));
-    }
-
-    #[test]
-    fn balanced_literal_is_masked() {
-        let sentence = "The service shall log the message \"operation may fail\".";
-        let masked = mask_quoted(sentence);
-        assert!(masked.contains("shall"));
-        assert!(!masked.contains("may"));
-    }
-
-    #[test]
-    fn unterminated_quote_does_not_swallow_the_sentence() {
-        let sentence = "The service shall emit a \" character.";
-        assert!(mask_quoted(sentence).contains("character"));
-    }
-}
-
 /// `\b` treats a hyphen as a boundary, so `must-gather` and `may-fail` would otherwise be read as
 /// normative modals.
 fn is_hyphen_adjacent(text: &str, start: usize, end: usize) -> bool {
@@ -195,4 +170,30 @@ pub fn validate(root: &Path, requirement: &Requirement) -> Vec<Finding> {
     }
 
     findings
+}
+
+#[cfg(test)]
+mod tests {
+    use super::mask_quoted;
+
+    #[test]
+    fn possessive_apostrophe_is_not_a_quote() {
+        let sentence =
+            "When the research tree's physical root changes, the manager shall recreate it.";
+        assert!(mask_quoted(sentence).contains("shall"));
+    }
+
+    #[test]
+    fn balanced_literal_is_masked() {
+        let sentence = "The service shall log the message \"operation may fail\".";
+        let masked = mask_quoted(sentence);
+        assert!(masked.contains("shall"));
+        assert!(!masked.contains("may"));
+    }
+
+    #[test]
+    fn unterminated_quote_does_not_swallow_the_sentence() {
+        let sentence = "The service shall emit a \" character.";
+        assert!(mask_quoted(sentence).contains("character"));
+    }
 }
