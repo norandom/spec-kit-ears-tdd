@@ -1,0 +1,42 @@
+[workspace]
+members = ["cargo:."]
+
+[dist]
+# Pinned. dist is 0.x and its minor releases have carried breaking changes; CI installs exactly this
+# version, so a release built today is reproducible tomorrow.
+cargo-dist-version = "0.32.0"
+
+ci = "github"
+
+# The reason for using dist at all. Hand-rolling these means owning architecture detection, the
+# CARGO_HOME versus ~/.local/bin decision, PATH mutation across shells, uninstall receipts, and the
+# musl-fallback-when-glibc-is-too-new case. That is the tedious, easy-to-get-wrong part.
+installers = ["shell", "powershell"]
+
+targets = [
+  "x86_64-pc-windows-msvc",
+  "x86_64-unknown-linux-gnu",
+  # Static musl, so the binary runs on distributions whose glibc is older than the build runner's.
+  # dist installs musl-tools automatically and builds it natively; no container, no cross.
+  "x86_64-unknown-linux-musl",
+  "aarch64-unknown-linux-gnu",
+  "aarch64-apple-darwin",
+  "x86_64-apple-darwin",
+]
+
+checksum = "sha256"
+install-path = "CARGO_HOME"
+
+# ci.yml already runs on every pull request. Without this, dist adds a second workflow to each one
+# purely to run `dist plan`. "skip" removes the pull_request trigger from release.yml entirely
+# rather than just emptying the job.
+pr-run-mode = "skip"
+
+hosting = "github"
+
+# Build provenance for every artifact, which suits a project whose product is auditable evidence.
+github-attestations = true
+
+# No self-updater. The binary should not rewrite itself on a developer machine; installation is the
+# package manager's job or the installer script's.
+install-updater = false

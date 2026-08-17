@@ -15,3 +15,12 @@ lto = true
 codegen-units = 1
 panic = "abort"
 strip = true
+
+# `dist` builds released binaries with `--profile dist`, not `--profile release`, and the profile it
+# generates for you sets `lto = "thin"`. That would silently downgrade one leg of the size tuning
+# above, which is a triple: opt-level "z" plus fat LTO plus a single codegen unit. Written here
+# before `dist init` runs, because dist leaves an existing profile alone and only creates its own
+# when none is present.
+[profile.dist]
+inherits = "release"
+lto = true
