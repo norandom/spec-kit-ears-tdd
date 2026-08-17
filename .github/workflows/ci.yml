@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Why this workflow has two shapes rather than one.
+#
+# Dagger gives reproducible, cached, locally-runnable pipelines -- but it executes Linux containers
+# and nothing else. That is not a configuration gap that can be closed: GitHub's macOS runners have
+# no Docker and cannot get it (arm64, no nested virtualization), and its Windows runners cannot run
+# Linux containers. Dagger's own FAQ rules Windows workloads out.
+#
+# For most projects that would be a footnote. Here it is the whole point: this tool exists to get
+# path separators, line endings, filesystem case sensitivity and interpreter discovery right. The
+# two worst defects found in this repository were each invisible on one platform -- the `specify`
+# symlink bug could not reproduce on Windows, and the CRLF corruption could not reproduce on Linux.
+# A Dagger-only pipeline would verify the one platform where the bugs are least likely to live.
+#
+# So: Dagger owns Linux, native runners own Windows and macOS. Cross-compiling from Linux would
+# produce artifacts for those platforms while proving nothing about behaviour on them.
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux:
+    name: Linux (Dagger)
+    # Not ubuntu-slim: those runners are unprivileged, and the Dagger engine requires a privileged
+    # container.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: fmt, clippy, test, build, dogfood
+        uses: dagger/dagger-for-github@v8.4.1
+        with:
+          # Pinned deliberately. Dagger is 0.x and its minor releases carry breaking changes.
+          version: "v0.21.8"
+          verb: run
+          args: dagger --progress plain -M ci/rust.dag
+
+  native:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      # The checkout itself is part of what is under test. If .gitattributes ever stops pinning the
+      # POSIX launchers to LF, a Windows runner with core.autocrlf=true corrupts them here, and the
+      # repository-integrity job below is what notices.
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@nextest
+
+      - name: Test
+        run: cargo nextest run --all-targets
+
+      # Run explicitly as well as under nextest: the corpus is the cross-implementation contract,
+      # and it is the only thing here that exercises real path separators and a case-insensitive
+      # filesystem end to end.
+      - name: Conformance corpus
+        run: cargo test --test conformance
+
+      - name: Release build
+        run: cargo build --release
+
+  integrity:
+    name: Repository integrity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # These checks read the git index, and Dagger's default upload filter excludes `.git`. Rather
+      # than fight that, they run outside any container -- which is also where they are cheapest.
+      - name: POSIX entry points stay LF
+        run: |
+          set -euo pipefail
+          status=0
+          for script in launchers/ears-sdd components/extension/ears-validate/scripts/ears-sdd.sh; do
+            if grep -qU $'\r' "$script"; then
+              echo "::error file=$script::contains CRLF; it must stay LF to run on Linux and macOS"
+              status=1
+            fi
+          done
+          exit $status
+
+      - name: POSIX entry points stay executable
+        run: |
+          set -euo pipefail
+          status=0
+          for script in launchers/ears-sdd components/extension/ears-validate/scripts/ears-sdd.sh; do
+            mode=$(git ls-files -s "$script" | cut -d' ' -f1)
+            if [ "$mode" != "100755" ]; then
+              echo "::error file=$script::mode is $mode; it must be 100755"
+              status=1
+            fi
+          done
+          exit $status
