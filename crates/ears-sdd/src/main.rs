@@ -37,6 +37,9 @@ struct InitArgs {
     /// Preset and extension resolution priority; lower wins.
     #[arg(long, default_value_t = 5)]
     priority: u32,
+    /// Also write .github/workflows/ears-sdd.yml, pinned to this validator's version.
+    #[arg(long)]
+    ci: bool,
 }
 
 #[derive(clap::Args)]
@@ -83,6 +86,7 @@ fn main() -> ExitCode {
                 project: args.project,
                 integration: args.integration,
                 priority: args.priority,
+                ci: args.ci,
             }) {
                 Ok(()) => ExitCode::SUCCESS,
                 Err(message) => {

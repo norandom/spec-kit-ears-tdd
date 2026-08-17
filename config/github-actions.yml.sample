@@ -1,0 +1,45 @@
+# EARS/TDD requirements gate, installed by `ears-sdd init --ci`.
+#
+# The validator version is pinned to the binary that generated this file. A gate whose verdict can
+# change without a commit to this repository is not a gate: the same tree would pass today and fail
+# tomorrow, and the failure would look like the author's fault. Re-run `ears-sdd init --ci` after
+# upgrading to move the pin deliberately.
+
+name: EARS/TDD gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A superseded run cannot usefully fail a branch that has already moved past it.
+concurrency:
+  group: ears-sdd-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    name: Requirements and traceability
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install ears-sdd {VERSION}
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -LsSf \
+            "https://github.com/norandom/spec-kit-ears-tdd/releases/download/v{VERSION}/ears-sdd-installer.sh" | sh
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+
+      # `--all` is the load-bearing flag. Without it the run evaluates a single feature and reports a
+      # pass that says nothing about the rest of the project, which is the one way this gate can be
+      # green and meaningless.
+      #
+      # `--phase final` is the complete check: EARS syntax, vocabulary grounding, verification
+      # traceability, task coverage, constraint satisfiability within each specification and across
+      # all of them merged, and separation of requirement prose from production code.
+      - name: EARS/TDD gate
+        run: ears-sdd validate --project . --phase final --all

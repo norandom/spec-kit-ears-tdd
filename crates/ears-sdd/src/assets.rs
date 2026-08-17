@@ -26,6 +26,19 @@ pub fn traceability_sample() -> &'static str {
         .expect("the traceability sample is embedded at build time")
 }
 
+/// The consuming project's CI workflow, with the validator version pinned to this binary.
+///
+/// Pinning to `CARGO_PKG_VERSION` rather than to a floating `latest` keeps a verdict reproducible:
+/// the tree that passes on a developer machine is checked by the same validator in CI, and a new
+/// release cannot turn a green branch red without someone choosing to upgrade.
+pub fn ci_workflow() -> String {
+    CONFIG
+        .get_file("github-actions.yml.sample")
+        .and_then(|file| file.contents_utf8())
+        .expect("the CI sample is embedded at build time")
+        .replace("{VERSION}", env!("CARGO_PKG_VERSION"))
+}
+
 /// Write an embedded tree to disk so `specify ... --dev <path>` has something to read.
 pub fn materialize(directory: &Dir<'_>, destination: &Path) -> std::io::Result<()> {
     std::fs::create_dir_all(destination)?;
@@ -58,6 +71,26 @@ mod tests {
         }
         assert!(!config_sample().is_empty());
         assert!(!traceability_sample().is_empty());
+    }
+
+    /// The pin is the whole point of generating this file rather than shipping a static one, and a
+    /// leftover placeholder would silently produce a 404 at install time inside someone else's CI.
+    #[test]
+    fn the_ci_workflow_pins_this_version() {
+        let workflow = ci_workflow();
+        assert!(
+            !workflow.contains("{VERSION}"),
+            "the version placeholder survived substitution"
+        );
+        assert!(
+            workflow.contains(&format!(
+                "v{}/ears-sdd-installer.sh",
+                env!("CARGO_PKG_VERSION")
+            )),
+            "the installer URL does not pin this binary's version"
+        );
+        // Without --all the gate evaluates one feature and reports a pass for the project.
+        assert!(workflow.contains("--phase final --all"));
     }
 
     fn walk(directory: &Dir<'_>, found: &mut Vec<String>) {

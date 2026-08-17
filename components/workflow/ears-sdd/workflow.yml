@@ -3,7 +3,7 @@ schema_version: "1.0"
 workflow:
   id: "ears-sdd"
   name: "EARS/TDD SDD Cycle"
-  version: "0.1.0"
+  version: "0.2.0"
   author: "mariu"
   description: "Runs Spec Kit with EARS validation, test traceability, and human review gates."
 
@@ -17,10 +17,31 @@ inputs:
     type: string
     required: true
     prompt: "Describe what you want to build"
+  context:
+    type: string
+    default: ""
+    prompt: "Technical context for planning: stack, constraints, existing components"
   integration:
     type: string
     default: "auto"
     prompt: "Integration to use; `auto` uses the initialized integration"
+
+# Three things about the shape below, each fixing a way the previous version could pass when it
+# should not have.
+#
+# The validator runs as a `shell` step, not a `command` step. A command step's exit code is the
+# agent CLI's, so a failing gate reported a failure into the transcript and the workflow carried on
+# regardless. A shell step exits with the validator's own status, which is what makes these gates
+# gates rather than suggestions.
+#
+# Validation runs BEFORE each human gate. Asking someone to approve requirements the deterministic
+# checker has not yet examined wastes the review: they are being asked to catch by eye exactly what
+# the tool is about to catch by construction. Reversed, the human sees the findings first and spends
+# their attention on what a checker cannot judge.
+#
+# Rejection retries rather than aborts. Aborting discards the whole run, so a reviewer who spots one
+# wrong requirement has to start again -- which teaches people to approve rather than reject. Retry
+# re-asks after the artifact has been fixed, which is what a review is for.
 
 steps:
   - id: specify
@@ -28,53 +49,61 @@ steps:
     integration: "{{ inputs.integration }}"
     input:
       args: "{{ inputs.spec }}"
+
+  - id: validate-spec
+    type: shell
+    run: "ears-sdd validate --phase spec --all"
+
   - id: review-spec
     type: gate
-    message: "Review the EARS requirements before validation."
+    message: "The spec gate passed. Review the EARS requirements before planning."
+    show_file: "specs"
     options: [approve, reject]
-    on_reject: abort
-  - id: validate-spec
-    command: speckit.ears-validate.validate
-    integration: "{{ inputs.integration }}"
-    input:
-      args: "spec"
+    on_reject: retry
+
   - id: plan
     command: speckit.plan
     integration: "{{ inputs.integration }}"
     input:
-      args: "{{ inputs.spec }}"
+      args: "{{ inputs.context }}"
+
+  - id: validate-plan
+    type: shell
+    run: "ears-sdd validate --phase plan --all"
+
   - id: review-plan
     type: gate
-    message: "Review design and verification traceability before task generation."
+    message: "The plan gate passed. Review the design and the verification traceability."
     options: [approve, reject]
-    on_reject: abort
-  - id: validate-plan
-    command: speckit.ears-validate.validate
-    integration: "{{ inputs.integration }}"
-    input:
-      args: "plan"
+    on_reject: retry
+
   - id: tasks
     command: speckit.tasks
     integration: "{{ inputs.integration }}"
-    input:
-      args: "{{ inputs.spec }}"
+
   - id: validate-tasks
-    command: speckit.ears-validate.validate
-    integration: "{{ inputs.integration }}"
-    input:
-      args: "tasks"
+    type: shell
+    run: "ears-sdd validate --phase tasks --all"
+
   - id: approve-implementation
     type: gate
-    message: "Approve test-first tasks before production code changes."
+    message: "Every requirement is covered by a task. Approve test-first work on production code."
     options: [approve, reject]
-    on_reject: abort
+    on_reject: retry
+
   - id: implement
     command: speckit.implement
     integration: "{{ inputs.integration }}"
-    input:
-      args: "{{ inputs.spec }}"
+
   - id: validate-final
-    command: speckit.ears-validate.validate
-    integration: "{{ inputs.integration }}"
-    input:
-      args: "final"
+    type: shell
+    run: "ears-sdd validate --phase final --all"
+
+  # The last gate exists because the final validator checks artifacts, not behaviour. It can confirm
+  # that every requirement names a test that exists; it cannot confirm the tests were run or that
+  # they pass. Someone has to say so.
+  - id: accept
+    type: gate
+    message: "The final gate passed. Confirm the declared test command was run and the tests pass."
+    options: [approve, reject]
+    on_reject: retry

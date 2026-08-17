@@ -22,6 +22,10 @@ pub struct Options {
     pub project: PathBuf,
     pub integration: String,
     pub priority: u32,
+    /// Install the GitHub Actions gate. Opt-in: writing into `.github/` is a larger and more
+    /// opinionated footprint than `.specify/`, and it is wrong outright for a project that does not
+    /// use GitHub Actions. A project that skips it is told what it is skipping.
+    pub ci: bool,
 }
 
 pub fn run(options: &Options) -> Result<(), String> {
@@ -112,9 +116,37 @@ pub fn run(options: &Options) -> Result<(), String> {
         assets::traceability_sample().as_bytes(),
     )?;
 
+    if options.ci {
+        write_ci_workflow(&project)?;
+    }
+
     println!("Installed EARS/TDD policy components.");
     println!("Next: edit .specify/ears-sdd.toml, then run `ears-sdd validate --phase spec --all`.");
+    if !options.ci {
+        // Said plainly because the alternative is a project that believes it has a gate. The
+        // preset and the skill describe the policy to an agent; neither can make the check run,
+        // and an agent that decides it has finished simply does not run it.
+        println!(
+            "Nothing runs the gate automatically. `ears-sdd init --ci` adds a GitHub Actions \
+             workflow that does."
+        );
+    }
     Ok(())
+}
+
+/// Install the GitHub Actions gate into a project.
+///
+/// Separate from `run` so it can be exercised without a Spec Kit installation and a network: the
+/// interesting part is that it creates `.github/workflows/` when absent and never overwrites a
+/// workflow someone has since edited.
+pub fn write_ci_workflow(project: &Path) -> Result<(), String> {
+    write_if_absent(
+        &project
+            .join(".github")
+            .join("workflows")
+            .join("ears-sdd.yml"),
+        assets::ci_workflow().as_bytes(),
+    )
 }
 
 /// `canonicalize` returns a verbatim path on Windows (`\\?\C:\...`). It is correct and unreadable,
@@ -209,8 +241,45 @@ fn write_if_absent(path: &Path, contents: &[u8]) -> Result<(), String> {
         println!("Kept existing {}", display(path));
         return Ok(());
     }
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent)
+            .map_err(|error| format!("Could not create {}: {error}", display(parent)))?;
+    }
     std::fs::write(path, contents)
         .map_err(|error| format!("Could not write {}: {error}", display(path)))?;
     println!("Created {}", display(path));
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn the_ci_workflow_lands_in_a_project_without_a_github_directory() {
+        let project = tempfile::tempdir().expect("a temporary directory");
+        write_ci_workflow(project.path()).expect("the workflow is written");
+
+        let written = project.path().join(".github/workflows/ears-sdd.yml");
+        let contents = std::fs::read_to_string(&written).expect("the workflow exists");
+        assert!(contents.contains("ears-sdd validate --project . --phase final --all"));
+    }
+
+    /// A project that has tightened the gate -- pinned a newer validator, added a matrix, narrowed
+    /// the triggers -- must not silently lose that on the next `init`. Reporting the file as kept is
+    /// the only honest outcome, since the alternative is a gate that quietly reverts.
+    #[test]
+    fn an_edited_ci_workflow_is_never_overwritten() {
+        let project = tempfile::tempdir().expect("a temporary directory");
+        let written = project.path().join(".github/workflows/ears-sdd.yml");
+        std::fs::create_dir_all(written.parent().expect("a parent")).expect("the directory");
+        std::fs::write(&written, "# edited by hand\n").expect("the seed file");
+
+        write_ci_workflow(project.path()).expect("the call succeeds");
+
+        assert_eq!(
+            std::fs::read_to_string(&written).expect("still readable"),
+            "# edited by hand\n"
+        );
+    }
 }

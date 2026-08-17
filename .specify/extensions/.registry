@@ -4,7 +4,7 @@
     "ears-validate": {
       "version": "0.1.0",
       "source": "local",
-      "manifest_hash": "sha256:03969984beee884a28b89a243ff838a26d7f2de5d8f5c87c8ba4216b43d24762",
+      "manifest_hash": "sha256:05feee599bb0ddb5f258b677dd035241179cc47cbb2c946872d5c061d2e4d193",
       "enabled": true,
       "priority": 5,
       "registered_commands": {
@@ -13,7 +13,7 @@
         ]
       },
       "registered_skills": [],
-      "installed_at": "2026-08-17T11:38:54.551791+00:00"
+      "installed_at": "2026-08-17T15:32:05.357286+00:00"
     }
   }
 }

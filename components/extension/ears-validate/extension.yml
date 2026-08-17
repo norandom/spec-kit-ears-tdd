@@ -21,4 +21,24 @@ provides:
       file: "commands/speckit.ears-validate.validate.md"
       description: "Run the deterministic EARS/TDD validation gate and explain failures"
 
+# There is deliberately no `events:` block here, and no `scripts:` block in the command template.
+#
+# A stop-event hook is the obvious way to make the gate run without relying on the agent choosing
+# to, and it was tried. Spec Kit 0.16.3's dispatcher (.specify/events.py, `_resolve_argv`) resolves
+# a command's first script token as a path under the extension directory, requires that path to
+# exist, and then launches it as `pwsh -File <path>` or `bash <path>`. It has no way to invoke a
+# program on PATH. Wiring the hook therefore means shipping a launcher script whose only job is to
+# exec the binary -- the exact file class the integrity check in .github/workflows/ci.yml forbids,
+# for the exact reasons stated there: the previous launchers carried CRLF corruption on Windows
+# clones and a lost execute bit, and that pair took POSIX adoption to zero.
+#
+# The decisive part is how it fails. With `events:` declared and no resolvable script, the extension
+# installs reporting success, the agent config gains a Stop hook, and the dispatcher answers every
+# firing with "No script found" and exit 0. The gate presents as enabled and enforces nothing, which
+# is worse than an absent gate because it is indistinguishable from a passing one.
+#
+# Enforcement lives where it survives being ignored: the `shell` steps in the ears-sdd workflow,
+# which exit with the validator's own status, and CI, which `ears-sdd init --ci` installs into
+# consuming projects. Both fail loudly and visibly when absent.
+
 tags: ["ears", "requirements", "validation", "tdd"]
