@@ -25,7 +25,11 @@ pub struct Outcome {
 }
 
 fn normalized_prose(value: &str) -> String {
-    value.split_whitespace().collect::<Vec<_>>().join(" ").to_lowercase()
+    value
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ")
+        .to_lowercase()
 }
 
 /// A match is only an identifier reference when it is not embedded in a longer token, so `REQ-0011`
@@ -148,7 +152,14 @@ pub fn validate(root: &Path, requirements: &[Requirement], config: &Config) -> O
                 continue;
             };
             files_scanned += 1;
-            scan(&mut findings, &automaton, &identifiers, requirements, &content, &display);
+            scan(
+                &mut findings,
+                &automaton,
+                &identifiers,
+                requirements,
+                &content,
+                &display,
+            );
         }
     }
 

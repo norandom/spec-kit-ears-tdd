@@ -32,7 +32,10 @@ impl Default for Config {
             traceability_file: "traceability.toml".to_string(),
             require_test_files: true,
             test_command: String::new(),
-            production_roots: ["src", "app", "lib"].iter().map(|s| s.to_string()).collect(),
+            production_roots: ["src", "app", "lib"]
+                .iter()
+                .map(|s| s.to_string())
+                .collect(),
             test_roots: vec!["tests".to_string()],
             source_extensions: [
                 ".c", ".cc", ".cpp", ".cs", ".go", ".java", ".js", ".jsx", ".kt", ".php", ".ps1",

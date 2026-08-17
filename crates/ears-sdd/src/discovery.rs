@@ -51,7 +51,11 @@ pub fn discover(root: &Path, config: &Config, feature: Option<&str>, all: bool) 
         if pointer.is_file() {
             match read_pointer(&pointer) {
                 Ok(Some(directory)) => {
-                    return explicit(root, &directory, ScopeSource::FeaturePointer(directory.clone()))
+                    return explicit(
+                        root,
+                        &directory,
+                        ScopeSource::FeaturePointer(directory.clone()),
+                    )
                 }
                 Ok(None) => {}
                 Err(message) => findings.push(
@@ -69,8 +73,7 @@ pub fn discover(root: &Path, config: &Config, feature: Option<&str>, all: bool) 
 
 fn read_pointer(path: &Path) -> Result<Option<String>, String> {
     let text = std::fs::read_to_string(path).map_err(|error| error.to_string())?;
-    let pointer: FeaturePointer =
-        serde_json::from_str(&text).map_err(|error| error.to_string())?;
+    let pointer: FeaturePointer = serde_json::from_str(&text).map_err(|error| error.to_string())?;
     Ok(pointer
         .feature_directory
         .filter(|directory| !directory.trim().is_empty()))

@@ -110,8 +110,16 @@ pub fn run(options: &Options) -> Result<(), String> {
         assets::traceability_sample().as_bytes(),
     )?;
 
-    install_launcher(&project.join("ears-sdd.ps1"), assets::launcher("ears-sdd.ps1"), false)?;
-    install_launcher(&project.join("ears-sdd"), assets::launcher("ears-sdd"), true)?;
+    install_launcher(
+        &project.join("ears-sdd.ps1"),
+        assets::launcher("ears-sdd.ps1"),
+        false,
+    )?;
+    install_launcher(
+        &project.join("ears-sdd"),
+        assets::launcher("ears-sdd"),
+        true,
+    )?;
     warn_about_line_endings(&project);
 
     println!("Installed EARS/TDD policy components.");
@@ -130,7 +138,11 @@ fn display(path: &Path) -> String {
 }
 
 fn locate_specify() -> Result<PathBuf, String> {
-    let name = if cfg!(windows) { "specify.exe" } else { "specify" };
+    let name = if cfg!(windows) {
+        "specify.exe"
+    } else {
+        "specify"
+    };
     let interpreter = std::env::current_exe().ok();
     let mut roots: Vec<PathBuf> = Vec::new();
     if let Some(directory) = interpreter.as_ref().and_then(|path| path.parent()) {
@@ -246,7 +258,11 @@ fn set_executable(path: &Path) -> Result<(), String> {
     let Some(parent) = path.parent() else {
         return Ok(());
     };
-    let name = path.file_name().unwrap_or_default().to_string_lossy().to_string();
+    let name = path
+        .file_name()
+        .unwrap_or_default()
+        .to_string_lossy()
+        .to_string();
     let recorded = Command::new("git")
         .args(["update-index", "--chmod=+x", "--add", &name])
         .current_dir(parent)

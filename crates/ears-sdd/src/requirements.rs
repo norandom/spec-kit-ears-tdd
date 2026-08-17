@@ -36,8 +36,10 @@ fn identifier_pattern() -> &'static Regex {
 fn inline_pattern() -> &'static Regex {
     static PATTERN: OnceLock<Regex> = OnceLock::new();
     PATTERN.get_or_init(|| {
-        Regex::new(r"^(?:\*\*)?(?P<id>REQ-\d{3,})(?:\*\*)?\s*[:\-\u{2013}\u{2014}]\s*(?P<text>.+?)$")
-            .unwrap()
+        Regex::new(
+            r"^(?:\*\*)?(?P<id>REQ-\d{3,})(?:\*\*)?\s*[:\-\u{2013}\u{2014}]\s*(?P<text>.+?)$",
+        )
+        .unwrap()
     })
 }
 

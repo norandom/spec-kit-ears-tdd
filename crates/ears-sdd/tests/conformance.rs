@@ -115,10 +115,14 @@ fn corpus_matches_expected_results() {
         // A failing gate has to be observable to a shell, not only to a JSON consumer.
         let expected_failure = expected["ok"] == json!(false);
         if expected_failure && output.status.success() {
-            failures.push(format!("{name}: report is not ok but the process exited zero"));
+            failures.push(format!(
+                "{name}: report is not ok but the process exited zero"
+            ));
         }
         if !expected_failure && !output.status.success() {
-            failures.push(format!("{name}: report is ok but the process exited non-zero"));
+            failures.push(format!(
+                "{name}: report is ok but the process exited non-zero"
+            ));
         }
     }
 

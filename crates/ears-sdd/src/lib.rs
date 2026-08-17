@@ -1,8 +1,8 @@
 pub mod assets;
 pub mod config;
 pub mod discovery;
-pub mod init;
 pub mod ears;
+pub mod init;
 pub mod report;
 pub mod requirements;
 pub mod separation;

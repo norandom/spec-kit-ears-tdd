@@ -40,7 +40,8 @@ fn closing_delimiter(open: char) -> char {
 fn is_word_internal(characters: &[char], index: usize) -> bool {
     let before = index.checked_sub(1).and_then(|i| characters.get(i));
     let after = characters.get(index + 1);
-    matches!(before, Some(c) if c.is_alphanumeric()) && matches!(after, Some(c) if c.is_alphanumeric())
+    matches!(before, Some(c) if c.is_alphanumeric())
+        && matches!(after, Some(c) if c.is_alphanumeric())
 }
 
 fn is_delimiter(characters: &[char], index: usize) -> bool {
@@ -125,7 +126,10 @@ pub fn validate(root: &Path, requirement: &Requirement) -> Vec<Finding> {
     {
         findings.push(finding(
             "EARS_MODAL",
-            &format!("Use `shall`, not `{}`.", &sentence[modal.start()..modal.end()]),
+            &format!(
+                "Use `shall`, not `{}`.",
+                &sentence[modal.start()..modal.end()]
+            ),
         ));
     }
 

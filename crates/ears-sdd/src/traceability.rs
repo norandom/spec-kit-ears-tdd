@@ -79,9 +79,7 @@ pub fn validate(
     };
     let parsed: TraceabilityFile = match toml::from_str(&text) {
         Ok(parsed) => parsed,
-        Err(error) => {
-            return vec![finding("TRACE_INVALID", error.message().to_string(), None)]
-        }
+        Err(error) => return vec![finding("TRACE_INVALID", error.message().to_string(), None)],
     };
 
     let mut findings = Vec::new();
@@ -135,7 +133,9 @@ pub fn validate(
                         continue;
                     }
                     if !test_roots.is_empty()
-                        && !test_roots.iter().any(|prefix| candidate.starts_with(prefix))
+                        && !test_roots
+                            .iter()
+                            .any(|prefix| candidate.starts_with(prefix))
                     {
                         findings.push(finding(
                             "TRACE_TEST_ROOT",
