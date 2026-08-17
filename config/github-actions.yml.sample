@@ -7,10 +7,14 @@
 
 name: EARS/TDD gate
 
+# Deliberately unfiltered by path. Filtering to specs/ would skip the gate on a change to
+# production code, which is exactly when the separation check earns its keep: a requirement
+# sentence copied into a source file is introduced by a code change, not by a specification change.
 on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 # A superseded run cannot usefully fail a branch that has already moved past it.
 concurrency:
