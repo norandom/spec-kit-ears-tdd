@@ -18,10 +18,23 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
+    /// Install the policy into a Spec Kit project.
+    Init(InitArgs),
     /// Run a gate and fail the process when it does not pass.
     Validate(GateArgs),
     /// Report the same result, always exiting zero.
     Status(GateArgs),
+}
+
+#[derive(clap::Args)]
+struct InitArgs {
+    #[arg(long, default_value = ".")]
+    project: PathBuf,
+    #[arg(long, default_value = "codex")]
+    integration: String,
+    /// Preset and extension resolution priority; lower wins.
+    #[arg(long, default_value_t = 5)]
+    priority: u32,
 }
 
 #[derive(clap::Args)]
@@ -63,6 +76,19 @@ impl From<PhaseArg> for Phase {
 fn main() -> ExitCode {
     let cli = Cli::parse();
     let (args, status_only) = match cli.command {
+        Command::Init(args) => {
+            return match ears_sdd::init::run(&ears_sdd::init::Options {
+                project: args.project,
+                integration: args.integration,
+                priority: args.priority,
+            }) {
+                Ok(()) => ExitCode::SUCCESS,
+                Err(message) => {
+                    eprintln!("{message}");
+                    ExitCode::from(2)
+                }
+            }
+        }
         Command::Validate(args) => (args, false),
         Command::Status(args) => (args, true),
     };
