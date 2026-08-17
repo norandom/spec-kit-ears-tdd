@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "ok": false,
+  "phase": "tasks",
+  "scope": {
+    "source": "glob",
+    "value": "specs/*/spec.md"
+  },
+  "summary": {
+    "features": 1,
+    "requirements": 1,
+    "specs_examined": 1,
+    "errors": 1,
+    "warnings": 0,
+    "advisories": 0,
+    "tasks_covered": 0
+  },
+  "findings": [
+    {
+      "code": "TASK_LIST_MISSING",
+      "path": "specs/001-alpha/tasks.md",
+      "feature": "specs/001-alpha",
+      "requirement": null,
+      "line": null,
+      "severity": "error"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "tasks"
+  ],
+  "note": "all three requirements are referenced, so the gate passes"
+}

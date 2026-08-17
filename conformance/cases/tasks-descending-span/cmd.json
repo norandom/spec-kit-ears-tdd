@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "tasks"
+  ],
+  "note": "a backwards span is malformed rather than silently empty"
+}

@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan"
+  ],
+  "note": "no tasks.md at all still passes --phase plan; only the tasks gate cares"
+}

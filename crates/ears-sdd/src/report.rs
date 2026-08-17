@@ -135,6 +135,10 @@ pub struct Summary {
     pub errors: usize,
     pub warnings: usize,
     pub advisories: usize,
+    /// Declared requirements a task list references. Only the tasks gate opens `tasks.md`, so this
+    /// is absent elsewhere rather than reported as a misleading zero.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tasks_covered: Option<usize>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

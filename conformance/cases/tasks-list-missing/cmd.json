@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "tasks"
+  ],
+  "note": "a feature with no task list fails the tasks gate rather than passing silently"
+}

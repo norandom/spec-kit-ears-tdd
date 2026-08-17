@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "tasks"
+  ],
+  "note": "REQ-999 is not declared by the specification"
+}

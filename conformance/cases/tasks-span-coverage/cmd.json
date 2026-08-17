@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "tasks"
+  ],
+  "note": "an en-dash span counts every identifier it covers, not just its endpoints"
+}

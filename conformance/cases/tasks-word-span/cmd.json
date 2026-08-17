@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "tasks"
+  ],
+  "note": "`REQ-001 through REQ-006` is a span; dashes-only detection reported four false failures against real work"
+}

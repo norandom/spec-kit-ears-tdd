@@ -113,12 +113,12 @@ fn parse_table_row(line: &str) -> Option<(String, String)> {
 /// Tracks fenced code blocks so their contents are never mistaken for requirements. A fence opens
 /// with three or more backticks or tildes and closes with at least as many of the same character.
 #[derive(Default)]
-struct FenceState {
+pub(crate) struct FenceState {
     marker: Option<(char, usize)>,
 }
 
 impl FenceState {
-    fn consume(&mut self, line: &str) -> bool {
+    pub(crate) fn consume(&mut self, line: &str) -> bool {
         let trimmed = line.trim_start();
         let fence_char = trimmed.chars().next().filter(|c| *c == '`' || *c == '~');
         let Some(fence_char) = fence_char else {
@@ -141,7 +141,7 @@ impl FenceState {
         }
     }
 
-    fn inside(&self) -> bool {
+    pub(crate) fn inside(&self) -> bool {
         self.marker.is_some()
     }
 }

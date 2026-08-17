@@ -6,6 +6,7 @@ pub mod init;
 pub mod report;
 pub mod requirements;
 pub mod separation;
+pub mod tasks;
 pub mod traceability;
 
 use std::path::Path;
@@ -47,6 +48,7 @@ pub fn validate(request: Request<'_>) -> Report {
 
     let mut features: Vec<FeatureResult> = Vec::new();
     let mut all_requirements: Vec<Requirement> = Vec::new();
+    let mut tasks_covered = 0usize;
 
     for location in &discovered.specs {
         let (requirements, spec_findings) =
@@ -60,6 +62,13 @@ pub fn validate(request: Request<'_>) -> Report {
                 &requirements,
                 &config,
             ));
+        }
+        // The tasks gate is the only phase that opens tasks.md, which is what finally makes it
+        // distinct from the plan gate rather than a second copy of it.
+        if request.phase == Phase::Tasks {
+            let outcome = tasks::validate(root, &location.path, &location.feature, &requirements);
+            findings.extend(outcome.findings);
+            tasks_covered += outcome.covered;
         }
         features.push(FeatureResult {
             feature: location.feature.clone(),
@@ -116,6 +125,7 @@ pub fn validate(request: Request<'_>) -> Report {
             errors,
             warnings,
             advisories,
+            tasks_covered: (request.phase == Phase::Tasks).then_some(tasks_covered),
         },
         features,
         findings,
