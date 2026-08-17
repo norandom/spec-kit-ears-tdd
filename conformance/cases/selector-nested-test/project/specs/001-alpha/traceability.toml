@@ -1,0 +1,5 @@
+schema_version = "1.0"
+
+[requirements.REQ-001]
+verification = "automated"
+tests = ["tests/test_records.py::tests::deeply_nested_case"]

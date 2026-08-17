@@ -36,6 +36,19 @@ fn selector_path(selector: &str) -> &str {
     without_test.split('#').next().unwrap_or(without_test)
 }
 
+/// The test a selector names inside its file, if it names one at all.
+///
+/// Only the final segment is returned, so `file::module::case` is checked against `case`. Requiring
+/// the whole path to appear would reject every language whose test name is not written the way the
+/// selector spells it, which is most of them.
+fn selector_name(selector: &str) -> Option<&str> {
+    let named = match selector.split_once("::") {
+        Some((_, rest)) => rest.rsplit("::").next(),
+        None => selector.split_once('#').map(|(_, anchor)| anchor),
+    };
+    named.map(str::trim).filter(|name| !name.is_empty())
+}
+
 fn normalize(path: &str) -> String {
     let slashed = path.replace('\\', "/");
     slashed
@@ -143,12 +156,32 @@ pub fn validate(
                             Some(identifier),
                         ));
                     }
-                    if config.require_test_files && !root.join(&candidate).is_file() {
-                        findings.push(finding(
-                            "TRACE_TEST_FILE",
-                            format!("Referenced test file does not exist: {candidate}"),
-                            Some(identifier),
-                        ));
+                    if config.require_test_files {
+                        let full = root.join(&candidate);
+                        if !full.is_file() {
+                            findings.push(finding(
+                                "TRACE_TEST_FILE",
+                                format!("Referenced test file does not exist: {candidate}"),
+                                Some(identifier),
+                            ));
+                        } else if let Some(name) = selector_name(selector) {
+                            // Checking only that the file exists lets a renamed or deleted test keep
+                            // its mapping green forever, which is the difference between recording a
+                            // verification and having one. A file that cannot be decoded is left
+                            // alone rather than reported: the mapping may well be correct, and a
+                            // false traceability failure is worse than an unchecked one here.
+                            if let Ok(text) = std::fs::read_to_string(&full) {
+                                if !text.contains(name) {
+                                    findings.push(finding(
+                                        "TRACE_TEST_NAME",
+                                        format!(
+                                            "Referenced test does not appear in {candidate}: {name}"
+                                        ),
+                                        Some(identifier),
+                                    ));
+                                }
+                            }
+                        }
                     }
                 }
             }

@@ -96,6 +96,10 @@ result to a stored expected result, field for field.
 - A specification file is not valid UTF-8, or begins with a byte order mark.
 - A feature directory contains a specification but no traceability file.
 - A test selector uses a relative path that escapes the project root.
+- A test selector names a test that was renamed or deleted after the mapping was written. The
+  reference project maps twenty-three requirements to anchors inside a single file; nothing today
+  would notice if one of those anchors stopped existing.
+- A selector names a nested test (`file::module::case`) or an anchor style other than `::`.
 
 ## Requirements *(mandatory)*
 
@@ -120,6 +124,8 @@ examples do not apply to this project.
 - REQ-014: The validator shall report a production-code separation finding at most once for each combination of file, line, and qualified requirement identifier.
 - REQ-015: The conformance corpus shall store each case as a project fixture together with its expected machine-readable result.
 - REQ-016: When a conformance case is executed, the harness shall invoke the validator through its documented command-line interface.
+- REQ-017: If a test selector names a test that its file does not contain, then the validator shall report a traceability finding.
+- REQ-018: Where a test selector names no test within its file, the validator shall check only that the file exists.
 
 ### Key Entities
 

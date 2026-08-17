@@ -33,7 +33,7 @@ jobs:
     # container.
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # The CLI is installed directly rather than through dagger/dagger-for-github. The action wraps
       # the command in `dagger run`, which opens a session; invoking `dagger` inside that is a
@@ -58,7 +58,7 @@ jobs:
       matrix:
         os: [windows-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # The checkout itself is part of what is under test. If .gitattributes ever stops pinning the
       # POSIX launchers to LF, a Windows runner with core.autocrlf=true corrupts them here, and the
@@ -83,7 +83,7 @@ jobs:
     name: Repository integrity
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # This reads the git index, and Dagger's default upload filter excludes `.git`. Rather than
       # fight that, it runs outside any container -- which is also where it is cheapest.

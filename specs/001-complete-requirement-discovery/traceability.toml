@@ -70,3 +70,11 @@ tests = ["crates/ears-sdd/tests/conformance.rs::every_case_has_a_fixture_and_an_
 [requirements.REQ-016]
 verification = "automated"
 tests = ["crates/ears-sdd/tests/conformance.rs::corpus_matches_expected_results"]
+
+[requirements.REQ-017]
+verification = "automated"
+tests = ["conformance/cases/selector-missing-test/expected.json"]
+
+[requirements.REQ-018]
+verification = "automated"
+tests = ["conformance/cases/selector-bare-file/expected.json"]
