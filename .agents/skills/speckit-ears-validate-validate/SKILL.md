@@ -18,6 +18,16 @@ ears-sdd validate --phase <spec|plan|tasks|final> [--all]
 `ears-sdd` is a single self-contained binary. It has no runtime dependency on Python, on Spec Kit,
 or on anything else — if it is not on `PATH`, install it rather than looking for a fallback script.
 
+When a run reports a pass that looks too easy — no findings over a project that has clearly never
+been checked — the question is whether anything is installed at all:
+
+```text
+ears-sdd doctor
+```
+
+It names each missing piece and the command that installs it. A project with no specifications
+passes every gate vacuously, and `doctor` is what distinguishes that from a project that is clean.
+
 ## Agent execution
 
 Interpret `$ARGUMENTS` as the phase; use `final` when it is empty. Run:

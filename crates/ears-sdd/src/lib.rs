@@ -4,6 +4,7 @@ pub mod assets;
 pub mod bdd;
 pub mod config;
 pub mod discovery;
+pub mod doctor;
 pub mod ears;
 pub mod enumerate;
 pub mod exemptions;

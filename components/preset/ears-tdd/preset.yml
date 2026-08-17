@@ -3,7 +3,7 @@ schema_version: "1.0"
 preset:
   id: "ears-tdd"
   name: "EARS Requirements and TDD"
-  version: "0.1.0"
+  version: "0.2.0"
   description: "Adds EARS requirements, explicit verification traceability, and test-first implementation gates."
   author: "mariu"
   repository: "https://github.com/norandom/spec-kit-ears-tdd"

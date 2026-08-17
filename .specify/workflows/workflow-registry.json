@@ -11,11 +11,11 @@
     },
     "ears-sdd": {
       "name": "EARS/TDD SDD Cycle",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "description": "Runs Spec Kit with EARS validation, test traceability, and human review gates.",
       "source": "components\\workflow\\ears-sdd",
-      "installed_at": "2026-08-17T08:53:14.699496+00:00",
-      "updated_at": "2026-08-17T15:24:50.733786+00:00"
+      "installed_at": "2026-08-17T15:36:34.313442+00:00",
+      "updated_at": "2026-08-17T15:36:34.313442+00:00"
     }
   }
 }

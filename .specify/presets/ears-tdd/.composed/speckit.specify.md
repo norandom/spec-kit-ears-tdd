@@ -1,6 +1,18 @@
 ---
 description: Create a specification, then normalize every normative requirement into
   EARS form.
+handoffs:
+- label: Validate EARS Requirements
+  agent: speckit.ears-validate.validate
+  prompt: spec
+  send: true
+- label: Clarify Spec Requirements
+  agent: speckit.clarify
+  prompt: Clarify specification requirements
+  send: true
+- label: Build Technical Plan
+  agent: speckit.plan
+  prompt: Create a plan for the spec. I am building with...
 ---
 
 

@@ -1,6 +1,18 @@
 ---
 description: Create the implementation plan and complete requirement-to-verification
   traceability.
+handoffs:
+- label: Validate Traceability
+  agent: speckit.ears-validate.validate
+  prompt: plan
+  send: true
+- label: Create Tasks
+  agent: speckit.tasks
+  prompt: Break the plan into tasks
+  send: true
+- label: Create Checklist
+  agent: speckit.checklist
+  prompt: Create a checklist for the following domain...
 scripts:
   sh: scripts/bash/setup-plan.sh --json
   ps: scripts/powershell/setup-plan.ps1 -Json

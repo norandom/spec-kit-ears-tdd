@@ -2,9 +2,9 @@
   "schema_version": "1.0",
   "presets": {
     "ears-tdd": {
-      "version": "0.1.0",
+      "version": "0.2.0",
       "source": "local",
-      "manifest_hash": "sha256:98c9b63d5ecdf0457982ff955d0ab0d0687705353e6e33bff7e4f8e29330f2dc",
+      "manifest_hash": "sha256:88483b1cbe86db9a9789616197c0ac7585359f94fe665ef4b53c1a01db1f1ee3",
       "enabled": true,
       "priority": 5,
       "registered_commands": {
@@ -23,7 +23,7 @@
           "speckit-implement"
         ]
       },
-      "installed_at": "2026-08-17T08:53:11.290188+00:00"
+      "installed_at": "2026-08-17T15:36:26.268294+00:00"
     }
   }
 }

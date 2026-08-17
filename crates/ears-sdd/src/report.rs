@@ -188,6 +188,18 @@ pub struct Report {
     pub findings: Vec<Finding>,
 }
 
+/// An absolute path as a user would type it back.
+///
+/// `canonicalize` returns a verbatim path on Windows (`\\?\C:\...`). It is correct, unreadable, and
+/// not accepted by every tool it might be pasted into, so anything printed strips the prefix.
+pub fn plain_path(path: &Path) -> String {
+    let rendered = path.display().to_string();
+    rendered
+        .strip_prefix(r"\\?\")
+        .map(|stripped| stripped.to_string())
+        .unwrap_or(rendered)
+}
+
 /// Project-relative, POSIX-separated. Falls back to the file name rather than an absolute path so a
 /// report can never leak a machine-specific location into what is meant to be portable evidence.
 pub fn relative(path: &Path, root: &Path) -> String {

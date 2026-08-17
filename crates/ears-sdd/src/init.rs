@@ -122,14 +122,21 @@ pub fn run(options: &Options) -> Result<(), String> {
 
     println!("Installed EARS/TDD policy components.");
     println!("Next: edit .specify/ears-sdd.toml, then run `ears-sdd validate --phase spec --all`.");
+    println!("`ears-sdd doctor` reports what is installed and what is not.");
     if !options.ci {
-        // Said plainly because the alternative is a project that believes it has a gate. The
-        // preset and the skill describe the policy to an agent; neither can make the check run,
+        // Said plainly, because the alternative is a project that believes it has a gate: the
+        // preset and the skill describe the policy to an agent, neither can make the check run,
         // and an agent that decides it has finished simply does not run it.
-        println!(
-            "Nothing runs the gate automatically. `ears-sdd init --ci` adds a GitHub Actions \
-             workflow that does."
-        );
+        //
+        // Asked the same way `doctor` asks, so the two cannot contradict each other -- a project
+        // that already invokes the validator from its own pipeline must not be told nothing does.
+        match crate::doctor::workflow_invoking_validator(&project) {
+            Some(file) => println!("The gate already runs in .github/workflows/{file}."),
+            None => println!(
+                "Nothing runs the gate automatically. `ears-sdd init --ci` adds a GitHub Actions \
+                 workflow that does."
+            ),
+        }
     }
     Ok(())
 }
@@ -149,15 +156,7 @@ pub fn write_ci_workflow(project: &Path) -> Result<(), String> {
     )
 }
 
-/// `canonicalize` returns a verbatim path on Windows (`\\?\C:\...`). It is correct and unreadable,
-/// and it is not what a user would type back, so strip it for anything printed.
-fn display(path: &Path) -> String {
-    let rendered = path.display().to_string();
-    rendered
-        .strip_prefix(r"\\?\")
-        .map(|stripped| stripped.to_string())
-        .unwrap_or(rendered)
-}
+use crate::report::plain_path as display;
 
 fn locate_specify() -> Result<PathBuf, String> {
     let name = if cfg!(windows) {

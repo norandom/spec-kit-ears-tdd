@@ -1,6 +1,11 @@
 ---
 description: Implement approved tasks test-first and enforce the final EARS traceability
   gate.
+handoffs:
+- label: Validate Final Gate
+  agent: speckit.ears-validate.validate
+  prompt: final
+  send: true
 scripts:
   sh: scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
   ps: scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks

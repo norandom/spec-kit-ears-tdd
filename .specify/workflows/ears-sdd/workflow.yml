@@ -3,7 +3,7 @@ schema_version: "1.0"
 workflow:
   id: "ears-sdd"
   name: "EARS/TDD SDD Cycle"
-  version: "0.2.0"
+  version: "0.3.0"
   author: "mariu"
   description: "Runs Spec Kit with EARS validation, test traceability, and human review gates."
 
@@ -50,6 +50,14 @@ steps:
     input:
       args: "{{ inputs.spec }}"
 
+  # Before validation, not after. An ambiguous requirement cannot be written in EARS form honestly:
+  # the form forces a trigger, a subject and a single `shall`, so an unresolved question gets
+  # answered by whoever is typing rather than surfaced. Clarify first and the EARS pass records a
+  # decision someone made; clarify later and it records a guess that now has a requirement ID.
+  - id: clarify
+    command: speckit.clarify
+    integration: "{{ inputs.integration }}"
+
   - id: validate-spec
     type: shell
     run: "ears-sdd validate --phase spec --all"
@@ -84,6 +92,16 @@ steps:
   - id: validate-tasks
     type: shell
     run: "ears-sdd validate --phase tasks --all"
+
+  # After the deterministic gate, so the two do not overlap. The validator answers whether every
+  # requirement has a covering task and a resolvable test selector; analyze answers whether the
+  # spec, the plan and the tasks still describe the same feature, which no checker here decides.
+  #
+  # speckit.checklist is deliberately absent: its value depends on a domain someone has to name, and
+  # a workflow cannot supply that. It stays available as a handoff from the plan command.
+  - id: analyze
+    command: speckit.analyze
+    integration: "{{ inputs.integration }}"
 
   - id: approve-implementation
     type: gate

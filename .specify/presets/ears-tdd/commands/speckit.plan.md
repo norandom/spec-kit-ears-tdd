@@ -1,6 +1,19 @@
 ---
 description: Create the implementation plan and complete requirement-to-verification traceability.
 strategy: wrap
+# Restated because `wrap` inherits only scripts/agent_scripts/argument-hint; see speckit.specify.md.
+handoffs:
+  - label: Validate Traceability
+    agent: speckit.ears-validate.validate
+    prompt: plan
+    send: true
+  - label: Create Tasks
+    agent: speckit.tasks
+    prompt: Break the plan into tasks
+    send: true
+  - label: Create Checklist
+    agent: speckit.checklist
+    prompt: Create a checklist for the following domain...
 ---
 
 {CORE_TEMPLATE}

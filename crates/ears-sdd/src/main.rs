@@ -20,6 +20,8 @@ struct Cli {
 enum Command {
     /// Install the policy into a Spec Kit project.
     Init(InitArgs),
+    /// Report whether the policy is installed and whether anything runs the gate.
+    Doctor(DoctorArgs),
     /// Run a gate and fail the process when it does not pass.
     Validate(GateArgs),
     /// Report the same result, always exiting zero.
@@ -40,6 +42,12 @@ struct InitArgs {
     /// Also write .github/workflows/ears-sdd.yml, pinned to this validator's version.
     #[arg(long)]
     ci: bool,
+}
+
+#[derive(clap::Args)]
+struct DoctorArgs {
+    #[arg(long, default_value = ".")]
+    project: PathBuf,
 }
 
 #[derive(clap::Args)]
@@ -89,6 +97,17 @@ fn main() -> ExitCode {
                 ci: args.ci,
             }) {
                 Ok(()) => ExitCode::SUCCESS,
+                Err(message) => {
+                    eprintln!("{message}");
+                    ExitCode::from(2)
+                }
+            }
+        }
+        Command::Doctor(args) => {
+            return match ears_sdd::doctor::run(&ears_sdd::doctor::Options {
+                project: args.project,
+            }) {
+                Ok(code) => ExitCode::from(code),
                 Err(message) => {
                     eprintln!("{message}");
                     ExitCode::from(2)

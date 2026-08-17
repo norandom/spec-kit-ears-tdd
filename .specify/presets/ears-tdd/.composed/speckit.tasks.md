@@ -1,5 +1,18 @@
 ---
 description: Generate test-first tasks with complete requirement coverage.
+handoffs:
+- label: Validate Task Coverage
+  agent: speckit.ears-validate.validate
+  prompt: tasks
+  send: true
+- label: Analyze For Consistency
+  agent: speckit.analyze
+  prompt: Run a project analysis for consistency
+  send: true
+- label: Implement Project
+  agent: speckit.implement
+  prompt: Start the implementation in phases
+  send: true
 scripts:
   sh: scripts/bash/setup-tasks.sh --json
   ps: scripts/powershell/setup-tasks.ps1 -Json

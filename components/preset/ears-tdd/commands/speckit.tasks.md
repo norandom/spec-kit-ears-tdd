@@ -1,6 +1,22 @@
 ---
 description: Generate test-first tasks with complete requirement coverage.
 strategy: wrap
+# Restated because `wrap` inherits only scripts/agent_scripts/argument-hint; see speckit.specify.md.
+handoffs:
+  # Ahead of Implement deliberately: this is the last point where a requirement with no covering
+  # task is cheap to fix, and the gate that guards production-code changes is the tasks gate.
+  - label: Validate Task Coverage
+    agent: speckit.ears-validate.validate
+    prompt: tasks
+    send: true
+  - label: Analyze For Consistency
+    agent: speckit.analyze
+    prompt: Run a project analysis for consistency
+    send: true
+  - label: Implement Project
+    agent: speckit.implement
+    prompt: Start the implementation in phases
+    send: true
 ---
 
 {CORE_TEMPLATE}
