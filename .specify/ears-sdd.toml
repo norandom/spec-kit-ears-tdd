@@ -1,16 +1,20 @@
-# Project-specific policy. Paths are relative to the consuming project root.
+# Policy for this repository. Paths are relative to the project root.
+#
+# Updated for the Rust layout. Before this the file still described the Python one
+# (production_roots = ["src", "app", "lib"], test_roots = ["tests"]), none of which exist any more,
+# so the separation gate was scanning nothing at all and saying so through three
+# PRODUCTION_ROOT_MISSING warnings.
 spec_glob = "specs/*/spec.md"
 traceability_file = "traceability.toml"
 require_test_files = true
 
-# Set this to the real test command for the consuming project before the final gate.
-test_command = ""
+test_command = "cargo nextest run"
 
 # Requirement prose and IDs must not be copied into these production-code roots.
-production_roots = ["src", "app", "lib"]
-test_roots = ["tests"]
-source_extensions = [
-  ".c", ".cc", ".cpp", ".cs", ".go", ".java", ".js", ".jsx",
-  ".kt", ".php", ".ps1", ".py", ".rb", ".rs", ".ts", ".tsx"
-]
+production_roots = ["crates"]
 
+# Both roots hold verification: Rust tests live beside the code and as integration tests under
+# crates/, and the behavioural corpus is data under conformance/.
+test_roots = ["crates", "conformance"]
+
+source_extensions = [".rs"]

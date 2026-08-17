@@ -96,7 +96,7 @@ impl Finding {
         self
     }
 
-    /// The identity used to suppress duplicates. Requirement identifiers restart at `REQ-001` in
+    /// The identity used to suppress duplicates. Requirement identifiers restart at `REQ-NNN` numbering in
     /// every feature, so the feature has to participate or one leaked identifier is reported once
     /// per feature that happens to define it.
     pub fn dedupe_key(&self) -> (String, String, Option<usize>, String, String) {

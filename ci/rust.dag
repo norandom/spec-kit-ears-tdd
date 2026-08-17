@@ -76,10 +76,24 @@ check_build() {
 
 # This repository is the policy layer's own first consumer. Running its gate against its own
 # specifications is what stops the gate rotting unnoticed -- which is exactly what had happened.
+#
+# Two runs, because they enforce different things. The spec gate covers every specification,
+# including the three that are written but not yet implemented. The final gate covers only the
+# implemented feature, and it is the strong one: it checks traceability, that every referenced test
+# exists, that a test command is declared, and that no requirement ID or requirement prose has
+# leaked into crates/. Running the strong gate over the unimplemented specs would just be 51
+# standing failures, which is how a gate ends up ignored.
 check_dogfood() {
   src |
     with-mounted-cache /src/target cargo-target-release |
     with-exec -- cargo run --release -- validate --project . --phase spec --all |
+    stdout
+}
+
+check_dogfood_final() {
+  src |
+    with-mounted-cache /src/target cargo-target-release |
+    with-exec -- cargo run --release -- validate --project . --feature specs/001-complete-requirement-discovery --phase final |
     stdout
 }
 
@@ -88,3 +102,4 @@ check_lint
 check_test
 check_build
 check_dogfood
+check_dogfood_final

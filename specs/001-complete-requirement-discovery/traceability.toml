@@ -1,68 +1,72 @@
 schema_version = "1.0"
 
-# Test selectors name files that do not exist yet. That is intentional: the plan and tasks gates
-# fail until the failing tests are written, which is the test-first ordering this policy enforces.
+# Repointed from the deleted Python tests to the Rust implementation. Where a conformance case
+# exercises the requirement, the mapping names that case rather than the runner: the case is the
+# thing that would have to change if the behaviour changed, and it survives a reimplementation.
 
 [requirements.REQ-001]
 verification = "automated"
-tests = ["tests/test_discovery.py::test_all_markdown_forms_are_discovered"]
+tests = ["conformance/cases/markdown-forms/expected.json"]
 
 [requirements.REQ-002]
 verification = "automated"
-tests = ["tests/test_discovery.py::test_fenced_code_block_is_not_a_requirement"]
+tests = ["conformance/cases/fenced-code-block/expected.json"]
 
 [requirements.REQ-003]
 verification = "automated"
-tests = ["tests/test_discovery.py::test_duplicate_identifier_is_reported"]
+tests = ["conformance/cases/duplicate-identifier/expected.json"]
 
 [requirements.REQ-004]
 verification = "automated"
-tests = ["tests/test_discovery.py::test_identifier_accepts_three_or_more_digits"]
+tests = ["conformance/cases/wide-identifier/expected.json"]
 
 [requirements.REQ-005]
 verification = "automated"
-tests = ["tests/test_discovery.py::test_all_features_mode_evaluates_every_spec"]
+tests = ["conformance/cases/all-features-scope/expected.json"]
 
 [requirements.REQ-006]
 verification = "automated"
-tests = ["tests/test_discovery.py::test_missing_active_feature_reports_finding"]
+tests = ["conformance/cases/stale-feature-pointer/expected.json"]
 
 [requirements.REQ-007]
 verification = "automated"
-tests = ["tests/test_contract.py::test_result_reports_examined_file_count"]
+tests = ["conformance/cases/all-features-scope/expected.json"]
 
 [requirements.REQ-008]
 verification = "automated"
-tests = ["tests/test_contract.py::test_result_carries_schema_version"]
+tests = ["crates/ears-sdd/tests/conformance.rs::corpus_matches_expected_results"]
 
 [requirements.REQ-009]
 verification = "automated"
-tests = ["tests/test_discovery.py::test_selector_outside_test_roots_is_reported"]
+tests = ["conformance/cases/selector-traversal/expected.json"]
 
 [requirements.REQ-010]
 verification = "automated"
-tests = ["tests/test_discovery.py::test_undecodable_spec_reports_finding"]
+tests = ["conformance/cases/undecodable-spec/expected.json"]
 
 [requirements.REQ-011]
 verification = "automated"
-tests = ["tests/test_contract.py::test_validation_run_mutates_nothing"]
+tests = ["crates/ears-sdd/tests/read_only.rs::no_gate_modifies_the_project"]
 
 [requirements.REQ-012]
 verification = "automated"
-tests = ["tests/test_discovery.py::test_modal_inside_quoted_literal_is_non_normative"]
+tests = [
+  "conformance/cases/modal-in-quoted-literal/expected.json",
+  "crates/ears-sdd/src/ears.rs::tests::balanced_literal_is_masked",
+]
 
 [requirements.REQ-013]
 verification = "automated"
-tests = ["tests/test_discovery.py::test_identifiers_are_qualified_by_feature"]
+tests = ["conformance/cases/feature-qualified-ids/expected.json"]
 
 [requirements.REQ-014]
 verification = "automated"
-tests = ["tests/test_discovery.py::test_separation_finding_is_not_duplicated_across_features"]
+tests = ["conformance/cases/feature-qualified-ids/expected.json"]
 
 [requirements.REQ-015]
 verification = "automated"
-tests = ["tests/test_conformance.py::test_every_case_has_a_fixture_and_expected_result"]
+tests = ["crates/ears-sdd/tests/conformance.rs::every_case_has_a_fixture_and_an_expected_result"]
 
 [requirements.REQ-016]
 verification = "automated"
-tests = ["tests/test_conformance.py::test_cases_run_through_the_command_line_interface"]
+tests = ["crates/ears-sdd/tests/conformance.rs::corpus_matches_expected_results"]

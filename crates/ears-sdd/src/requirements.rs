@@ -21,7 +21,7 @@ pub struct Requirement {
 }
 
 impl Requirement {
-    /// Identifiers restart at `REQ-001` in every feature, so anything that compares requirements
+    /// Identifiers restart from the first number in every feature, so anything that compares requirements
     /// across features has to use this rather than the bare identifier.
     pub fn qualified(&self) -> String {
         format!("{}:{}", self.feature, self.identifier)
@@ -87,7 +87,7 @@ fn strip_ordered_marker(line: &str) -> &str {
     line
 }
 
-/// A table row: `| REQ-001 | The system shall ... |`. The identifier must be a cell of its own,
+/// A table row: `| REQ-NNN | The system shall ... |`. The identifier must be a cell of its own,
 /// which keeps a prose table that merely mentions an identifier from being misread.
 fn parse_table_row(line: &str) -> Option<(String, String)> {
     let trimmed = line.trim();

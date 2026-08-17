@@ -32,8 +32,8 @@ fn normalized_prose(value: &str) -> String {
         .to_lowercase()
 }
 
-/// A match is only an identifier reference when it is not embedded in a longer token, so `REQ-0011`
-/// does not count as a reference to `REQ-001`.
+/// A match is only an identifier reference when it is not embedded in a longer token, so a longer identifier
+/// is never read as a reference to a shorter one that prefixes it.
 fn is_standalone(haystack: &str, start: usize, end: usize) -> bool {
     let before = haystack[..start].chars().next_back();
     let after = haystack[end..].chars().next();

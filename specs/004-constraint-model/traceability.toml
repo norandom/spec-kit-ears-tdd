@@ -2,72 +2,72 @@ schema_version = "1.0"
 
 [requirements.REQ-001]
 verification = "automated"
-tests = ["tests/test_constraint_model.py::test_optional_model_file_is_read"]
+tests = ["crates/ears-sdd/tests/constraint_model.rs::test_optional_model_file_is_read"]
 
 [requirements.REQ-002]
 verification = "automated"
-tests = ["tests/test_constraint_model.py::test_guard_symbols_resolve_against_vocabulary"]
+tests = ["crates/ears-sdd/tests/constraint_model.rs::test_guard_symbols_resolve_against_vocabulary"]
 
 [requirements.REQ-003]
 verification = "automated"
-tests = ["tests/test_constraint_model.py::test_guard_outside_grammar_is_rejected"]
+tests = ["crates/ears-sdd/tests/constraint_model.rs::test_guard_outside_grammar_is_rejected"]
 
 [requirements.REQ-004]
 verification = "automated"
-tests = ["tests/test_constraint_model.py::test_dead_guard_is_reported"]
+tests = ["crates/ears-sdd/tests/constraint_model.rs::test_dead_guard_is_reported"]
 
 [requirements.REQ-005]
 verification = "automated"
-tests = ["tests/test_constraint_model.py::test_conflicting_effects_are_reported"]
+tests = ["crates/ears-sdd/tests/constraint_model.rs::test_conflicting_effects_are_reported"]
 
 [requirements.REQ-006]
 verification = "automated"
-tests = ["tests/test_constraint_model.py::test_conflict_set_is_minimal"]
+tests = ["crates/ears-sdd/tests/constraint_model.rs::test_conflict_set_is_minimal"]
 
 [requirements.REQ-007]
 verification = "automated"
-tests = ["tests/test_constraint_model.py::test_assertions_are_named_by_requirement"]
+tests = ["crates/ears-sdd/tests/constraint_model.rs::test_assertions_are_named_by_requirement"]
 
 [requirements.REQ-008]
 verification = "automated"
-tests = ["tests/test_constraint_model.py::test_conflict_members_map_to_intentions"]
+tests = ["crates/ears-sdd/tests/constraint_model.rs::test_conflict_members_map_to_intentions"]
 
 [requirements.REQ-009]
 verification = "automated"
-tests = ["tests/test_constraint_model.py::test_single_intention_conflict_is_a_defect"]
+tests = ["crates/ears-sdd/tests/constraint_model.rs::test_single_intention_conflict_is_a_defect"]
 
 [requirements.REQ-010]
 verification = "automated"
-tests = ["tests/test_constraint_model.py::test_multi_intention_conflict_is_a_tradeoff"]
+tests = ["crates/ears-sdd/tests/constraint_model.rs::test_multi_intention_conflict_is_a_tradeoff"]
 
 [requirements.REQ-011]
 verification = "automated"
-tests = ["tests/test_constraint_model.py::test_solver_error_stream_fails_the_run"]
+tests = ["crates/ears-sdd/tests/constraint_model.rs::test_solver_error_stream_fails_the_run"]
 
 [requirements.REQ-012]
 verification = "automated"
-tests = ["tests/test_constraint_model.py::test_finding_carries_witness_assignment"]
+tests = ["crates/ears-sdd/tests/constraint_model.rs::test_finding_carries_witness_assignment"]
 
 [requirements.REQ-013]
 verification = "automated"
-tests = ["tests/test_constraint_model.py::test_budget_exhaustion_reports_indeterminate"]
+tests = ["crates/ears-sdd/tests/constraint_model.rs::test_budget_exhaustion_reports_indeterminate"]
 
 [requirements.REQ-014]
 verification = "automated"
-tests = ["tests/test_constraint_model.py::test_unmodelled_requirement_is_recorded"]
+tests = ["crates/ears-sdd/tests/constraint_model.rs::test_unmodelled_requirement_is_recorded"]
 
 [requirements.REQ-015]
 verification = "automated"
-tests = ["tests/test_constraint_model.py::test_subsumption_is_reported"]
+tests = ["crates/ears-sdd/tests/constraint_model.rs::test_subsumption_is_reported"]
 
 [requirements.REQ-016]
 verification = "automated"
-tests = ["tests/test_constraint_model.py::test_conflict_set_is_order_independent"]
+tests = ["crates/ears-sdd/tests/constraint_model.rs::test_conflict_set_is_order_independent"]
 
 [requirements.REQ-017]
 verification = "automated"
-tests = ["tests/test_constraint_model.py::test_integer_domain_is_partitioned_at_cut_points"]
+tests = ["crates/ears-sdd/tests/constraint_model.rs::test_integer_domain_is_partitioned_at_cut_points"]
 
 [requirements.REQ-018]
 verification = "automated"
-tests = ["tests/test_constraint_model.py::test_decision_procedure_version_is_recorded"]
+tests = ["crates/ears-sdd/tests/constraint_model.rs::test_decision_procedure_version_is_recorded"]
