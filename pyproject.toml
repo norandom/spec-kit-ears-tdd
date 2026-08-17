@@ -42,6 +42,9 @@ testpaths = ["tests"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+# `specify init` vendors upstream Spec Kit scripts into .specify/. They are not this project's
+# code and do not satisfy its lint configuration, so linting the tree would fail on them.
+extend-exclude = [".specify"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]

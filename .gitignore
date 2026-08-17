@@ -5,3 +5,9 @@ __pycache__/
 *.py[cod]
 dist/
 .coverage
+
+# Working notes and review output. Excluded from the repository proper; also outside
+# production_roots and spec_glob, so the EARS gates never read it.
+review/
+
+target/
