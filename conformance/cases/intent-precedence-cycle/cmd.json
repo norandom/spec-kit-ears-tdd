@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan"
+  ],
+  "note": "precedence must be a strict partial order; a cycle resolves nothing"
+}

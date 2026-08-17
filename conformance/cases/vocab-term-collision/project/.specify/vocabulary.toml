@@ -1,0 +1,6 @@
+schema_version = "1.0"
+
+[terms.mode]
+label = "Mode"
+definition = "Project-wide."
+domain = { kind = "enum", values = ["on", "off"] }

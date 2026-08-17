@@ -24,6 +24,8 @@ enum Command {
     Validate(GateArgs),
     /// Report the same result, always exiting zero.
     Status(GateArgs),
+    /// Propose vocabulary stubs from existing specification prose, on standard output.
+    VocabInit(GateArgs),
 }
 
 #[derive(clap::Args)]
@@ -88,6 +90,23 @@ fn main() -> ExitCode {
                     ExitCode::from(2)
                 }
             }
+        }
+        Command::VocabInit(args) => {
+            // Printed rather than written. A scaffold that lands in the project unread is exactly
+            // the vocabulary-as-ceremony outcome this is meant to avoid; redirecting it is a
+            // deliberate act.
+            let root = match args.project.canonicalize() {
+                Ok(root) => root,
+                Err(error) => {
+                    eprintln!("Project directory is unusable: {error}");
+                    return ExitCode::from(2);
+                }
+            };
+            print!(
+                "{}",
+                ears_sdd::scaffold_vocabulary(&root, args.feature.as_deref(), args.all)
+            );
+            return ExitCode::SUCCESS;
         }
         Command::Validate(args) => (args, false),
         Command::Status(args) => (args, true),

@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "ok": true,
+  "phase": "plan",
+  "scope": {
+    "source": "glob",
+    "value": "specs/*/spec.md"
+  },
+  "summary": {
+    "features": 1,
+    "requirements": 1,
+    "specs_examined": 1,
+    "errors": 0,
+    "warnings": 0,
+    "advisories": 1
+  },
+  "findings": [
+    {
+      "code": "INTENT_UNSERVED",
+      "path": ".specify/intentions.toml",
+      "feature": null,
+      "requirement": null,
+      "line": null,
+      "severity": "advisory"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+schema_version = "1.0"
+
+[terms.a]
+label = "A"
+definition = "First."
+domain = { kind = "entity" }
+broader = ["b"]
+
+[terms.b]
+label = "B"
+definition = "Second."
+domain = { kind = "entity" }
+broader = ["a"]

@@ -1,0 +1,18 @@
+schema_version = "1.0"
+
+[terms.hardening]
+label = "Workstation hardening"
+definition = "The configuration subsystems reducing attack surface."
+domain = { kind = "entity" }
+
+[terms.exploit-protection]
+label = "Windows Exploit Protection"
+definition = "The Windows mitigation subsystem."
+domain = { kind = "entity" }
+broader = ["hardening"]
+
+[terms.captured-policy]
+label = "Captured policy export"
+definition = "The pinned pre-change export and its digest."
+domain = { kind = "entity" }
+broader = ["exploit-protection"]

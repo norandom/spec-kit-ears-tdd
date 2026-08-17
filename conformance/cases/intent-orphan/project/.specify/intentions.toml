@@ -1,0 +1,9 @@
+schema_version = "1.0"
+
+[intentions.integrity-before-mutation]
+statement = "No mutation on unverified state."
+rationale = "Recorded while the reason was fresh and unreconstructable later."
+
+[intentions.nobody-serves-me]
+statement = "Declared and unserved."
+rationale = "Recorded while the reason was fresh and unreconstructable later."

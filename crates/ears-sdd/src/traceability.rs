@@ -27,6 +27,15 @@ struct Entry {
     tests: Vec<String>,
     #[serde(default)]
     rationale: String,
+    /// Grounded vocabulary terms this requirement is about. Optional: the vocabulary layer is
+    /// opt-in per requirement, and a project that declares none is unaffected by it.
+    #[serde(default)]
+    tags: Vec<String>,
+    /// The single reason this requirement exists. Singular deliberately -- a later conflict check
+    /// asks whether the intentions involved have a unique maximum under the declared precedence,
+    /// and that question stops meaning anything if a requirement can serve several goals.
+    #[serde(default)]
+    intent: Option<String>,
 }
 
 /// Strip the selector suffix that names a test inside a file: `::name` for pytest-shaped selectors,
@@ -58,13 +67,20 @@ fn normalize(path: &str) -> String {
         .to_string()
 }
 
+pub struct Outcome {
+    pub findings: Vec<Finding>,
+    /// What each requirement claims about vocabulary and intent, for the grounding layer. Gathered
+    /// here because this is the only place the traceability file is parsed.
+    pub mappings: Vec<crate::vocabulary::Mapping>,
+}
+
 pub fn validate(
     root: &Path,
     spec_path: &Path,
     feature: &str,
     requirements: &[Requirement],
     config: &Config,
-) -> Vec<Finding> {
+) -> Outcome {
     let path = spec_path
         .parent()
         .map(|parent| parent.join(&config.traceability_file))
@@ -80,19 +96,32 @@ pub fn validate(
     };
 
     if !path.is_file() {
-        return vec![finding(
-            "TRACE_MISSING",
-            "Traceability file not found.".to_string(),
-            None,
-        )];
+        return Outcome {
+            findings: vec![finding(
+                "TRACE_MISSING",
+                "Traceability file not found.".to_string(),
+                None,
+            )],
+            mappings: Vec::new(),
+        };
     }
     let text = match std::fs::read_to_string(&path) {
         Ok(text) => text,
-        Err(error) => return vec![finding("TRACE_INVALID", error.to_string(), None)],
+        Err(error) => {
+            return Outcome {
+                findings: vec![finding("TRACE_INVALID", error.to_string(), None)],
+                mappings: Vec::new(),
+            }
+        }
     };
     let parsed: TraceabilityFile = match toml::from_str(&text) {
         Ok(parsed) => parsed,
-        Err(error) => return vec![finding("TRACE_INVALID", error.message().to_string(), None)],
+        Err(error) => {
+            return Outcome {
+                findings: vec![finding("TRACE_INVALID", error.message().to_string(), None)],
+                mappings: Vec::new(),
+            }
+        }
     };
 
     let mut findings = Vec::new();
@@ -117,6 +146,21 @@ pub fn validate(
                 "Mapping refers to an unknown requirement.".to_string(),
                 Some(identifier),
             ));
+        }
+    }
+
+    let mut mappings = Vec::new();
+    for identifier in &declared {
+        if let Some(entry) = parsed.requirements.get(*identifier) {
+            if !entry.tags.is_empty() || entry.intent.is_some() {
+                mappings.push(crate::vocabulary::Mapping {
+                    feature: feature.to_string(),
+                    requirement: (*identifier).to_string(),
+                    tags: entry.tags.clone(),
+                    intent: entry.intent.clone(),
+                    source: display.clone(),
+                });
+            }
         }
     }
 
@@ -202,5 +246,5 @@ pub fn validate(
             )),
         }
     }
-    findings
+    Outcome { findings, mappings }
 }

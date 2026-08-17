@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "ok": false,
+  "phase": "plan",
+  "scope": {
+    "source": "glob",
+    "value": "specs/*/spec.md"
+  },
+  "summary": {
+    "features": 1,
+    "requirements": 1,
+    "specs_examined": 1,
+    "errors": 1,
+    "warnings": 0,
+    "advisories": 2
+  },
+  "findings": [
+    {
+      "code": "INTENT_UNDECLARED",
+      "path": "specs/001-alpha/traceability.toml",
+      "feature": "specs/001-alpha",
+      "requirement": "REQ-001",
+      "line": null,
+      "severity": "error"
+    },
+    {
+      "code": "INTENT_UNSERVED",
+      "path": ".specify/intentions.toml",
+      "feature": null,
+      "requirement": null,
+      "line": null,
+      "severity": "advisory"
+    },
+    {
+      "code": "INTENT_UNSERVED",
+      "path": ".specify/intentions.toml",
+      "feature": null,
+      "requirement": null,
+      "line": null,
+      "severity": "advisory"
+    }
+  ]
+}

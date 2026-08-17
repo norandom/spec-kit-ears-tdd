@@ -1,0 +1,11 @@
+schema_version = "1.0"
+
+[terms.a]
+label = "A"
+definition = "Used."
+domain = { kind = "entity" }
+
+[terms.unused]
+label = "Unused"
+definition = "Declared and referenced by nothing."
+domain = { kind = "entity" }

@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan"
+  ],
+  "note": "a term with an empty definition is a tag pretending to be a concept"
+}

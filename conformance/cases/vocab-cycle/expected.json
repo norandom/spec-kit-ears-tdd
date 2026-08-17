@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "ok": false,
+  "phase": "plan",
+  "scope": {
+    "source": "glob",
+    "value": "specs/*/spec.md"
+  },
+  "summary": {
+    "features": 1,
+    "requirements": 1,
+    "specs_examined": 1,
+    "errors": 2,
+    "warnings": 0,
+    "advisories": 0
+  },
+  "findings": [
+    {
+      "code": "VOCAB_CYCLE",
+      "path": ".specify/vocabulary.toml",
+      "feature": null,
+      "requirement": null,
+      "line": null,
+      "severity": "error"
+    },
+    {
+      "code": "VOCAB_CYCLE",
+      "path": ".specify/vocabulary.toml",
+      "feature": null,
+      "requirement": null,
+      "line": null,
+      "severity": "error"
+    }
+  ]
+}

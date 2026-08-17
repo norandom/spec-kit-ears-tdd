@@ -1,0 +1,11 @@
+schema_version = "1.0"
+
+[terms.a]
+label = "Exploit Protection"
+definition = "One spelling."
+domain = { kind = "entity" }
+
+[terms.b]
+label = "exploit  protection"
+definition = "The same words, different identifier."
+domain = { kind = "entity" }

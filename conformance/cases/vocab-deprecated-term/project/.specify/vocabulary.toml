@@ -1,0 +1,13 @@
+schema_version = "1.0"
+
+[terms.old]
+label = "Old name"
+definition = "Superseded."
+domain = { kind = "entity" }
+deprecated = true
+replaced_by = "new"
+
+[terms.new]
+label = "New name"
+definition = "Current."
+domain = { kind = "entity" }

@@ -2,72 +2,72 @@ schema_version = "1.0"
 
 [requirements.REQ-001]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/vocabulary.rs::test_project_vocabulary_is_read"]
+tests = ["conformance/cases/vocab-resolves/expected.json"]
 
 [requirements.REQ-002]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/vocabulary.rs::test_term_declares_id_label_definition_domain"]
+tests = ["conformance/cases/vocab-resolves/expected.json"]
 
 [requirements.REQ-003]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/vocabulary.rs::test_term_without_definition_is_reported"]
+tests = ["conformance/cases/vocab-missing-definition/expected.json"]
 
 [requirements.REQ-004]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/vocabulary.rs::test_undeclared_term_reference_is_reported"]
+tests = ["conformance/cases/vocab-undeclared-term/expected.json"]
 
 [requirements.REQ-005]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/vocabulary.rs::test_broader_relation_is_transitively_closed"]
+tests = ["conformance/cases/vocab-resolves/expected.json"]
 
 [requirements.REQ-006]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/vocabulary.rs::test_vocabulary_cycle_is_reported"]
+tests = ["conformance/cases/vocab-cycle/expected.json"]
 
 [requirements.REQ-007]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/vocabulary.rs::test_broader_naming_undeclared_term_is_reported"]
+tests = ["conformance/cases/vocab-broader-undeclared/expected.json"]
 
 [requirements.REQ-008]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/vocabulary.rs::test_duplicate_normalized_label_is_reported"]
+tests = ["conformance/cases/vocab-duplicate-label/expected.json"]
 
 [requirements.REQ-009]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/vocabulary.rs::test_term_collision_across_specs_is_reported"]
+tests = ["conformance/cases/vocab-term-collision/expected.json"]
 
 [requirements.REQ-010]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/vocabulary.rs::test_unreferenced_term_is_advisory"]
+tests = ["conformance/cases/vocab-orphan-term/expected.json"]
 
 [requirements.REQ-011]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/intentions.rs::test_intention_registry_is_read"]
+tests = ["conformance/cases/intent-orphan/expected.json"]
 
 [requirements.REQ-012]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/intentions.rs::test_undeclared_intention_reference_is_reported"]
+tests = ["conformance/cases/intent-undeclared/expected.json"]
 
 [requirements.REQ-013]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/intentions.rs::test_unserved_intention_is_advisory"]
+tests = ["conformance/cases/intent-orphan/expected.json"]
 
 [requirements.REQ-014]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/intentions.rs::test_precedence_is_a_strict_partial_order"]
+tests = ["conformance/cases/vocab-resolves/expected.json"]
 
 [requirements.REQ-015]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/intentions.rs::test_precedence_cycle_is_reported"]
+tests = ["conformance/cases/intent-precedence-cycle/expected.json"]
 
 [requirements.REQ-016]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/vocabulary.rs::test_deprecated_term_warns_with_replacement"]
+tests = ["conformance/cases/vocab-deprecated-term/expected.json"]
 
 [requirements.REQ-017]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/vocabulary.rs::test_scaffold_proposes_terms_from_prose"]
+tests = ["crates/ears-sdd/src/vocabulary.rs::tests::scaffold_proposes_terms_from_prose"]
 
 [requirements.REQ-018]
 verification = "automated"
-tests = ["crates/ears-sdd/tests/vocabulary.rs::test_vocabulary_runs_without_a_model"]
+tests = ["conformance/cases/vocab-without-model/expected.json"]

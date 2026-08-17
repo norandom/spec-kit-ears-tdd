@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan"
+  ],
+  "note": "an unreferenced term is advisory; without this the vocabulary rots into singletons"
+}

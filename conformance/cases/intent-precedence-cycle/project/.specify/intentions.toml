@@ -1,0 +1,17 @@
+schema_version = "1.0"
+
+[intentions.a]
+statement = "First."
+rationale = "Recorded while the reason was fresh and unreconstructable later."
+
+[intentions.b]
+statement = "Second."
+rationale = "Recorded while the reason was fresh and unreconstructable later."
+
+[[precedence]]
+over = "a"
+under = "b"
+
+[[precedence]]
+over = "b"
+under = "a"

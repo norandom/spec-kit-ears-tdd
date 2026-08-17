@@ -1,0 +1,6 @@
+schema_version = "1.0"
+
+[terms.mode]
+label = "Mode"
+definition = "Feature-local."
+domain = { kind = "bool" }

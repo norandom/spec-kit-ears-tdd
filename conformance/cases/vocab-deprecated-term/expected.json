@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "ok": true,
+  "phase": "plan",
+  "scope": {
+    "source": "glob",
+    "value": "specs/*/spec.md"
+  },
+  "summary": {
+    "features": 1,
+    "requirements": 1,
+    "specs_examined": 1,
+    "errors": 0,
+    "warnings": 1,
+    "advisories": 1
+  },
+  "findings": [
+    {
+      "code": "TERM_DEPRECATED",
+      "path": "specs/001-alpha/traceability.toml",
+      "feature": "specs/001-alpha",
+      "requirement": "REQ-001",
+      "line": null,
+      "severity": "warning"
+    },
+    {
+      "code": "TERM_UNUSED",
+      "path": ".specify/vocabulary.toml",
+      "feature": null,
+      "requirement": null,
+      "line": null,
+      "severity": "advisory"
+    }
+  ]
+}

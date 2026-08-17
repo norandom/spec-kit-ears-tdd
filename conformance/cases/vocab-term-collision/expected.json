@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "ok": false,
+  "phase": "plan",
+  "scope": {
+    "source": "glob",
+    "value": "specs/*/spec.md"
+  },
+  "summary": {
+    "features": 1,
+    "requirements": 1,
+    "specs_examined": 1,
+    "errors": 1,
+    "warnings": 0,
+    "advisories": 0
+  },
+  "findings": [
+    {
+      "code": "TERM_COLLISION",
+      "path": "specs/001-alpha/vocabulary.toml",
+      "feature": null,
+      "requirement": null,
+      "line": null,
+      "severity": "error"
+    }
+  ]
+}

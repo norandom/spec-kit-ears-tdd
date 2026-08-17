@@ -1,0 +1,7 @@
+schema_version = "1.0"
+
+[requirements.REQ-001]
+verification = "automated"
+tests = ["tests/test_records.py::test_case"]
+tags = ["captured-policy"]
+intent = "never-declared"

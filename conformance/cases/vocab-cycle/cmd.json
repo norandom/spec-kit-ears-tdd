@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan"
+  ],
+  "note": "broader must be acyclic; a cycle makes the closure meaningless"
+}

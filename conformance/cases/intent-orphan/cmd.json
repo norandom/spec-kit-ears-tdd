@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan"
+  ],
+  "note": "an intention no requirement serves is advisory"
+}

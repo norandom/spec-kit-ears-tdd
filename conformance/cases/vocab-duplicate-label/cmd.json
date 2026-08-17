@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan"
+  ],
+  "note": "two identifiers sharing a normalized label is the drift this file exists to prevent"
+}

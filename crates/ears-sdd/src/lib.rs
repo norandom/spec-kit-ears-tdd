@@ -8,6 +8,7 @@ pub mod requirements;
 pub mod separation;
 pub mod tasks;
 pub mod traceability;
+pub mod vocabulary;
 
 use std::path::Path;
 
@@ -49,19 +50,26 @@ pub fn validate(request: Request<'_>) -> Report {
     let mut features: Vec<FeatureResult> = Vec::new();
     let mut all_requirements: Vec<Requirement> = Vec::new();
     let mut tasks_covered = 0usize;
+    let mut mappings: Vec<vocabulary::Mapping> = Vec::new();
+    let mut feature_dirs: Vec<(String, std::path::PathBuf)> = Vec::new();
 
     for location in &discovered.specs {
         let (requirements, spec_findings) =
             requirements::parse(root, &location.path, &location.feature);
         findings.extend(spec_findings);
         if request.phase.checks_traceability() {
-            findings.extend(traceability::validate(
+            let outcome = traceability::validate(
                 root,
                 &location.path,
                 &location.feature,
                 &requirements,
                 &config,
-            ));
+            );
+            findings.extend(outcome.findings);
+            mappings.extend(outcome.mappings);
+        }
+        if let Some(parent) = location.path.parent() {
+            feature_dirs.push((location.feature.clone(), parent.to_path_buf()));
         }
         // The tasks gate is the only phase that opens tasks.md, which is what finally makes it
         // distinct from the plan gate rather than a second copy of it.
@@ -76,6 +84,14 @@ pub fn validate(request: Request<'_>) -> Report {
             requirements: requirements.len(),
         });
         all_requirements.extend(requirements);
+    }
+
+    if request.phase.checks_traceability() {
+        let borrowed: Vec<(String, &std::path::Path)> = feature_dirs
+            .iter()
+            .map(|(feature, path)| (feature.clone(), path.as_path()))
+            .collect();
+        findings.extend(vocabulary::validate(root, &mappings, &borrowed));
     }
 
     let mut production_files_scanned = 0usize;
@@ -174,4 +190,16 @@ pub fn render_human(report: &Report, status_only: bool) -> String {
         ));
     }
     out
+}
+
+/// Gather every requirement in scope and propose vocabulary stubs for them.
+pub fn scaffold_vocabulary(root: &Path, feature: Option<&str>, all: bool) -> String {
+    let (config, _) = config::load(root);
+    let discovered = discovery::discover(root, &config, feature, all);
+    let mut requirements = Vec::new();
+    for location in &discovered.specs {
+        let (found, _) = requirements::parse(root, &location.path, &location.feature);
+        requirements.extend(found);
+    }
+    vocabulary::scaffold(&requirements)
 }

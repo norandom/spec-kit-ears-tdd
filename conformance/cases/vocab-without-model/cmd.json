@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan"
+  ],
+  "note": "no constraint model and no intentions file is a complete, passing configuration"
+}

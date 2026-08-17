@@ -1,0 +1,62 @@
+# Project vocabulary. Copy to .specify/vocabulary.toml and edit.
+#
+# This is the join key. Every tag a requirement carries resolves to a term declared here, and an
+# undeclared tag fails the gate. That single rule is most of what "grounding" buys a small team: it
+# turns vocabulary drift from a code-review argument into a deterministic failure.
+#
+# It is deliberately not an ontology. There is no reasoner and none is needed -- subsumption over
+# `broader` is transitive closure, equivalence is `alt_labels`, and the standard SKOS property this
+# mirrors is itself explicitly non-transitive, so computing the closure here is the conformant
+# reading rather than a shortcut.
+#
+# A feature may also declare `vocabulary.toml` beside its spec.md for terms only it uses. Declaring
+# the same identifier in two places with different domains is an error, because that is precisely
+# the drift this file exists to prevent.
+
+schema_version = "1.0"
+
+[terms.workstation-hardening]
+label = "Workstation hardening"
+definition = "The set of configuration subsystems that reduce attack surface on a workstation."
+domain = { kind = "entity" }
+
+[terms.exploit-protection]
+label = "Windows Exploit Protection"
+# A definition is required and may not be empty. A term with a label but no definition is a tag
+# pretending to be a concept, which is how a vocabulary rots into two hundred synonyms.
+definition = "The Windows mitigation subsystem configured per-system and per-program."
+domain = { kind = "entity" }
+broader = ["workstation-hardening"]
+alt_labels = ["exploit guard"]
+
+[terms.captured-policy]
+label = "Captured policy export"
+definition = "The pre-change policy export pinned in the DSL together with its cryptographic digest."
+domain = { kind = "entity" }
+broader = ["exploit-protection"]
+
+# Terms that stand for a value rather than a thing. The domain is declarative here and carries no
+# solver; it is what a later constraint model would range over.
+[terms.operating-mode]
+label = "Operating mode"
+definition = "Which service mode the workstation is currently running in."
+domain = { kind = "enum", values = ["normal", "maintenance", "degraded"] }
+
+[terms.integrity-verified]
+label = "Integrity verified"
+definition = "Whether the captured policy digest matched the pinned digest."
+domain = { kind = "bool" }
+
+[terms.queue-depth]
+label = "Queue depth"
+definition = "Number of pending operations awaiting processing."
+domain = { kind = "int", min = 0, max = 10000 }
+
+# A term being retired. References still resolve, but each one reports a warning naming the
+# replacement, so the migration is visible without being a hard stop.
+[terms.exploit-guard]
+label = "Exploit Guard"
+definition = "Superseded name for the Windows Exploit Protection subsystem."
+domain = { kind = "entity" }
+deprecated = true
+replaced_by = "exploit-protection"

@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan"
+  ],
+  "note": "a deprecated term still resolves but warns, so migration is visible without being a stop"
+}

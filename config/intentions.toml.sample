@@ -1,0 +1,49 @@
+# Project intentions. Copy to .specify/intentions.toml and edit.
+#
+# Why a requirement exists, recorded while the reason is fresh and impossible to reconstruct later.
+# A requirement references at most one intention, deliberately: a later conflict check asks whether
+# the intentions involved in a contradiction have a unique maximum under the declared precedence,
+# and that question stops meaning anything if a requirement can serve several goals at once.
+#
+# The precedence relation is the part that earns its keep. When two requirements contradict, which
+# one wins is a decision about competing goals, not a fact about logic. Declaring it here turns a
+# deliberate override into a reviewable artifact instead of an argument in a pull request.
+
+schema_version = "1.0"
+
+[intentions.integrity-before-mutation]
+statement = "No mutating operation proceeds on unverified captured state."
+rationale = """
+A corrupted or stale export silently produces the wrong mitigations, and the failure is invisible
+until something depends on the result. Failing closed costs an operator one command; failing open
+costs a wrong machine state nobody knows about.
+"""
+
+[intentions.operator-convenience]
+statement = "Routine operations complete without manual confirmation."
+rationale = """
+Every confirmation prompt an operator sees ten times a day is a prompt they stop reading. Reserve
+them for decisions that genuinely need judgement.
+"""
+
+[intentions.auditable-evidence]
+statement = "Every state change leaves evidence a third party can check."
+rationale = """
+The product is the audit trail. A change nobody can verify after the fact is indistinguishable from
+one that never happened.
+"""
+
+# Declared pairwise and locally, never as a global ranking. `over` wins against `under`.
+#
+# The relation must stay acyclic: a cycle means the declaration resolves nothing, and it is reported
+# rather than silently ignored. Leaving a pair unordered is allowed and often correct -- it records
+# that nobody has decided yet, which is more honest than inventing a ranking.
+[[precedence]]
+over = "integrity-before-mutation"
+under = "operator-convenience"
+reason = "An unverified change is worse than an extra confirmation."
+
+[[precedence]]
+over = "auditable-evidence"
+under = "operator-convenience"
+reason = "Evidence that is skipped to save a step is not evidence."

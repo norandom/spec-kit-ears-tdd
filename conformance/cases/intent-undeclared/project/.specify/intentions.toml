@@ -1,0 +1,13 @@
+schema_version = "1.0"
+
+[intentions.integrity-before-mutation]
+statement = "No mutation on unverified state."
+rationale = "Recorded while the reason was fresh and unreconstructable later."
+
+[intentions.operator-convenience]
+statement = "Routine operations need no confirmation."
+rationale = "Recorded while the reason was fresh and unreconstructable later."
+
+[[precedence]]
+over = "integrity-before-mutation"
+under = "operator-convenience"
