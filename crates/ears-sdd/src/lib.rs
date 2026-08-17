@@ -2,6 +2,7 @@ pub mod assets;
 pub mod config;
 pub mod discovery;
 pub mod ears;
+pub mod enumerate;
 pub mod exemptions;
 pub mod guard;
 pub mod init;
