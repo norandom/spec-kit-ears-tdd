@@ -1,0 +1,22 @@
+[package]
+name = "ears-sdd"
+description = "Deterministic EARS requirements and test-traceability gate for GitHub Spec Kit"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+aho-corasick = "1"
+clap = { version = "4", features = ["derive"] }
+globset = "0.4"
+ignore = "0.4"
+regex = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+time = { version = "0.3", features = ["formatting", "macros"] }
+toml = "0.8"
+
+[dev-dependencies]
+tempfile = "3"

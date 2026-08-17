@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "spec"
+  ],
+  "note": "a pointer to a deleted feature fails instead of globbing"
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "ok": true,
+  "phase": "spec",
+  "scope": {
+    "source": "glob",
+    "value": "specs/*/spec.md"
+  },
+  "summary": {
+    "features": 1,
+    "requirements": 1,
+    "specs_examined": 1,
+    "errors": 0,
+    "warnings": 0,
+    "advisories": 0
+  },
+  "findings": []
+}

@@ -1,0 +1,9 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "spec",
+    "--all"
+  ],
+  "note": "three features are evaluated even though the pointer names one"
+}

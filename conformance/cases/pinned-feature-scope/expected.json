@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "ok": true,
+  "phase": "spec",
+  "scope": {
+    "source": "feature_pointer",
+    "value": "specs/001-alpha"
+  },
+  "summary": {
+    "features": 1,
+    "requirements": 1,
+    "specs_examined": 1,
+    "errors": 0,
+    "warnings": 1,
+    "advisories": 0
+  },
+  "findings": [
+    {
+      "code": "SPEC_SCOPE",
+      "path": ".",
+      "feature": null,
+      "requirement": null,
+      "line": null,
+      "severity": "warning"
+    }
+  ]
+}

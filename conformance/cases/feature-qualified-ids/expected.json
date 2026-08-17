@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "ok": false,
+  "phase": "final",
+  "scope": {
+    "source": "glob",
+    "value": "specs/*/spec.md"
+  },
+  "summary": {
+    "features": 2,
+    "requirements": 2,
+    "specs_examined": 2,
+    "errors": 2,
+    "warnings": 0,
+    "advisories": 0
+  },
+  "findings": [
+    {
+      "code": "CODE_REQ_ID",
+      "path": "src/leak.py",
+      "feature": "specs/001-alpha",
+      "requirement": "REQ-001",
+      "line": 1,
+      "severity": "error"
+    },
+    {
+      "code": "CODE_REQ_ID",
+      "path": "src/leak.py",
+      "feature": "specs/002-bravo",
+      "requirement": "REQ-001",
+      "line": 1,
+      "severity": "error"
+    }
+  ]
+}

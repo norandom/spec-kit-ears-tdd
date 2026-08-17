@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "spec"
+  ],
+  "note": "`must-gather` is a compound noun, not a competing modal"
+}

@@ -1,0 +1,10 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "spec",
+    "--feature",
+    "../elsewhere"
+  ],
+  "note": "a --feature that escapes the project can never produce a green report"
+}

@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "spec"
+  ],
+  "note": "REQ-0042 is a valid identifier"
+}

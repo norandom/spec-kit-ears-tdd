@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "spec"
+  ],
+  "note": "an invalid UTF-8 specification is reported, not skipped"
+}

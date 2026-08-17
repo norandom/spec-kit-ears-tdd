@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan"
+  ],
+  "note": "`../tests/...` escapes the project and is not normalized into the test roots"
+}

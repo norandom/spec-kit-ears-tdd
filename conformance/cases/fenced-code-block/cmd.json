@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "spec"
+  ],
+  "note": "REQ-900 inside a fence is documentation, not a requirement"
+}

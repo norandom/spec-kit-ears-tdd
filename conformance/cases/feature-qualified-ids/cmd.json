@@ -1,0 +1,9 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "final",
+    "--all"
+  ],
+  "note": "two features both declare REQ-001; the leak is attributed per feature, not duplicated blindly"
+}

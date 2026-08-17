@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "ok": false,
+  "phase": "spec",
+  "scope": {
+    "source": "glob",
+    "value": "specs/*/spec.md"
+  },
+  "summary": {
+    "features": 1,
+    "requirements": 0,
+    "specs_examined": 1,
+    "errors": 1,
+    "warnings": 0,
+    "advisories": 0
+  },
+  "findings": [
+    {
+      "code": "SPEC_UNREADABLE",
+      "path": "specs/001-broken/spec.md",
+      "feature": "specs/001-broken",
+      "requirement": null,
+      "line": null,
+      "severity": "error"
+    }
+  ]
+}

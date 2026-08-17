@@ -1,0 +1,8 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "spec"
+  ],
+  "note": "bullet, numbered, heading, table row and block quote are all discovered"
+}

@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "ok": false,
+  "phase": "spec",
+  "scope": {
+    "source": "feature_pointer",
+    "value": "specs/999-deleted"
+  },
+  "summary": {
+    "features": 0,
+    "requirements": 0,
+    "specs_examined": 0,
+    "errors": 1,
+    "warnings": 1,
+    "advisories": 0
+  },
+  "findings": [
+    {
+      "code": "FEATURE_MISSING",
+      "path": "specs/999-deleted",
+      "feature": null,
+      "requirement": null,
+      "line": null,
+      "severity": "error"
+    },
+    {
+      "code": "SPEC_SCOPE",
+      "path": ".",
+      "feature": null,
+      "requirement": null,
+      "line": null,
+      "severity": "warning"
+    }
+  ]
+}
