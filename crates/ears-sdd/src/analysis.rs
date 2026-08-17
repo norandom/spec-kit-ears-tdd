@@ -8,8 +8,11 @@ use serde_json::json;
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
 
+use biodivine_lib_bdd::Bdd;
+
 use crate::adjudicate::{classify, intent_of, Intents, Precedence, Verdict};
-use crate::enumerate::{satisfying_sets, verify_witness};
+use crate::bdd::{implies, is_satisfiable, Encoding};
+use crate::enumerate::verify_assignment;
 use crate::guard::{self, Guard, Literal};
 use crate::model::{decompose, Component, ModelFile, ModelledRequirement};
 use crate::report::{Finding, Severity};
@@ -350,18 +353,37 @@ fn analyze_component(
     cross_feature_only: bool,
 ) -> Vec<Finding> {
     let mut findings = Vec::new();
-    if component.state_space() > budget {
-        findings.push(over_budget(component, budget, source));
-        return findings;
-    }
 
-    let sets = satisfying_sets(component);
+    // One encoding for the component, each distinct guard encoded once. Grouping and deciding are
+    // separate concerns: the component says which requirements can interact, and the diagrams
+    // answer whether they actually do. Nothing here materialises the component's state space, which
+    // is what previously made a merge across a dozen specifications exponential in their shared
+    // vocabulary rather than in the question being asked.
+    let encoding = Encoding::new(component);
+    let mut encoded: BTreeMap<Guard, Bdd> = BTreeMap::new();
+    for requirement in &component.requirements {
+        encoded
+            .entry(requirement.guard.clone())
+            .or_insert_with(|| encoding.encode(&requirement.guard));
+    }
+    let diagram = |requirement: &ModelledRequirement| {
+        encoded
+            .get(&requirement.guard)
+            .expect("every guard in the component was encoded")
+            .clone()
+    };
+
+    let satisfiable: Vec<bool> = component
+        .requirements
+        .iter()
+        .map(|requirement| is_satisfiable(&encoding, &diagram(requirement)))
+        .collect();
 
     for (position, requirement) in component.requirements.iter().enumerate() {
         if cross_feature_only {
             break;
         }
-        if sets[position].is_empty() {
+        if !satisfiable[position] {
             findings.push(
                 Finding::new(
                     "MODEL_DEAD_GUARD",
@@ -381,7 +403,7 @@ fn analyze_component(
                 &component.requirements[left],
                 &component.requirements[right],
             );
-            if sets[left].is_empty() || sets[right].is_empty() {
+            if !satisfiable[left] || !satisfiable[right] {
                 continue;
             }
             // In merge mode a same-specification pair has already been reported by that
@@ -391,14 +413,38 @@ fn analyze_component(
                 continue;
             }
 
+            // The budget applies to the question, not to the neighbourhood it was found in. Scoped
+            // to the two guards' own terms this is the space a reader would have to check by hand,
+            // and it is the only space either procedure ever needs: a guard constrains only the
+            // terms it names, so a satisfying assignment over those extends to the rest of the
+            // component, whose remaining domains are non-empty and unconstrained.
+            let scope = component.restricted_to(&[first, second]);
+            if scope.state_space() > budget {
+                findings.push(over_budget(&scope, budget, source));
+                continue;
+            }
+
             if conflicts(pairs, &first.effect, &second.effect) {
-                if let Some(index) = sets[left].first_common(&sets[right]) {
-                    match verify_witness(index, component, &[first, second]) {
-                        Ok(witness) => findings.push(conflict_finding(
+                let together = diagram(first).and(&diagram(second));
+                if let Some(assignment) = encoding.witness(&together) {
+                    // Narrowed to the terms the two guards mention. The diagram assigns every term
+                    // in the component, and a counterexample listing twenty irrelevant ones is one
+                    // nobody reads to the end.
+                    let mentioned: BTreeSet<String> = scope
+                        .variables
+                        .iter()
+                        .map(|variable| variable.term.clone())
+                        .collect();
+                    let focused: BTreeMap<_, _> = assignment
+                        .into_iter()
+                        .filter(|(term, _)| mentioned.contains(term))
+                        .collect();
+                    match verify_assignment(&focused, &[first, second]) {
+                        Ok(description) => findings.push(conflict_finding(
                             prefix,
                             first,
                             second,
-                            &witness.description,
+                            &description,
                             component.index,
                             intents,
                             precedence,
@@ -413,9 +459,9 @@ fn analyze_component(
             }
 
             if first.effect == second.effect {
-                let (stricter, looser) = if sets[left].is_subset_of(&sets[right]) {
+                let (stricter, looser) = if implies(&encoding, &diagram(first), &diagram(second)) {
                     (first, second)
-                } else if sets[right].is_subset_of(&sets[left]) {
+                } else if implies(&encoding, &diagram(second), &diagram(first)) {
                     (second, first)
                 } else {
                     continue;
@@ -878,24 +924,30 @@ mod tests {
         assert_eq!(findings[0].requirement.as_deref(), Some("R-001"));
     }
 
-    #[test]
-    fn an_over_budget_component_reports_the_lever_rather_than_being_evaluated() {
-        let wide = Domain::Int {
+    fn wide_variable(term: &str) -> Variable {
+        let domain = Domain::Int {
             min: 0,
             max: 1_000_000,
         };
-        let mut comparisons = Vec::new();
-        for value in 1..40 {
-            comparisons.push((crate::guard::Op::Less, Literal::Int(value * 1000)));
-        }
-        let variables = vec![
-            finitize("depth", &wide, &comparisons),
-            finitize("other", &wide, &comparisons),
-            boolean("a"),
-        ];
-        let component = component(variables, vec![requirement("R-001", "a", "persist")]);
+        let comparisons: Vec<_> = (1..40)
+            .map(|value| (crate::guard::Op::Less, Literal::Int(value * 1000)))
+            .collect();
+        finitize(term, &domain, &comparisons)
+    }
 
-        let findings = analyze_for_test(&component, &BTreeSet::new(), 100);
+    /// The budget bounds a question, so it takes a question big enough to exceed it: two guards
+    /// that between them range over both wide terms.
+    #[test]
+    fn an_over_budget_question_reports_the_lever_rather_than_being_evaluated() {
+        let component = component(
+            vec![wide_variable("depth"), wide_variable("other")],
+            vec![
+                requirement("R-001", "depth < 1000", "persist"),
+                requirement("R-002", "other < 1000", "reject"),
+            ],
+        );
+
+        let findings = analyze_for_test(&component, &conflicting("persist", "reject"), 100);
         assert_eq!(codes(&findings), vec!["MODEL_BUDGET_EXCEEDED"]);
 
         let detail = findings[0]
@@ -909,7 +961,41 @@ mod tests {
             .get("largest_contributors")
             .and_then(|v| v.as_array())
             .unwrap();
-        assert_eq!(contributors[0]["term"], "depth");
+        assert!(contributors[0]["values"].as_u64().unwrap() > 10);
+    }
+
+    /// The defect the scoping fixed, pinned so it cannot come back.
+    ///
+    /// A component may carry wide variables that no single question mentions: they arrive because
+    /// some other requirement in the group happens to use them. Sizing the budget against the whole
+    /// component refused to answer a question it could settle in four states, and refusing is not a
+    /// neutral outcome. Every conflict in that component went unreported, which reads exactly like
+    /// a component with no conflicts in it.
+    #[test]
+    fn wide_variables_no_question_mentions_do_not_trigger_the_budget() {
+        let component = component(
+            vec![
+                wide_variable("depth"),
+                wide_variable("other"),
+                boolean("a"),
+                boolean("b"),
+            ],
+            vec![
+                requirement("R-001", "a", "persist"),
+                requirement("R-002", "b", "reject"),
+            ],
+        );
+
+        // The component spans 40 * 40 * 2 * 2 = 6400 states, well over the budget. The question the
+        // two guards actually pose spans four.
+        assert!(component.state_space() > 100);
+        let findings = analyze_for_test(&component, &conflicting("persist", "reject"), 100);
+
+        assert_eq!(
+            codes(&findings),
+            vec!["MODEL_CONFLICT"],
+            "the conflict must be found, not hidden behind a budget refusal"
+        );
     }
 
     #[test]

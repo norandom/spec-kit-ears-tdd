@@ -1,0 +1,32 @@
+# Constraint model for the customer directory.
+#
+# One axis: does a personal address survive, or is it removed. Requirements about validation, access
+# scope, and reporting are not modelled, because they cannot contradict anything on that axis.
+
+schema_version = "1.0"
+
+[effects]
+erase_personal_address = { conflicts_with = ["retain_personal_address"] }
+retain_personal_address = {}
+
+# REQ-004: When a verified erasure request completes, the system shall delete that customer's
+# personal address from every store it controls.
+#
+# "every store it controls" is the phrase that makes this a system-wide claim rather than a claim
+# about one table. The 2024 endpoint clears the customer directory, and whoever wrote this believed
+# that was every store. The vocabulary is what forces the question, because `personal-address`
+# covers both tables while `postal_address` and `delivery_address` did not.
+[requirements.REQ-004]
+when = "erasure-requested and not order-unfulfilled"
+then = "erase_personal_address"
+
+# REQ-005 is deliberately left unmodelled, and the reason is worth stating because it is a limit of
+# the method rather than an oversight.
+#
+# The deferral rule is about one customer's unfulfilled order; the archive's retention rule is about
+# one shipment's age. These booleans carry no identity, so a customer with an unfulfilled order and
+# a seven-year-old completed shipment reads as both conditions holding at once, and the merge would
+# report a contradiction between two rules that never meet on the same object.
+#
+# The fix is not to weaken the check. It is to model per-object state when the question needs it, or
+# to leave the requirement unmodelled and say so, which is what this does.

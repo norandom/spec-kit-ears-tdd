@@ -1,0 +1,55 @@
+# Vocabulary for the brownfield example.
+#
+# Written by reading the schema, not by designing a system. In a brownfield adoption the terms are
+# already decided; the work is finding out what they are and forcing the two subsystems to admit
+# they are talking about the same thing.
+#
+# `personal-address` is the term that does the work. Neither subsystem used that word. One says
+# `postal_address` and the other says `delivery_address`, which is exactly why nobody noticed they
+# were the same datum.
+
+schema_version = "1.0"
+
+[terms.personal-address]
+label = "Personal address"
+definition = "A postal address identifying where a natural person lives or receives goods, wherever it is stored."
+domain = { kind = "entity" }
+
+[terms.customer-directory]
+label = "Customer directory"
+definition = "The table holding one current postal address per customer, overwritten in place on change."
+domain = { kind = "entity" }
+broader = ["personal-address"]
+alt_labels = ["postal address"]
+
+[terms.shipment-archive]
+label = "Shipment archive"
+definition = "The table holding one address snapshot per dispatched shipment, never updated after dispatch."
+domain = { kind = "entity" }
+broader = ["personal-address"]
+alt_labels = ["delivery address"]
+
+[terms.erasure-requested]
+label = "Erasure requested"
+definition = "Whether the customer has made a verified request to have their personal data erased."
+domain = { kind = "bool" }
+
+[terms.order-unfulfilled]
+label = "Order unfulfilled"
+definition = "Whether the customer has an order that has been accepted and not yet delivered."
+domain = { kind = "bool" }
+
+[terms.shipment-completed]
+label = "Shipment completed"
+definition = "Whether a shipment reached its recorded delivery outcome."
+domain = { kind = "bool" }
+
+[terms.shipment-age-years]
+label = "Shipment age"
+definition = "Whole years since a shipment completed."
+domain = { kind = "int", min = 0, max = 25 }
+
+[terms.dispute-open]
+label = "Dispute open"
+definition = "Whether a carrier or customer dispute is open against a shipment."
+domain = { kind = "bool" }

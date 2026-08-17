@@ -1,0 +1,46 @@
+# Why each subsystem behaves as it does.
+#
+# Both intentions here are legal obligations, held by different teams, neither of which is free to
+# concede. That is what makes this example worth reading: the precedence table cannot resolve it,
+# and the gate is careful to say so rather than picking.
+
+schema_version = "1.0"
+
+[intentions.honour-erasure-requests]
+statement = "A verified erasure request removes the person's data from every store the system controls."
+rationale = """
+Erasure is not a preference, and a partial erasure is the worst outcome available: the request is
+recorded as satisfied, the customer is told it was, and the data is still there. The 2024 endpoint
+was built against the customer directory because that is where the privacy team knew addresses
+lived.
+"""
+
+[intentions.provable-delivery-history]
+statement = "A completed shipment's delivery address can be produced for as long as it can be disputed."
+rationale = """
+A carrier dispute turns on where the parcel was actually sent, and the current address does not
+answer that question because it may have changed since. The retention period is not an engineering
+preference either; it is the window in which the company can be asked to prove delivery.
+"""
+
+[intentions.one-place-per-fact]
+statement = "Each fact about a customer has exactly one authoritative home."
+rationale = """
+Added while writing these specifications, and it is the intention neither subsystem was built with.
+Both are internally consistent. Their conflict is not a mistake in either one, it is the cost of a
+duplication made in 2016 for reasons that were good at the time.
+"""
+
+# ---------------------------------------------------------------------------
+# Precedence.
+#
+# Nothing orders erasure against delivery history, and that is not an omission left for the reader
+# to fill in. Neither obligation yields to the other, so any ordering declared here would be a
+# fiction that silences the finding. The resolution is not a precedence entry: it is to stop storing
+# the address twice.
+# ---------------------------------------------------------------------------
+
+[[precedence]]
+over = "one-place-per-fact"
+under = "provable-delivery-history"
+reason = "A snapshot taken for evidence is a second copy by design. Where the two collide, the duplication is the thing to remove rather than the evidence requirement."

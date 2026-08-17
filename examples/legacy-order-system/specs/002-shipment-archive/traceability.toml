@@ -1,0 +1,61 @@
+schema_version = "1.0"
+
+[requirements.REQ-001]
+verification = "automated"
+tests = ["tests/test_archive.py::test_dispatch_records_address_as_it_stood"]
+tags = ["shipment-archive", "personal-address"]
+intent = "provable-delivery-history"
+
+[requirements.REQ-002]
+verification = "automated"
+tests = ["tests/test_archive.py::test_completed_shipment_retained_seven_years"]
+tags = ["shipment-archive", "personal-address", "shipment-completed", "shipment-age-years"]
+intent = "provable-delivery-history"
+
+[requirements.REQ-003]
+verification = "automated"
+tests = ["tests/test_archive.py::test_recorded_address_is_immutable"]
+tags = ["shipment-archive", "personal-address"]
+intent = "provable-delivery-history"
+
+[requirements.REQ-004]
+verification = "automated"
+tests = ["tests/test_retention.py::test_expired_shipment_address_is_deleted"]
+tags = ["shipment-archive", "shipment-completed", "shipment-age-years", "dispute-open"]
+intent = "honour-erasure-requests"
+
+[requirements.REQ-005]
+verification = "automated"
+tests = ["tests/test_retention.py::test_open_dispute_holds_address"]
+tags = ["shipment-archive", "personal-address", "dispute-open"]
+intent = "provable-delivery-history"
+
+[requirements.REQ-006]
+verification = "automated"
+tests = ["tests/test_archive.py::test_dispute_produces_dispatch_address"]
+tags = ["shipment-archive", "personal-address", "dispute-open"]
+intent = "provable-delivery-history"
+
+[requirements.REQ-007]
+verification = "automated"
+tests = ["tests/test_archive.py::test_address_is_copied_not_referenced"]
+tags = ["shipment-archive", "personal-address"]
+intent = "one-place-per-fact"
+
+[requirements.REQ-008]
+verification = "automated"
+tests = ["tests/test_archive.py::test_dispatch_time_is_recorded"]
+tags = ["shipment-archive"]
+intent = "provable-delivery-history"
+
+[requirements.REQ-009]
+verification = "automated"
+tests = ["tests/test_archive.py::test_address_read_requires_fulfilment_scope"]
+tags = ["shipment-archive", "personal-address"]
+intent = "provable-delivery-history"
+
+[requirements.REQ-010]
+verification = "automated"
+tests = ["tests/test_archive.py::test_shipment_without_outcome_is_in_flight"]
+tags = ["shipment-archive", "shipment-completed"]
+intent = "provable-delivery-history"

@@ -1,0 +1,193 @@
+schema_version = "1.0"
+
+[requirements.REQ-001]
+verification = "automated"
+tests = ["tests/test_retention_policy.py::test_policy_names_every_threshold"]
+tags = ["registry", "artifact-age-days"]
+intent = "operator-convenience"
+
+[requirements.REQ-002]
+verification = "automated"
+tests = ["tests/test_collection.py::test_deletes_unused_artifact_past_retention_window"]
+tags = ["registry", "artifact", "artifact-age-days", "download-count-zero", "retention-hold", "incident-active", "audit-sink-available"]
+intent = "storage-cost-control"
+
+[requirements.REQ-003]
+verification = "automated"
+tests = ["tests/test_collection.py::test_deletes_yanked_artifact_after_grace_period"]
+tags = ["registry", "artifact", "artifact-yanked", "artifact-age-days", "download-count-zero", "retention-hold", "incident-active", "audit-sink-available"]
+intent = "storage-cost-control"
+
+[requirements.REQ-004]
+verification = "automated"
+tests = ["tests/test_collection.py::test_quota_pressure_shortens_retention_window"]
+tags = ["registry", "artifact", "storage-quota-exceeded", "artifact-age-days", "download-count-zero", "retention-hold", "incident-active", "audit-sink-available"]
+intent = "storage-cost-control"
+
+[requirements.REQ-005]
+verification = "automated"
+tests = ["tests/test_retention.py::test_retains_artifact_inside_retention_window"]
+tags = ["registry", "artifact", "artifact-age-days", "artifact-yanked", "storage-quota-exceeded"]
+intent = "installable-existing-releases"
+
+[requirements.REQ-006]
+verification = "automated"
+tests = ["tests/test_retention.py::test_retains_downloaded_artifact"]
+tags = ["registry", "artifact", "download-count-zero"]
+intent = "installable-existing-releases"
+
+[requirements.REQ-007]
+verification = "automated"
+tests = ["tests/test_holds.py::test_hold_survives_quota_pressure"]
+tags = ["registry", "artifact", "retention-hold", "artifact-age-days", "download-count-zero"]
+intent = "auditable-evidence"
+
+[requirements.REQ-008]
+verification = "automated"
+tests = ["tests/test_retention.py::test_yank_grace_period_keeps_pinned_builds_resolvable"]
+tags = ["registry", "artifact", "artifact-yanked", "artifact-age-days", "storage-quota-exceeded"]
+intent = "installable-existing-releases"
+
+[requirements.REQ-009]
+verification = "automated"
+tests = ["tests/test_collection.py::test_incident_pauses_deletion"]
+tags = ["registry", "artifact", "incident-active"]
+intent = "available-under-load"
+
+[requirements.REQ-010]
+verification = "automated"
+tests = ["tests/test_collection.py::test_no_deletion_without_audit_sink"]
+tags = ["registry", "artifact", "audit-log", "audit-sink-available"]
+intent = "auditable-evidence"
+
+[requirements.REQ-011]
+verification = "automated"
+tests = ["tests/test_collection.py::test_referenced_artifact_is_never_collected"]
+tags = ["registry", "manifest", "artifact"]
+intent = "installable-existing-releases"
+
+[requirements.REQ-012]
+verification = "automated"
+tests = ["tests/test_manifest.py::test_manifest_lists_referenced_digests"]
+tags = ["manifest", "artifact", "digest-algorithm"]
+intent = "installable-existing-releases"
+
+[requirements.REQ-013]
+verification = "automated"
+tests = ["tests/test_manifest.py::test_broken_reference_is_reported"]
+tags = ["registry", "manifest", "artifact"]
+intent = "installable-existing-releases"
+
+[requirements.REQ-014]
+verification = "automated"
+tests = ["tests/test_serving.py::test_withholds_artifact_with_digest_mismatch"]
+tags = ["registry", "artifact", "digest-matches"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-015]
+verification = "automated"
+tests = ["tests/test_serving.py::test_yanked_artifact_still_served_by_exact_version"]
+tags = ["registry", "artifact", "artifact-yanked", "digest-matches"]
+intent = "installable-existing-releases"
+
+[requirements.REQ-016]
+verification = "automated"
+tests = ["tests/test_holds.py::test_admin_token_can_place_hold"]
+tags = ["registry", "access-token", "token-scope", "token-expired", "tls-verified", "retention-hold"]
+intent = "least-privilege-access"
+
+[requirements.REQ-017]
+verification = "automated"
+tests = ["tests/test_holds.py::test_write_token_cannot_place_hold"]
+tags = ["registry", "access-token", "token-scope", "retention-hold"]
+intent = "least-privilege-access"
+
+[requirements.REQ-018]
+verification = "automated"
+tests = ["tests/test_holds.py::test_hold_record_carries_owner_reason_and_expiry"]
+tags = ["registry", "retention-hold", "audit-log", "access-token"]
+intent = "auditable-evidence"
+
+[requirements.REQ-019]
+verification = "automated"
+tests = ["tests/test_holds.py::test_expired_hold_is_reported_not_auto_lifted"]
+tags = ["registry", "retention-hold", "audit-log"]
+intent = "auditable-evidence"
+
+[requirements.REQ-020]
+verification = "automated"
+tests = ["tests/test_reports.py::test_hold_listing_includes_age_and_owner"]
+tags = ["registry", "artifact", "retention-hold"]
+intent = "auditable-evidence"
+
+[requirements.REQ-021]
+verification = "automated"
+tests = ["tests/test_audit.py::test_retain_decisions_are_audited"]
+tags = ["registry", "artifact", "audit-log"]
+intent = "auditable-evidence"
+
+[requirements.REQ-022]
+verification = "automated"
+tests = ["tests/test_audit.py::test_deletion_entry_names_rule_and_threshold"]
+tags = ["registry", "audit-log", "artifact-age-days"]
+intent = "auditable-evidence"
+
+[requirements.REQ-023]
+verification = "automated"
+tests = ["tests/test_audit.py::test_deletion_entry_records_digest_and_algorithm"]
+tags = ["registry", "audit-log", "artifact", "digest-algorithm"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-024]
+verification = "automated"
+tests = ["tests/test_audit.py::test_deletion_entry_records_observed_download_count"]
+tags = ["registry", "audit-log", "artifact", "download-count-zero"]
+intent = "auditable-evidence"
+
+[requirements.REQ-025]
+verification = "automated"
+tests = ["tests/test_audit.py::test_deletion_entries_outlive_the_artifact"]
+tags = ["registry", "audit-log", "artifact-age-days"]
+intent = "auditable-evidence"
+
+[requirements.REQ-026]
+verification = "automated"
+tests = ["tests/test_replication.py::test_tombstone_reaches_trusted_mirror"]
+tags = ["registry", "mirror", "artifact", "mirror-trusted", "legacy-mirror-enabled", "replication-lag-seconds"]
+intent = "storage-cost-control"
+
+[requirements.REQ-027]
+verification = "automated"
+tests = ["tests/test_replication.py::test_legacy_mirror_receives_no_tombstone"]
+tags = ["registry", "mirror", "legacy-mirror-enabled"]
+intent = "operator-convenience"
+
+[requirements.REQ-028]
+verification = "automated"
+tests = ["tests/test_replication.py::test_mirror_reports_last_applied_sweep"]
+tags = ["mirror", "registry"]
+intent = "operator-convenience"
+
+[requirements.REQ-029]
+verification = "automated"
+tests = ["tests/test_index.py::test_index_rebuilt_after_collection"]
+tags = ["registry", "artifact", "index-stale", "maintenance-window", "incident-active"]
+intent = "discoverable-packages"
+
+[requirements.REQ-030]
+verification = "automated"
+tests = ["tests/test_index.py::test_index_rebuild_deferred_during_maintenance"]
+tags = ["registry", "maintenance-window", "index-stale"]
+intent = "available-under-load"
+
+[requirements.REQ-031]
+verification = "automated"
+tests = ["tests/test_reports.py::test_dry_run_deletes_nothing"]
+tags = ["registry", "artifact"]
+intent = "operator-convenience"
+
+[requirements.REQ-032]
+verification = "automated"
+tests = ["tests/test_reports.py::test_sweep_report_groups_counts_by_reason"]
+tags = ["registry", "artifact", "audit-log"]
+intent = "operator-convenience"

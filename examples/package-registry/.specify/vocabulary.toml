@@ -1,0 +1,176 @@
+# Vocabulary for the example package registry.
+#
+# Written before the specifications, not after. That order is the point of the layer: twelve
+# features cannot agree on what a word means by each choosing a good one, so the terms are fixed
+# first and every requirement draws from this list. An undeclared tag fails the gate.
+
+schema_version = "1.0"
+
+# ---------------------------------------------------------------------------
+# Entities
+# ---------------------------------------------------------------------------
+
+[terms.registry]
+label = "Package registry"
+definition = "The service that stores, verifies, and serves published artifacts."
+domain = { kind = "entity" }
+
+[terms.artifact]
+label = "Artifact"
+definition = "A published package file together with the manifest entry describing it."
+domain = { kind = "entity" }
+broader = ["registry"]
+
+[terms.manifest]
+label = "Manifest"
+definition = "The signed index recording each artifact's identity, digest, and publication metadata."
+domain = { kind = "entity" }
+broader = ["registry"]
+
+[terms.mirror]
+label = "Mirror"
+definition = "A downstream replica that serves artifacts copied from the primary registry."
+domain = { kind = "entity" }
+broader = ["registry"]
+
+[terms.audit-log]
+label = "Audit log"
+definition = "The append-only record of every state change a third party can check after the fact."
+domain = { kind = "entity" }
+broader = ["registry"]
+
+[terms.access-token]
+label = "Access token"
+definition = "The credential a client presents, carrying a scope that bounds what it may do."
+domain = { kind = "entity" }
+broader = ["registry"]
+
+# ---------------------------------------------------------------------------
+# Integrity conditions
+# ---------------------------------------------------------------------------
+
+[terms.digest-algorithm]
+label = "Manifest digest algorithm"
+definition = "The algorithm the manifest used to record this artifact's digest."
+domain = { kind = "enum", values = ["md5", "sha1", "sha256", "blake3"] }
+
+[terms.digest-matches]
+label = "Digest matches"
+definition = "Whether the artifact's computed digest equals the digest recorded in the manifest."
+domain = { kind = "bool" }
+
+[terms.signature-present]
+label = "Signature present"
+definition = "Whether the manifest entry carries a publisher signature."
+domain = { kind = "bool" }
+
+[terms.signature-valid]
+label = "Signature valid"
+definition = "Whether the publisher signature verifies against a trusted publisher key."
+domain = { kind = "bool" }
+
+[terms.legacy-mirror-enabled]
+label = "Legacy mirror enabled"
+definition = "Whether the operator has opted this installation into accepting pre-migration artifacts from a legacy mirror."
+domain = { kind = "bool" }
+
+[terms.mirror-trusted]
+label = "Mirror trusted"
+definition = "Whether the mirror serving this artifact is on the operator's trusted mirror list."
+domain = { kind = "bool" }
+
+# ---------------------------------------------------------------------------
+# Access conditions
+# ---------------------------------------------------------------------------
+
+[terms.publisher-authenticated]
+label = "Publisher authenticated"
+definition = "Whether the request carries a credential that resolves to a known publisher identity."
+domain = { kind = "bool" }
+
+[terms.token-scope]
+label = "Token scope"
+definition = "The privilege level carried by the presented access token."
+domain = { kind = "enum", values = ["anonymous", "read", "write", "admin"] }
+
+[terms.token-expired]
+label = "Token expired"
+definition = "Whether the presented access token is past its expiry time."
+domain = { kind = "bool" }
+
+[terms.tls-verified]
+label = "Transport verified"
+definition = "Whether the connection completed TLS verification against a trusted certificate chain."
+domain = { kind = "bool" }
+
+# ---------------------------------------------------------------------------
+# Load and capacity conditions
+# ---------------------------------------------------------------------------
+
+[terms.rate-limit-exceeded]
+label = "Rate limit exceeded"
+definition = "Whether the client has exceeded its permitted request rate for the current window."
+domain = { kind = "bool" }
+
+[terms.storage-quota-exceeded]
+label = "Storage quota exceeded"
+definition = "Whether the publishing namespace is over its allotted storage."
+domain = { kind = "bool" }
+
+[terms.replication-lag-seconds]
+label = "Replication lag"
+definition = "How far behind the primary a mirror's copy of the manifest currently is, in seconds."
+domain = { kind = "int", min = 0, max = 86400 }
+
+# ---------------------------------------------------------------------------
+# Lifecycle conditions
+# ---------------------------------------------------------------------------
+
+[terms.artifact-age-days]
+label = "Artifact age"
+definition = "Days since the artifact was published."
+domain = { kind = "int", min = 0, max = 3650 }
+
+[terms.retention-hold]
+label = "Retention hold"
+definition = "Whether a legal or operational hold forbids deleting this artifact."
+domain = { kind = "bool" }
+
+[terms.artifact-yanked]
+label = "Artifact yanked"
+definition = "Whether the publisher has withdrawn this artifact from normal resolution."
+domain = { kind = "bool" }
+
+[terms.download-count-zero]
+label = "Never downloaded"
+definition = "Whether the artifact has never been downloaded since publication."
+domain = { kind = "bool" }
+
+# ---------------------------------------------------------------------------
+# Operational conditions
+# ---------------------------------------------------------------------------
+
+[terms.audit-sink-available]
+label = "Audit sink available"
+definition = "Whether the durable audit destination is accepting writes."
+domain = { kind = "bool" }
+
+[terms.incident-active]
+label = "Incident active"
+definition = "Whether an operator has declared an active security incident."
+domain = { kind = "bool" }
+
+[terms.maintenance-window]
+label = "Maintenance window"
+definition = "Whether the registry is inside a scheduled maintenance window."
+domain = { kind = "bool" }
+
+[terms.index-stale]
+label = "Search index stale"
+definition = "Whether the search index is behind the manifest it indexes."
+domain = { kind = "bool" }
+
+[terms.client-version-supported]
+label = "Client version supported"
+definition = "Whether the requesting client's protocol version is still supported."
+domain = { kind = "bool" }

@@ -1,0 +1,193 @@
+schema_version = "1.0"
+
+[requirements.REQ-001]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_identity_falls_back_to_network_prefix"]
+tags = ["registry", "access-token", "token-scope"]
+intent = "least-privilege-access"
+
+[requirements.REQ-002]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_budget_is_enforced_over_rolling_window"]
+tags = ["registry", "access-token"]
+intent = "available-under-load"
+
+[requirements.REQ-003]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_allowance_increases_with_token_scope"]
+tags = ["token-scope", "access-token", "registry"]
+intent = "least-privilege-access"
+
+[requirements.REQ-004]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_unsupported_client_gets_anonymous_allowance"]
+tags = ["client-version-supported", "token-scope", "access-token"]
+intent = "available-under-load"
+
+[requirements.REQ-005]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_expired_token_charged_to_anonymous_budget"]
+tags = ["token-expired", "access-token", "token-scope"]
+intent = "least-privilege-access"
+
+[requirements.REQ-006]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_over_budget_client_is_denied_429"]
+tags = ["rate-limit-exceeded", "token-scope", "registry"]
+intent = "available-under-load"
+
+[requirements.REQ-007]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_read_within_budget_is_admitted_unqueued"]
+tags = ["token-scope", "rate-limit-exceeded", "tls-verified"]
+intent = "installable-existing-releases"
+
+[requirements.REQ-008]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_admin_token_bypasses_exhausted_budget"]
+tags = ["token-scope", "token-expired", "tls-verified", "access-token"]
+intent = "operator-convenience"
+
+[requirements.REQ-009]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_unverified_tls_denied_before_accounting"]
+tags = ["tls-verified", "registry", "access-token"]
+intent = "least-privilege-access"
+
+[requirements.REQ-010]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_denied_response_carries_retry_after"]
+tags = ["rate-limit-exceeded", "registry"]
+intent = "operator-convenience"
+
+[requirements.REQ-011]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_budget_headers_present_on_every_response"]
+tags = ["registry", "rate-limit-exceeded", "token-scope"]
+intent = "operator-convenience"
+
+[requirements.REQ-012]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_denied_request_does_not_consume_allowance"]
+tags = ["rate-limit-exceeded", "registry"]
+intent = "available-under-load"
+
+[requirements.REQ-013]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_throttle_decision_is_audited"]
+tags = ["rate-limit-exceeded", "token-scope", "audit-log"]
+intent = "auditable-evidence"
+
+[requirements.REQ-014]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_admin_bypass_is_audited"]
+tags = ["rate-limit-exceeded", "token-scope", "audit-log", "access-token"]
+intent = "auditable-evidence"
+
+[requirements.REQ-015]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_throttle_entries_buffered_when_sink_down"]
+tags = ["audit-sink-available", "audit-log", "registry"]
+intent = "auditable-evidence"
+
+[requirements.REQ-016]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_writes_shed_during_incident"]
+tags = ["incident-active", "token-scope", "registry"]
+intent = "available-under-load"
+
+[requirements.REQ-017]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_writes_denied_503_during_maintenance"]
+tags = ["maintenance-window", "token-scope", "registry"]
+intent = "available-under-load"
+
+[requirements.REQ-018]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_downloads_continue_during_incident"]
+tags = ["incident-active", "rate-limit-exceeded", "artifact-yanked", "artifact"]
+intent = "installable-existing-releases"
+
+[requirements.REQ-019]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_over_budget_download_is_withheld_whole"]
+tags = ["rate-limit-exceeded", "token-scope", "artifact"]
+intent = "available-under-load"
+
+[requirements.REQ-020]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_over_budget_upload_rejected_before_storage"]
+tags = ["publisher-authenticated", "rate-limit-exceeded", "artifact"]
+intent = "storage-cost-control"
+
+[requirements.REQ-021]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_upload_within_budget_accepted_for_validation"]
+tags = ["publisher-authenticated", "rate-limit-exceeded", "storage-quota-exceeded", "incident-active", "maintenance-window", "artifact"]
+intent = "available-under-load"
+
+[requirements.REQ-022]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_quota_exhausted_upload_rejected_before_budget"]
+tags = ["storage-quota-exceeded", "publisher-authenticated", "artifact"]
+intent = "storage-cost-control"
+
+[requirements.REQ-023]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_lagging_mirror_stops_accepting_batches"]
+tags = ["mirror", "replication-lag-seconds"]
+intent = "available-under-load"
+
+[requirements.REQ-024]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_replication_paused_during_incident"]
+tags = ["incident-active", "mirror", "registry"]
+intent = "available-under-load"
+
+[requirements.REQ-025]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_healthy_mirror_receives_replication"]
+tags = ["mirror-trusted", "replication-lag-seconds", "incident-active", "mirror", "artifact"]
+intent = "installable-existing-releases"
+
+[requirements.REQ-026]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_indexing_deferred_during_incident"]
+tags = ["incident-active", "artifact", "registry"]
+intent = "available-under-load"
+
+[requirements.REQ-027]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_deferred_artifacts_indexed_after_incident"]
+tags = ["index-stale", "incident-active", "artifact"]
+intent = "discoverable-packages"
+
+[requirements.REQ-028]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_window_uses_monotonic_clock"]
+tags = ["registry"]
+intent = "available-under-load"
+
+[requirements.REQ-029]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_window_resets_are_staggered"]
+tags = ["registry", "access-token"]
+intent = "available-under-load"
+
+[requirements.REQ-030]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_counter_store_loss_falls_back_to_local_budgets"]
+tags = ["registry", "rate-limit-exceeded"]
+intent = "available-under-load"
+
+[requirements.REQ-031]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_concurrent_upload_connections_capped"]
+tags = ["registry", "artifact", "access-token"]
+intent = "available-under-load"
+
+[requirements.REQ-032]
+verification = "automated"
+tests = ["tests/test_rate_limiting.py::test_per_scope_counters_are_exported"]
+tags = ["registry", "token-scope"]
+intent = "operator-convenience"

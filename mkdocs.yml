@@ -53,6 +53,9 @@ nav:
       - Why this exists: index.md
       - Install and gate a project: getting-started.md
       - A contradiction, end to end: example.md
+  - Tutorial:
+      - A needle in 383 requirements: tutorial/needle-in-a-haystack.md
+      - "Brownfield: duplicate storage": tutorial/brownfield-duplicate-storage.md
   - Concepts:
       - Requirements that hold their shape: concepts/ears.md
       - "Grounding: vocabulary and intentions": concepts/grounding.md

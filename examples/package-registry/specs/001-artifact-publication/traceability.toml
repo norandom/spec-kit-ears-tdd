@@ -1,0 +1,187 @@
+schema_version = "1.0"
+
+[requirements.REQ-001]
+verification = "automated"
+tests = ["tests/test_publication_auth.py::test_scope_is_resolved_before_body_is_read"]
+tags = ["registry", "access-token", "token-scope"]
+intent = "least-privilege-access"
+
+[requirements.REQ-002]
+verification = "automated"
+tests = ["tests/test_publication_auth.py::test_write_scoped_request_is_admitted"]
+tags = ["registry", "access-token", "publisher-authenticated", "token-scope", "token-expired", "tls-verified", "rate-limit-exceeded"]
+intent = "least-privilege-access"
+
+[requirements.REQ-003]
+verification = "automated"
+tests = ["tests/test_publication_auth.py::test_unknown_publisher_is_denied"]
+tags = ["registry", "access-token", "publisher-authenticated"]
+intent = "least-privilege-access"
+
+[requirements.REQ-004]
+verification = "automated"
+tests = ["tests/test_publication_auth.py::test_read_scope_cannot_publish"]
+tags = ["registry", "access-token", "token-scope"]
+intent = "least-privilege-access"
+
+[requirements.REQ-005]
+verification = "automated"
+tests = ["tests/test_publication_auth.py::test_expired_token_is_denied"]
+tags = ["registry", "access-token", "token-expired"]
+intent = "least-privilege-access"
+
+[requirements.REQ-006]
+verification = "automated"
+tests = ["tests/test_publication_auth.py::test_unverified_transport_is_denied"]
+tags = ["registry", "access-token", "tls-verified"]
+intent = "least-privilege-access"
+
+[requirements.REQ-007]
+verification = "automated"
+tests = ["tests/test_publication_auth.py::test_rate_limited_publisher_is_denied"]
+tags = ["registry", "access-token", "rate-limit-exceeded"]
+intent = "available-under-load"
+
+[requirements.REQ-008]
+verification = "automated"
+tests = ["tests/test_publication_auth.py::test_denial_names_required_and_presented_scope"]
+tags = ["registry", "access-token", "token-scope"]
+intent = "least-privilege-access"
+
+[requirements.REQ-009]
+verification = "automated"
+tests = ["tests/test_publication_quota.py::test_accepted_upload_is_charged_to_the_namespace"]
+tags = ["registry", "artifact", "storage-quota-exceeded"]
+intent = "storage-cost-control"
+
+[requirements.REQ-010]
+verification = "automated"
+tests = ["tests/test_publication_quota.py::test_rejects_over_quota"]
+tags = ["registry", "artifact", "storage-quota-exceeded"]
+intent = "storage-cost-control"
+
+[requirements.REQ-011]
+verification = "automated"
+tests = ["tests/test_publication_quota.py::test_over_quota_upload_leaves_no_staged_bytes"]
+tags = ["registry", "artifact", "storage-quota-exceeded"]
+intent = "storage-cost-control"
+
+[requirements.REQ-012]
+verification = "automated"
+tests = ["tests/test_publication_manifest.py::test_accepts_signed_sha256_upload"]
+tags = ["registry", "artifact", "manifest", "digest-matches", "digest-algorithm", "signature-valid", "storage-quota-exceeded", "audit-sink-available", "artifact-yanked"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-013]
+verification = "automated"
+tests = ["tests/test_publication_manifest.py::test_digest_is_recomputed_server_side"]
+tags = ["registry", "artifact", "digest-matches", "digest-algorithm"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-014]
+verification = "automated"
+tests = ["tests/test_publication_manifest.py::test_digest_mismatch_is_rejected"]
+tags = ["registry", "manifest", "artifact", "digest-matches"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-015]
+verification = "automated"
+tests = ["tests/test_publication_manifest.py::test_weak_digest_algorithm_is_rejected"]
+tags = ["registry", "manifest", "digest-algorithm"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-016]
+verification = "automated"
+tests = ["tests/test_publication_manifest.py::test_unsigned_upload_is_rejected"]
+tags = ["registry", "manifest", "artifact", "signature-present"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-017]
+verification = "automated"
+tests = ["tests/test_publication_manifest.py::test_invalid_signature_is_rejected"]
+tags = ["registry", "manifest", "signature-present", "signature-valid"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-018]
+verification = "automated"
+tests = ["tests/test_publication_manifest.py::test_manifest_entry_is_written_atomically"]
+tags = ["manifest", "artifact", "registry", "digest-algorithm"]
+intent = "auditable-evidence"
+
+[requirements.REQ-019]
+verification = "automated"
+tests = ["tests/test_publication_manifest.py::test_accepted_artifact_is_stored_by_content_address"]
+tags = ["registry", "artifact", "digest-matches", "signature-valid", "storage-quota-exceeded"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-020]
+verification = "automated"
+tests = ["tests/test_publication_manifest.py::test_mismatched_upload_is_discarded"]
+tags = ["registry", "manifest", "artifact", "digest-matches"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-021]
+verification = "automated"
+tests = ["tests/test_publication_duplicates.py::test_manifest_holds_one_entry_per_version"]
+tags = ["manifest", "registry", "artifact"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-022]
+verification = "automated"
+tests = ["tests/test_publication_duplicates.py::test_identical_republication_is_idempotent"]
+tags = ["registry", "manifest", "artifact", "digest-matches"]
+intent = "operator-convenience"
+
+[requirements.REQ-023]
+verification = "automated"
+tests = ["tests/test_publication_duplicates.py::test_version_reuse_with_different_bytes_is_rejected"]
+tags = ["registry", "manifest", "artifact", "digest-matches"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-024]
+verification = "automated"
+tests = ["tests/test_publication_duplicates.py::test_yanked_version_cannot_be_republished"]
+tags = ["registry", "artifact", "manifest", "artifact-yanked"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-025]
+verification = "automated"
+tests = ["tests/test_publication_duplicates.py::test_retention_hold_preserves_existing_bytes"]
+tags = ["registry", "artifact", "retention-hold"]
+intent = "auditable-evidence"
+
+[requirements.REQ-026]
+verification = "automated"
+tests = ["tests/test_publication_audit.py::test_every_decision_emits_an_audit_entry"]
+tags = ["registry", "audit-log", "artifact"]
+intent = "auditable-evidence"
+
+[requirements.REQ-027]
+verification = "automated"
+tests = ["tests/test_publication_audit.py::test_publication_refused_without_an_audit_sink"]
+tags = ["registry", "audit-log", "audit-sink-available", "artifact"]
+intent = "auditable-evidence"
+
+[requirements.REQ-028]
+verification = "automated"
+tests = ["tests/test_publication_audit.py::test_incident_freezes_publication"]
+tags = ["registry", "artifact", "incident-active"]
+intent = "available-under-load"
+
+[requirements.REQ-029]
+verification = "automated"
+tests = ["tests/test_publication_index.py::test_accepted_artifact_is_indexed_before_acknowledgement"]
+tags = ["registry", "manifest", "artifact", "index-stale", "maintenance-window", "incident-active"]
+intent = "discoverable-packages"
+
+[requirements.REQ-030]
+verification = "automated"
+tests = ["tests/test_publication_index.py::test_maintenance_window_defers_indexing"]
+tags = ["registry", "artifact", "maintenance-window", "index-stale"]
+intent = "available-under-load"
+
+[requirements.REQ-031]
+verification = "automated"
+tests = ["tests/test_publication_manifest.py::test_pre_policy_entries_are_left_unchanged"]
+tags = ["registry", "manifest", "artifact", "digest-algorithm"]
+intent = "installable-existing-releases"

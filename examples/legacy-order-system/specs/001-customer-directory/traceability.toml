@@ -1,0 +1,61 @@
+schema_version = "1.0"
+
+[requirements.REQ-001]
+verification = "automated"
+tests = ["tests/test_directory.py::test_one_address_per_customer"]
+tags = ["customer-directory", "personal-address"]
+intent = "one-place-per-fact"
+
+[requirements.REQ-002]
+verification = "automated"
+tests = ["tests/test_directory.py::test_address_is_replaced_in_place"]
+tags = ["customer-directory", "personal-address"]
+intent = "one-place-per-fact"
+
+[requirements.REQ-003]
+verification = "automated"
+tests = ["tests/test_directory.py::test_replacement_time_is_recorded"]
+tags = ["customer-directory"]
+intent = "one-place-per-fact"
+
+[requirements.REQ-004]
+verification = "automated"
+tests = ["tests/test_erasure.py::test_erasure_clears_every_store"]
+tags = ["personal-address", "erasure-requested", "order-unfulfilled"]
+intent = "honour-erasure-requests"
+
+[requirements.REQ-005]
+verification = "automated"
+tests = ["tests/test_erasure.py::test_erasure_defers_until_order_completes"]
+tags = ["erasure-requested", "order-unfulfilled"]
+intent = "honour-erasure-requests"
+
+[requirements.REQ-006]
+verification = "automated"
+tests = ["tests/test_erasure.py::test_erasure_time_is_recorded"]
+tags = ["customer-directory", "erasure-requested"]
+intent = "honour-erasure-requests"
+
+[requirements.REQ-007]
+verification = "manual"
+rationale = "The customer-facing erasure report is reviewed by the privacy team each release; there is no automated assertion on its wording."
+tags = ["erasure-requested"]
+intent = "honour-erasure-requests"
+
+[requirements.REQ-008]
+verification = "automated"
+tests = ["tests/test_directory.py::test_invalid_address_is_rejected"]
+tags = ["customer-directory", "personal-address"]
+intent = "one-place-per-fact"
+
+[requirements.REQ-009]
+verification = "automated"
+tests = ["tests/test_directory.py::test_missing_address_reports_incomplete"]
+tags = ["customer-directory"]
+intent = "one-place-per-fact"
+
+[requirements.REQ-010]
+verification = "automated"
+tests = ["tests/test_directory.py::test_address_read_requires_scope"]
+tags = ["customer-directory", "personal-address"]
+intent = "one-place-per-fact"

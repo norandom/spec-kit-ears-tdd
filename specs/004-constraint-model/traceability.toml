@@ -42,7 +42,7 @@ tests = ["conformance/cases/model-conflict-adjudicated/expected.json"]
 
 [requirements.REQ-011]
 verification = "automated"
-tests = ["crates/ears-sdd/src/analysis.rs::tests::an_over_budget_component_reports_the_lever_rather_than_being_evaluated"]
+tests = ["crates/ears-sdd/src/analysis.rs::tests::an_over_budget_question_reports_the_lever_rather_than_being_evaluated"]
 
 [requirements.REQ-012]
 verification = "automated"
@@ -50,7 +50,7 @@ tests = ["conformance/cases/model-conflict-unclassified/expected.json"]
 
 [requirements.REQ-013]
 verification = "automated"
-tests = ["crates/ears-sdd/src/analysis.rs::tests::an_over_budget_component_reports_the_lever_rather_than_being_evaluated"]
+tests = ["crates/ears-sdd/src/analysis.rs::tests::an_over_budget_question_reports_the_lever_rather_than_being_evaluated"]
 
 [requirements.REQ-014]
 verification = "automated"
@@ -82,11 +82,11 @@ tests = ["conformance/cases/model-type-mismatch/expected.json"]
 
 [requirements.REQ-021]
 verification = "automated"
-tests = ["crates/ears-sdd/src/analysis.rs::tests::an_over_budget_component_reports_the_lever_rather_than_being_evaluated"]
+tests = ["crates/ears-sdd/src/analysis.rs::tests::an_over_budget_question_reports_the_lever_rather_than_being_evaluated"]
 
 [requirements.REQ-022]
 verification = "automated"
-tests = ["crates/ears-sdd/src/analysis.rs::tests::an_over_budget_component_reports_the_lever_rather_than_being_evaluated"]
+tests = ["crates/ears-sdd/src/analysis.rs::tests::an_over_budget_question_reports_the_lever_rather_than_being_evaluated"]
 
 [requirements.REQ-023]
 verification = "automated"

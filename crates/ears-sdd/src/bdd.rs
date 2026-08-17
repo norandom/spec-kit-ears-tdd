@@ -178,6 +178,83 @@ pub fn implies(encoding: &Encoding, left: &Bdd, right: &Bdd) -> bool {
 }
 
 #[cfg(test)]
+mod scaling {
+    use super::*;
+    use crate::model::{finitize, ModelledRequirement, Variable};
+    use crate::vocabulary::Domain;
+
+    fn merged_component(terms: usize) -> Component {
+        let mut variables: Vec<Variable> = Vec::new();
+        for index in 0..terms {
+            variables.push(match index % 3 {
+                0 => finitize(&format!("flag-{index}"), &Domain::Bool, &[]),
+                1 => finitize(
+                    &format!("mode-{index}"),
+                    &Domain::Enum {
+                        values: vec!["a".into(), "b".into(), "c".into(), "d".into()],
+                    },
+                    &[],
+                ),
+                _ => finitize(
+                    &format!("count-{index}"),
+                    &Domain::Int { min: 0, max: 10000 },
+                    &[
+                        (crate::guard::Op::Less, crate::guard::Literal::Int(100)),
+                        (crate::guard::Op::Less, crate::guard::Literal::Int(1000)),
+                    ],
+                ),
+            });
+        }
+        Component {
+            index: 0,
+            variables,
+            requirements: Vec::<ModelledRequirement>::new(),
+        }
+    }
+
+    /// The property that makes a merged constraint system affordable.
+    ///
+    /// Every query is asked relative to the domain constraint, so if that grew with the product of
+    /// the blocks it would reintroduce the explosion the scoping removed. It does not: one-hot
+    /// blocks are declared contiguously, so exactly-one over each block is a chain and their
+    /// conjunction stays linear in the number of blocks rather than exponential in it.
+    ///
+    /// The bound is deliberately loose. It exists to catch a change in kind, such as interleaving
+    /// the blocks or reordering variables, not to pin an exact node count.
+    #[test]
+    fn the_domain_constraint_stays_linear_in_the_number_of_terms() {
+        let mut previous = 0usize;
+        for terms in [4usize, 8, 16, 32, 64] {
+            let component = merged_component(terms);
+            let encoding = Encoding::new(&component);
+            let nodes = encoding.node_count(encoding.domain());
+            let variables: usize = component.variables.iter().map(|v| v.values.len()).sum();
+            assert!(
+                nodes < variables * variables,
+                "{terms} terms ({variables} one-hot variables) produced {nodes} nodes, \
+                 which is no longer linear"
+            );
+            assert!(nodes > previous, "the domain must grow with the terms");
+            previous = nodes;
+        }
+    }
+
+    /// A merged system's size is not what a single question costs. This is the measured form of the
+    /// claim the scoping rests on: a guard over two terms is the same small diagram whether it
+    /// lives in a component of four terms or sixty-four.
+    #[test]
+    fn one_guard_costs_the_same_in_a_large_component_as_a_small_one() {
+        let guard = crate::guard::parse("flag-0 and mode-1 == 'b'").expect("parses");
+        let small = Encoding::new(&merged_component(4));
+        let large = Encoding::new(&merged_component(64));
+        assert_eq!(
+            small.node_count(&small.encode(&guard)),
+            large.node_count(&large.encode(&guard)),
+        );
+    }
+}
+
+#[cfg(test)]
 mod tests {
     use super::*;
     use crate::guard;

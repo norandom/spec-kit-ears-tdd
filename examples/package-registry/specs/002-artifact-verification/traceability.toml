@@ -1,0 +1,193 @@
+schema_version = "1.0"
+
+[requirements.REQ-001]
+verification = "automated"
+tests = ["tests/test_digest.py::test_digest_is_computed_before_signature_evaluation"]
+tags = ["registry", "artifact", "manifest", "digest-algorithm"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-002]
+verification = "automated"
+tests = ["tests/test_digest.py::test_rejects_artifact_on_digest_mismatch"]
+tags = ["artifact", "manifest", "digest-matches"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-003]
+verification = "automated"
+tests = ["tests/test_digest.py::test_discards_bytes_on_digest_mismatch"]
+tags = ["registry", "artifact", "digest-matches"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-004]
+verification = "automated"
+tests = ["tests/test_digest.py::test_rejects_md5_even_when_digest_matches"]
+tags = ["manifest", "artifact", "digest-algorithm"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-005]
+verification = "automated"
+tests = ["tests/test_digest.py::test_rejects_sha1_when_legacy_support_is_off"]
+tags = ["manifest", "artifact", "digest-algorithm", "legacy-mirror-enabled"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-006]
+verification = "automated"
+tests = ["tests/test_digest.py::test_accepts_strong_digest_with_valid_signature"]
+tags = ["registry", "artifact", "manifest", "digest-algorithm", "digest-matches", "signature-valid", "publisher-authenticated"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-007]
+verification = "automated"
+tests = ["tests/test_digest.py::test_accepts_sha1_under_legacy_mirror_support"]
+tags = ["registry", "artifact", "legacy-mirror-enabled", "digest-algorithm", "digest-matches", "signature-valid", "publisher-authenticated"]
+intent = "installable-existing-releases"
+
+[requirements.REQ-008]
+verification = "automated"
+tests = ["tests/test_digest.py::test_digest_comparison_is_constant_time"]
+tags = ["registry", "artifact", "digest-matches"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-009]
+verification = "automated"
+tests = ["tests/test_reporting.py::test_verification_record_names_algorithm_and_value"]
+tags = ["registry", "artifact", "audit-log", "digest-algorithm"]
+intent = "auditable-evidence"
+
+[requirements.REQ-010]
+verification = "automated"
+tests = ["tests/test_reporting.py::test_algorithm_policy_is_documented"]
+tags = ["registry", "artifact", "digest-algorithm", "legacy-mirror-enabled"]
+intent = "installable-existing-releases"
+
+[requirements.REQ-011]
+verification = "automated"
+tests = ["tests/test_signature.py::test_rejects_artifact_with_invalid_signature"]
+tags = ["artifact", "manifest", "signature-present", "signature-valid"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-012]
+verification = "automated"
+tests = ["tests/test_signature.py::test_rejects_unsigned_artifact_outside_legacy_support"]
+tags = ["artifact", "signature-present", "legacy-mirror-enabled"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-013]
+verification = "automated"
+tests = ["tests/test_signature.py::test_rejects_signature_from_unbound_key"]
+tags = ["artifact", "signature-present", "signature-valid", "publisher-authenticated"]
+intent = "least-privilege-access"
+
+[requirements.REQ-014]
+verification = "automated"
+tests = ["tests/test_reporting.py::test_signature_failure_names_key_algorithm_and_reason"]
+tags = ["registry", "artifact", "signature-valid", "audit-log"]
+intent = "auditable-evidence"
+
+[requirements.REQ-015]
+verification = "automated"
+tests = ["tests/test_reporting.py::test_unsigned_legacy_artifact_is_marked_unverified"]
+tags = ["registry", "artifact", "legacy-mirror-enabled", "signature-present"]
+intent = "installable-existing-releases"
+
+[requirements.REQ-016]
+verification = "automated"
+tests = ["tests/test_mirror_trust.py::test_denies_fetch_over_unverified_transport"]
+tags = ["registry", "mirror", "artifact", "tls-verified"]
+intent = "least-privilege-access"
+
+[requirements.REQ-017]
+verification = "automated"
+tests = ["tests/test_mirror_trust.py::test_withholds_artifacts_from_untrusted_mirror"]
+tags = ["registry", "mirror", "artifact", "mirror-trusted"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-018]
+verification = "automated"
+tests = ["tests/test_mirror_trust.py::test_replicates_to_current_trusted_mirror"]
+tags = ["registry", "mirror", "artifact", "mirror-trusted", "tls-verified", "replication-lag-seconds", "incident-active"]
+intent = "available-under-load"
+
+[requirements.REQ-019]
+verification = "automated"
+tests = ["tests/test_mirror_trust.py::test_skips_replication_to_lagging_mirror"]
+tags = ["registry", "mirror", "replication-lag-seconds"]
+intent = "available-under-load"
+
+[requirements.REQ-020]
+verification = "automated"
+tests = ["tests/test_reporting.py::test_status_endpoint_publishes_trusted_mirror_list"]
+tags = ["registry", "mirror", "mirror-trusted"]
+intent = "operator-convenience"
+
+[requirements.REQ-021]
+verification = "automated"
+tests = ["tests/test_reporting.py::test_audit_log_names_supplying_mirror"]
+tags = ["registry", "mirror", "artifact", "audit-log"]
+intent = "auditable-evidence"
+
+[requirements.REQ-022]
+verification = "automated"
+tests = ["tests/test_serving.py::test_serves_verified_artifact_from_trusted_mirror"]
+tags = ["registry", "mirror", "artifact", "mirror-trusted", "tls-verified", "digest-matches", "signature-valid", "client-version-supported"]
+intent = "installable-existing-releases"
+
+[requirements.REQ-023]
+verification = "automated"
+tests = ["tests/test_serving.py::test_withholds_yanked_artifact_from_unpinned_request"]
+tags = ["registry", "artifact", "artifact-yanked", "digest-matches"]
+intent = "installable-existing-releases"
+
+[requirements.REQ-024]
+verification = "automated"
+tests = ["tests/test_reporting.py::test_withheld_yanked_artifact_carries_reason"]
+tags = ["registry", "manifest", "artifact", "artifact-yanked"]
+intent = "installable-existing-releases"
+
+[requirements.REQ-025]
+verification = "automated"
+tests = ["tests/test_cache.py::test_stores_verified_artifact_within_quota"]
+tags = ["registry", "artifact", "digest-matches", "signature-valid", "publisher-authenticated", "storage-quota-exceeded"]
+intent = "available-under-load"
+
+[requirements.REQ-026]
+verification = "automated"
+tests = ["tests/test_cache.py::test_retains_artifact_under_retention_hold"]
+tags = ["registry", "artifact", "retention-hold"]
+intent = "auditable-evidence"
+
+[requirements.REQ-027]
+verification = "automated"
+tests = ["tests/test_cache.py::test_deletes_old_unused_artifact_over_quota"]
+tags = ["registry", "artifact", "storage-quota-exceeded", "download-count-zero", "artifact-age-days", "retention-hold"]
+intent = "storage-cost-control"
+
+[requirements.REQ-028]
+verification = "automated"
+tests = ["tests/test_access.py::test_denies_request_with_expired_token"]
+tags = ["registry", "access-token", "token-expired"]
+intent = "least-privilege-access"
+
+[requirements.REQ-029]
+verification = "automated"
+tests = ["tests/test_access.py::test_allows_read_scoped_verification_request"]
+tags = ["registry", "access-token", "artifact", "token-scope", "token-expired", "tls-verified", "rate-limit-exceeded"]
+intent = "least-privilege-access"
+
+[requirements.REQ-030]
+verification = "automated"
+tests = ["tests/test_reporting.py::test_every_verification_outcome_is_audited"]
+tags = ["registry", "artifact", "audit-log", "audit-sink-available"]
+intent = "auditable-evidence"
+
+[requirements.REQ-031]
+verification = "automated"
+tests = ["tests/test_reporting.py::test_verification_failure_uses_stable_reason_code"]
+tags = ["registry", "artifact", "audit-log"]
+intent = "operator-convenience"
+
+[requirements.REQ-032]
+verification = "automated"
+tests = ["tests/test_reporting.py::test_index_listing_names_verification_algorithm"]
+tags = ["registry", "artifact", "digest-algorithm"]
+intent = "discoverable-packages"

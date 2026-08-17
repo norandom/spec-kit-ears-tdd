@@ -23,7 +23,7 @@
 use std::collections::BTreeSet;
 use std::fmt;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Op {
     Equal,
     NotEqual,
@@ -46,7 +46,7 @@ impl Op {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Literal {
     Int(i64),
     Text(String),
@@ -63,7 +63,7 @@ impl fmt::Display for Literal {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Guard {
     /// A requirement with no condition. Distinct from a condition that happens to hold: it records
     /// that the requirement was never conditional in the first place.

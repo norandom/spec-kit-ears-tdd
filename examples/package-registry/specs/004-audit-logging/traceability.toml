@@ -1,0 +1,193 @@
+schema_version = "1.0"
+
+[requirements.REQ-001]
+verification = "automated"
+tests = ["tests/test_audit_entry.py::test_every_state_change_writes_an_entry"]
+tags = ["registry", "audit-log", "artifact", "manifest", "access-token"]
+intent = "auditable-evidence"
+
+[requirements.REQ-002]
+verification = "automated"
+tests = ["tests/test_audit_entry.py::test_entry_names_actor_token_target_action_and_outcome"]
+tags = ["audit-log", "access-token", "artifact"]
+intent = "auditable-evidence"
+
+[requirements.REQ-003]
+verification = "automated"
+tests = ["tests/test_audit_entry.py::test_entry_records_token_id_not_token_value"]
+tags = ["audit-log", "access-token"]
+intent = "least-privilege-access"
+
+[requirements.REQ-004]
+verification = "automated"
+tests = ["tests/test_audit_entry.py::test_sequence_numbers_increase_by_one"]
+tags = ["audit-log"]
+intent = "auditable-evidence"
+
+[requirements.REQ-005]
+verification = "automated"
+tests = ["tests/test_audit_entry.py::test_entry_chains_to_predecessor_digest"]
+tags = ["audit-log", "manifest", "digest-algorithm"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-006]
+verification = "automated"
+tests = ["tests/test_audit_entry.py::test_timestamps_are_utc_with_millisecond_precision"]
+tags = ["audit-log"]
+intent = "auditable-evidence"
+
+[requirements.REQ-007]
+verification = "automated"
+tests = ["tests/test_audit_entry.py::test_rewrite_of_a_written_entry_is_rejected"]
+tags = ["registry", "audit-log"]
+intent = "auditable-evidence"
+
+[requirements.REQ-008]
+verification = "automated"
+tests = ["tests/test_audit_entry.py::test_sealed_segment_digest_is_published"]
+tags = ["audit-log", "registry", "digest-algorithm"]
+intent = "auditable-evidence"
+
+[requirements.REQ-009]
+verification = "automated"
+tests = ["tests/test_audit_durability.py::test_publication_entry_commits_before_accept"]
+tags = ["registry", "artifact", "audit-log", "audit-sink-available", "publisher-authenticated", "token-scope"]
+intent = "auditable-evidence"
+
+[requirements.REQ-010]
+verification = "automated"
+tests = ["tests/test_audit_events.py::test_digest_mismatch_rejection_records_both_digests"]
+tags = ["audit-log", "artifact", "manifest", "digest-matches"]
+intent = "auditable-evidence"
+
+[requirements.REQ-011]
+verification = "automated"
+tests = ["tests/test_audit_events.py::test_signature_presence_and_validity_are_recorded"]
+tags = ["audit-log", "artifact", "signature-present", "signature-valid"]
+intent = "auditable-evidence"
+
+[requirements.REQ-012]
+verification = "automated"
+tests = ["tests/test_audit_events.py::test_yank_records_actor_and_reason"]
+tags = ["registry", "artifact", "artifact-yanked", "audit-log"]
+intent = "auditable-evidence"
+
+[requirements.REQ-013]
+verification = "automated"
+tests = ["tests/test_audit_events.py::test_token_lifecycle_change_records_scope"]
+tags = ["registry", "access-token", "token-scope", "audit-log"]
+intent = "least-privilege-access"
+
+[requirements.REQ-014]
+verification = "automated"
+tests = ["tests/test_audit_events.py::test_legacy_mirror_admission_records_origin"]
+tags = ["audit-log", "mirror", "artifact", "legacy-mirror-enabled"]
+intent = "auditable-evidence"
+
+[requirements.REQ-015]
+verification = "automated"
+tests = ["tests/test_audit_durability.py::test_entry_is_durable_before_acknowledgement"]
+tags = ["registry", "audit-log"]
+intent = "auditable-evidence"
+
+[requirements.REQ-016]
+verification = "automated"
+tests = ["tests/test_audit_outage.py::test_entries_spool_locally_while_sink_is_down"]
+tags = ["registry", "audit-log", "audit-sink-available", "storage-quota-exceeded"]
+intent = "auditable-evidence"
+
+[requirements.REQ-017]
+verification = "automated"
+tests = ["tests/test_audit_outage.py::test_publication_is_rejected_when_spool_quota_is_exhausted"]
+tags = ["registry", "artifact", "audit-log", "audit-sink-available", "storage-quota-exceeded"]
+intent = "auditable-evidence"
+
+[requirements.REQ-018]
+verification = "automated"
+tests = ["tests/test_audit_outage.py::test_admin_requests_are_denied_when_spool_quota_is_exhausted"]
+tags = ["registry", "access-token", "token-scope", "audit-sink-available", "storage-quota-exceeded"]
+intent = "auditable-evidence"
+
+[requirements.REQ-019]
+verification = "automated"
+tests = ["tests/test_audit_outage.py::test_downloads_continue_while_sink_is_down"]
+tags = ["registry", "artifact", "audit-sink-available", "token-scope"]
+intent = "available-under-load"
+
+[requirements.REQ-020]
+verification = "automated"
+tests = ["tests/test_audit_outage.py::test_indexing_is_deferred_while_sink_is_down"]
+tags = ["registry", "audit-log", "audit-sink-available", "index-stale"]
+intent = "available-under-load"
+
+[requirements.REQ-021]
+verification = "automated"
+tests = ["tests/test_audit_recovery.py::test_spool_drains_in_sequence_order"]
+tags = ["registry", "audit-log", "audit-sink-available"]
+intent = "auditable-evidence"
+
+[requirements.REQ-022]
+verification = "automated"
+tests = ["tests/test_audit_recovery.py::test_drain_does_not_duplicate_recorded_entries"]
+tags = ["registry", "audit-log", "audit-sink-available"]
+intent = "auditable-evidence"
+
+[requirements.REQ-023]
+verification = "automated"
+tests = ["tests/test_audit_recovery.py::test_recovered_entries_are_indexed_before_log_reports_current"]
+tags = ["registry", "audit-log", "index-stale", "audit-sink-available"]
+intent = "auditable-evidence"
+
+[requirements.REQ-024]
+verification = "automated"
+tests = ["tests/test_audit_outage.py::test_health_endpoint_reports_spool_depth_and_oldest_age"]
+tags = ["registry", "audit-log", "audit-sink-available"]
+intent = "operator-convenience"
+
+[requirements.REQ-025]
+verification = "automated"
+tests = ["tests/test_audit_access.py::test_admin_scope_query_is_allowed"]
+tags = ["registry", "audit-log", "token-scope", "audit-sink-available"]
+intent = "least-privilege-access"
+
+[requirements.REQ-026]
+verification = "automated"
+tests = ["tests/test_audit_access.py::test_read_and_anonymous_queries_are_denied"]
+tags = ["registry", "audit-log", "token-scope", "access-token"]
+intent = "least-privilege-access"
+
+[requirements.REQ-027]
+verification = "automated"
+tests = ["tests/test_audit_retention.py::test_hold_retains_entries_naming_the_artifact"]
+tags = ["registry", "audit-log", "artifact", "retention-hold"]
+intent = "auditable-evidence"
+
+[requirements.REQ-028]
+verification = "automated"
+tests = ["tests/test_audit_retention.py::test_active_incident_retains_all_entries"]
+tags = ["registry", "audit-log", "incident-active"]
+intent = "auditable-evidence"
+
+[requirements.REQ-029]
+verification = "automated"
+tests = ["tests/test_audit_retention.py::test_expired_segment_is_deleted_when_no_hold_applies"]
+tags = ["registry", "audit-log", "artifact-age-days", "retention-hold", "incident-active"]
+intent = "storage-cost-control"
+
+[requirements.REQ-030]
+verification = "automated"
+tests = ["tests/test_audit_replication.py::test_sealed_segments_replicate_to_trusted_mirror"]
+tags = ["registry", "mirror", "audit-log", "mirror-trusted", "tls-verified", "replication-lag-seconds"]
+intent = "auditable-evidence"
+
+[requirements.REQ-031]
+verification = "automated"
+tests = ["tests/test_audit_replication.py::test_untrusted_mirror_receives_no_segments"]
+tags = ["registry", "mirror", "audit-log", "mirror-trusted"]
+intent = "least-privilege-access"
+
+[requirements.REQ-032]
+verification = "automated"
+tests = ["tests/test_audit_replication.py::test_lagging_mirror_is_skipped_until_reseeded"]
+tags = ["registry", "mirror", "audit-log", "replication-lag-seconds"]
+intent = "available-under-load"

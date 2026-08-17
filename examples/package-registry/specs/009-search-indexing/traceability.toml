@@ -1,0 +1,193 @@
+schema_version = "1.0"
+
+[requirements.REQ-001]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_one_document_per_published_version"]
+tags = ["registry", "artifact"]
+intent = "discoverable-packages"
+
+[requirements.REQ-002]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_verified_version_is_indexed_on_commit"]
+tags = ["artifact", "digest-matches", "signature-valid", "digest-algorithm"]
+intent = "discoverable-packages"
+
+[requirements.REQ-003]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_digest_mismatch_defers_indexing"]
+tags = ["artifact", "manifest", "digest-matches"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-004]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_invalid_signature_defers_indexing"]
+tags = ["artifact", "signature-present", "signature-valid"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-005]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_weak_digest_algorithm_defers_indexing"]
+tags = ["artifact", "manifest", "digest-algorithm"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-006]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_unsigned_version_lands_in_unverified_partition"]
+tags = ["artifact", "signature-present"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-007]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_maintenance_window_queues_index_writes"]
+tags = ["registry", "maintenance-window"]
+intent = "operator-convenience"
+
+[requirements.REQ-008]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_quota_exceeded_defers_index_writes"]
+tags = ["registry", "storage-quota-exceeded"]
+intent = "storage-cost-control"
+
+[requirements.REQ-009]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_audit_sink_down_defers_indexing"]
+tags = ["audit-log", "audit-sink-available"]
+intent = "auditable-evidence"
+
+[requirements.REQ-010]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_index_entry_names_version_and_generation"]
+tags = ["audit-log", "artifact", "audit-sink-available"]
+intent = "auditable-evidence"
+
+[requirements.REQ-011]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_generation_commit_is_audited"]
+tags = ["audit-log", "registry"]
+intent = "auditable-evidence"
+
+[requirements.REQ-012]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_backing_store_lag_marks_index_stale"]
+tags = ["registry", "replication-lag-seconds", "index-stale"]
+intent = "available-under-load"
+
+[requirements.REQ-013]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_stale_index_serves_last_committed_generation"]
+tags = ["registry", "index-stale", "artifact"]
+intent = "available-under-load"
+
+[requirements.REQ-014]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_stale_response_carries_generation_and_age"]
+tags = ["registry", "index-stale"]
+intent = "operator-convenience"
+
+[requirements.REQ-015]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_reindex_serves_previous_generation"]
+tags = ["registry", "index-stale", "artifact"]
+intent = "available-under-load"
+
+[requirements.REQ-016]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_reindex_progress_on_status_endpoint"]
+tags = ["registry", "index-stale"]
+intent = "operator-convenience"
+
+[requirements.REQ-017]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_generation_switch_is_atomic"]
+tags = ["registry", "index-stale"]
+intent = "discoverable-packages"
+
+[requirements.REQ-018]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_partial_generation_discarded_on_quota_exhaustion"]
+tags = ["registry", "storage-quota-exceeded"]
+intent = "storage-cost-control"
+
+[requirements.REQ-019]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_yanked_version_hidden_from_default_results"]
+tags = ["artifact", "artifact-yanked"]
+intent = "discoverable-packages"
+
+[requirements.REQ-020]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_yanked_version_document_retained"]
+tags = ["artifact", "artifact-yanked"]
+intent = "installable-existing-releases"
+
+[requirements.REQ-021]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_exact_version_query_returns_yanked_marker"]
+tags = ["artifact", "artifact-yanked"]
+intent = "installable-existing-releases"
+
+[requirements.REQ-022]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_cold_old_version_document_deleted"]
+tags = ["artifact", "download-count-zero", "artifact-age-days", "retention-hold"]
+intent = "storage-cost-control"
+
+[requirements.REQ-023]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_retention_hold_blocks_document_deletion"]
+tags = ["artifact", "retention-hold"]
+intent = "auditable-evidence"
+
+[requirements.REQ-024]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_trusted_mirror_receives_generation"]
+tags = ["mirror", "legacy-mirror-enabled", "mirror-trusted", "replication-lag-seconds"]
+intent = "available-under-load"
+
+[requirements.REQ-025]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_untrusted_mirror_replication_skipped"]
+tags = ["mirror", "legacy-mirror-enabled", "mirror-trusted"]
+intent = "least-privilege-access"
+
+[requirements.REQ-026]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_anonymous_scope_sees_public_versions_only"]
+tags = ["access-token", "token-scope", "artifact"]
+intent = "least-privilege-access"
+
+[requirements.REQ-027]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_rate_limited_query_denied_with_retry_after"]
+tags = ["registry", "rate-limit-exceeded"]
+intent = "available-under-load"
+
+[requirements.REQ-028]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_reindex_requires_admin_scope"]
+tags = ["registry", "access-token", "token-scope"]
+intent = "least-privilege-access"
+
+[requirements.REQ-029]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_untrusted_transport_denied"]
+tags = ["registry", "tls-verified"]
+intent = "least-privilege-access"
+
+[requirements.REQ-030]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_incident_denies_wildcard_queries"]
+tags = ["registry", "incident-active"]
+intent = "available-under-load"
+
+[requirements.REQ-031]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_healthy_client_query_allowed"]
+tags = ["registry", "client-version-supported", "tls-verified", "rate-limit-exceeded"]
+intent = "discoverable-packages"
+
+[requirements.REQ-032]
+verification = "automated"
+tests = ["tests/test_search_indexing.py::test_service_description_publishes_refresh_interval"]
+tags = ["registry", "index-stale"]
+intent = "operator-convenience"

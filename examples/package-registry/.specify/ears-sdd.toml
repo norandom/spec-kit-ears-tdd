@@ -1,0 +1,19 @@
+# Policy for the example project.
+#
+# `require_test_files = false` because this example ships specifications, not an implementation.
+# Every requirement names a test selector so the traceability gate is exercised, and none of those
+# files exists. A real project sets this to true and the gate then checks the file and the test name.
+
+spec_glob = "specs/*/spec.md"
+traceability_file = "traceability.toml"
+require_test_files = false
+
+test_command = "pytest"
+
+production_roots = ["src"]
+test_roots = ["tests"]
+source_extensions = [".py"]
+
+# Left at the default. Twelve specifications merged is well inside it, and the tutorial's point is
+# what the gate finds rather than how large a model it can carry.
+state_space_budget = 1000000

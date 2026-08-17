@@ -194,6 +194,35 @@ impl Component {
             .unwrap_or(u64::MAX)
     }
 
+    /// This component restricted to the variables the given requirements actually mention.
+    ///
+    /// Grouping and deciding are different questions, and conflating them is what made the merged
+    /// analysis exponential. A component exists so that requirements which can interact are
+    /// considered together; it is not the space any single question ranges over. Every question the
+    /// analysis asks is at most pairwise, and a guard constrains only the terms it names, so an
+    /// assignment satisfying two guards over their own variables always extends to the rest of the
+    /// component: the remaining domains are non-empty and nothing constrains them.
+    ///
+    /// Projecting onto that cone of influence is therefore exact rather than an approximation. On
+    /// the twelve-feature example it takes the merged question from 100,663,296 states to at most
+    /// 64, because no pair of requirements there mentions more than six terms between them.
+    pub fn restricted_to(&self, requirements: &[&ModelledRequirement]) -> Component {
+        let mentioned: BTreeSet<String> = requirements
+            .iter()
+            .flat_map(|requirement| requirement.guard.terms())
+            .collect();
+        Component {
+            index: self.index,
+            variables: self
+                .variables
+                .iter()
+                .filter(|variable| mentioned.contains(&variable.term))
+                .cloned()
+                .collect(),
+            requirements: requirements.iter().map(|r| (*r).clone()).collect(),
+        }
+    }
+
     /// The terms contributing most to that product, largest first. This is the lever a report hands
     /// back: narrowing the guards on these is what makes an over-budget component tractable.
     pub fn largest_contributors(&self, count: usize) -> Vec<(String, usize)> {

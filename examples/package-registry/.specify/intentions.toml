@@ -1,0 +1,98 @@
+# Why the requirements in this example exist, and which goal wins when two collide.
+#
+# The precedence relation is deliberately incomplete. Several pairs are ordered because someone
+# decided; one important pair is not, and the tutorial is about what happens when a contradiction
+# lands on that pair.
+
+schema_version = "1.0"
+
+[intentions.collision-resistant-integrity]
+statement = "Artifact acceptance rests on a digest that is collision resistant."
+rationale = """
+MD5 collisions are constructible on a laptop and SHA-1 has been broken in practice. A manifest
+digest an attacker can forge is not an integrity control; it is a corruption checksum wearing an
+integrity control's name.
+"""
+
+[intentions.installable-existing-releases]
+statement = "Artifacts published before a policy change remain installable."
+rationale = """
+Mirrors, air-gapped caches, and pinned lockfiles hold artifacts nobody is going to republish.
+Breaking them converts a policy change into a re-release of everything ever shipped, which is the
+kind of cost that gets a security improvement cancelled.
+"""
+
+[intentions.least-privilege-access]
+statement = "A request may do only what its presented credential authorises."
+rationale = """
+The registry is a supply chain root. A token that can do more than its holder needs is the shortest
+path from a leaked CI secret to a poisoned dependency.
+"""
+
+[intentions.auditable-evidence]
+statement = "Every state change leaves evidence a third party can check."
+rationale = """
+After an incident the only question that matters is what actually happened. A change nobody can
+reconstruct afterwards is indistinguishable from one that never happened.
+"""
+
+[intentions.available-under-load]
+statement = "The registry keeps serving reads when it is under pressure."
+rationale = """
+A registry that stops serving stops every build that depends on it. Degrading a non-essential path
+is almost always better than failing the read path.
+"""
+
+[intentions.storage-cost-control]
+statement = "Storage grows with what is used, not with what was ever published."
+rationale = """
+Unbounded retention is a bill that arrives years later, and the artifacts driving it are usually the
+ones nobody has downloaded since the week they shipped.
+"""
+
+[intentions.discoverable-packages]
+statement = "A published artifact is findable by search shortly after publication."
+rationale = """
+An artifact nobody can find has not really been published. The gap between publication and
+discoverability is where users conclude the release failed and republish it.
+"""
+
+[intentions.operator-convenience]
+statement = "Routine operations complete without manual confirmation."
+rationale = """
+Every confirmation an operator sees ten times a day is one they stop reading. Reserve them for
+decisions that genuinely need judgement.
+"""
+
+# ---------------------------------------------------------------------------
+# Precedence. Declared pairwise and locally; `over` wins against `under`.
+#
+# Note what is NOT here: nothing orders `collision-resistant-integrity` against
+# `installable-existing-releases`. That omission is honest rather than an oversight in the example.
+# Nobody has made that call yet, and the tutorial is about the gate refusing to make it for you.
+# ---------------------------------------------------------------------------
+
+[[precedence]]
+over = "least-privilege-access"
+under = "operator-convenience"
+reason = "A registry is a supply chain root. An extra confirmation costs a moment; an over-scoped token costs a compromised dependency."
+
+[[precedence]]
+over = "auditable-evidence"
+under = "operator-convenience"
+reason = "Evidence skipped to save a step is not evidence."
+
+[[precedence]]
+over = "auditable-evidence"
+under = "storage-cost-control"
+reason = "The audit trail is the product after an incident. Reclaiming its storage is the one economy that cannot be undone."
+
+[[precedence]]
+over = "available-under-load"
+under = "discoverable-packages"
+reason = "A stale search index degrades discovery. A failed read breaks every dependent build."
+
+[[precedence]]
+over = "available-under-load"
+under = "storage-cost-control"
+reason = "Collection runs when there is headroom to run it."

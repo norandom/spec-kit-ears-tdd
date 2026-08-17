@@ -1,0 +1,16 @@
+# Policy for the brownfield example.
+#
+# The production root is the schema, because in a brownfield adoption the schema is the part of the
+# system that already exists and that the specifications are being written against.
+
+spec_glob = "specs/*/spec.md"
+traceability_file = "traceability.toml"
+require_test_files = false
+
+test_command = "pytest"
+
+production_roots = ["src"]
+test_roots = ["tests"]
+source_extensions = [".sql"]
+
+state_space_budget = 1000000

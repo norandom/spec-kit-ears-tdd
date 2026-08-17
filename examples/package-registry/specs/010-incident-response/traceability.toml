@@ -1,0 +1,193 @@
+schema_version = "1.0"
+
+[requirements.REQ-001]
+verification = "automated"
+tests = ["tests/test_incident_posture.py::test_posture_applies_from_declaration_timestamp"]
+tags = ["registry", "incident-active"]
+intent = "least-privilege-access"
+
+[requirements.REQ-002]
+verification = "automated"
+tests = ["tests/test_incident_reporting.py::test_status_endpoint_names_active_incident"]
+tags = ["registry", "incident-active"]
+intent = "operator-convenience"
+
+[requirements.REQ-003]
+verification = "automated"
+tests = ["tests/test_incident_evidence.py::test_every_handled_request_is_audited"]
+tags = ["audit-log", "registry", "incident-active"]
+intent = "auditable-evidence"
+
+[requirements.REQ-004]
+verification = "automated"
+tests = ["tests/test_incident_evidence.py::test_publication_rejected_when_audit_sink_unavailable"]
+tags = ["audit-log", "audit-sink-available", "artifact", "incident-active"]
+intent = "auditable-evidence"
+
+[requirements.REQ-005]
+verification = "automated"
+tests = ["tests/test_incident_evidence.py::test_audit_sink_loss_raises_named_alert"]
+tags = ["audit-log", "audit-sink-available", "incident-active"]
+intent = "auditable-evidence"
+
+[requirements.REQ-006]
+verification = "automated"
+tests = ["tests/test_incident_posture.py::test_write_scoped_publication_is_frozen"]
+tags = ["access-token", "token-scope", "artifact", "incident-active"]
+intent = "least-privilege-access"
+
+[requirements.REQ-007]
+verification = "automated"
+tests = ["tests/test_incident_posture.py::test_unauthenticated_publication_rejected"]
+tags = ["publisher-authenticated", "artifact", "incident-active"]
+intent = "least-privilege-access"
+
+[requirements.REQ-008]
+verification = "automated"
+tests = ["tests/test_incident_posture.py::test_admin_remediation_release_accepted"]
+tags = ["artifact", "access-token", "token-scope", "publisher-authenticated", "digest-matches", "signature-valid", "audit-sink-available", "incident-active"]
+intent = "operator-convenience"
+
+[requirements.REQ-009]
+verification = "automated"
+tests = ["tests/test_incident_posture.py::test_digest_mismatch_upload_discarded"]
+tags = ["artifact", "manifest", "digest-matches", "incident-active"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-010]
+verification = "automated"
+tests = ["tests/test_incident_posture.py::test_read_path_stays_open_during_incident"]
+tags = ["access-token", "token-scope", "token-expired", "tls-verified", "rate-limit-exceeded", "incident-active"]
+intent = "available-under-load"
+
+[requirements.REQ-011]
+verification = "automated"
+tests = ["tests/test_incident_posture.py::test_expired_token_denied_during_incident"]
+tags = ["access-token", "token-expired", "incident-active"]
+intent = "least-privilege-access"
+
+[requirements.REQ-012]
+verification = "automated"
+tests = ["tests/test_incident_posture.py::test_unverified_transport_denied_during_incident"]
+tags = ["access-token", "tls-verified", "registry", "incident-active"]
+intent = "least-privilege-access"
+
+[requirements.REQ-013]
+verification = "automated"
+tests = ["tests/test_incident_posture.py::test_rate_limited_client_denied_during_incident"]
+tags = ["registry", "rate-limit-exceeded", "incident-active"]
+intent = "available-under-load"
+
+[requirements.REQ-014]
+verification = "automated"
+tests = ["tests/test_incident_serving.py::test_verified_artifact_still_served_during_incident"]
+tags = ["artifact", "manifest", "mirror", "digest-matches", "digest-algorithm", "signature-present", "signature-valid", "artifact-yanked", "mirror-trusted", "replication-lag-seconds", "incident-active"]
+intent = "available-under-load"
+
+[requirements.REQ-015]
+verification = "automated"
+tests = ["tests/test_incident_serving.py::test_yanked_artifact_withheld_during_incident"]
+tags = ["artifact", "artifact-yanked", "incident-active"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-016]
+verification = "automated"
+tests = ["tests/test_incident_serving.py::test_unsigned_artifact_withheld_during_incident"]
+tags = ["artifact", "manifest", "signature-present", "incident-active"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-017]
+verification = "automated"
+tests = ["tests/test_incident_serving.py::test_weak_digest_artifact_withheld_during_incident"]
+tags = ["manifest", "artifact", "digest-algorithm", "incident-active"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-018]
+verification = "automated"
+tests = ["tests/test_incident_serving.py::test_lagging_mirror_artifacts_withheld"]
+tags = ["mirror", "replication-lag-seconds", "artifact", "incident-active"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-019]
+verification = "automated"
+tests = ["tests/test_incident_evidence.py::test_collection_suspended_during_incident"]
+tags = ["artifact", "registry", "retention-hold", "incident-active"]
+intent = "auditable-evidence"
+
+[requirements.REQ-020]
+verification = "automated"
+tests = ["tests/test_incident_replication.py::test_untrusted_mirror_replication_skipped"]
+tags = ["mirror", "mirror-trusted", "incident-active"]
+intent = "least-privilege-access"
+
+[requirements.REQ-021]
+verification = "automated"
+tests = ["tests/test_incident_replication.py::test_legacy_mirror_replication_skipped"]
+tags = ["mirror", "legacy-mirror-enabled", "incident-active"]
+intent = "least-privilege-access"
+
+[requirements.REQ-022]
+verification = "automated"
+tests = ["tests/test_incident_replication.py::test_verified_artifact_reaches_trusted_mirrors"]
+tags = ["mirror", "artifact", "mirror-trusted", "legacy-mirror-enabled", "digest-matches", "signature-valid", "incident-active"]
+intent = "available-under-load"
+
+[requirements.REQ-023]
+verification = "automated"
+tests = ["tests/test_incident_serving.py::test_unverified_artifact_indexing_deferred"]
+tags = ["artifact", "signature-valid", "incident-active"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-024]
+verification = "automated"
+tests = ["tests/test_incident_serving.py::test_remediation_release_indexed_first"]
+tags = ["artifact", "digest-matches", "signature-valid", "artifact-yanked", "incident-active"]
+intent = "discoverable-packages"
+
+[requirements.REQ-025]
+verification = "automated"
+tests = ["tests/test_incident_evidence.py::test_manifest_entries_carry_incident_identifier"]
+tags = ["manifest", "audit-log", "incident-active"]
+intent = "auditable-evidence"
+
+[requirements.REQ-026]
+verification = "automated"
+tests = ["tests/test_incident_reporting.py::test_closure_report_lists_withheld_artifacts"]
+tags = ["artifact", "audit-log", "artifact-yanked", "incident-active"]
+intent = "auditable-evidence"
+
+[requirements.REQ-027]
+verification = "automated"
+tests = ["tests/test_incident_reporting.py::test_legacy_artifacts_listed_for_restoration"]
+tags = ["mirror", "legacy-mirror-enabled", "artifact", "incident-active"]
+intent = "installable-existing-releases"
+
+[requirements.REQ-028]
+verification = "automated"
+tests = ["tests/test_incident_reporting.py::test_unsupported_client_receives_advisory_address"]
+tags = ["registry", "client-version-supported", "incident-active"]
+intent = "operator-convenience"
+
+[requirements.REQ-029]
+verification = "automated"
+tests = ["tests/test_incident_reporting.py::test_incident_status_outranks_maintenance_status"]
+tags = ["registry", "maintenance-window", "incident-active"]
+intent = "operator-convenience"
+
+[requirements.REQ-030]
+verification = "automated"
+tests = ["tests/test_incident_reporting.py::test_index_reported_stale_until_queue_drained"]
+tags = ["registry", "index-stale", "incident-active"]
+intent = "discoverable-packages"
+
+[requirements.REQ-031]
+verification = "automated"
+tests = ["tests/test_incident_reporting.py::test_dashboard_lists_over_quota_namespaces"]
+tags = ["registry", "storage-quota-exceeded", "incident-active"]
+intent = "storage-cost-control"
+
+[requirements.REQ-032]
+verification = "automated"
+tests = ["tests/test_incident_reporting.py::test_never_downloaded_withheld_artifacts_listed_with_age"]
+tags = ["artifact", "download-count-zero", "artifact-age-days", "incident-active"]
+intent = "storage-cost-control"

@@ -1,0 +1,37 @@
+# Constraint model for supply chain hardening.
+#
+# This feature tightens integrity policy, so on the accept-or-reject axis it contributes only
+# prohibitions. Its own acceptance rule is left unmodelled: it restates 002's with extra operational
+# conditions, and modelling it would report that as a shadow rather than telling anyone anything.
+
+schema_version = "1.0"
+
+[effects]
+reject_artifact = {}
+accept_artifact = { conflicts_with = ["reject_artifact"] }
+
+# REQ-002: If the manifest records a published artifact's digest under md5 or sha1, then the
+# registry shall reject that publication.
+#
+# Written years after 002, by people who had read the SHA-1 collision work and not 002's REQ-007.
+[requirements.REQ-002]
+when = "digest-algorithm == 'md5' or digest-algorithm == 'sha1'"
+then = "reject_artifact"
+
+# REQ-003: If an artifact's computed digest differs from the digest recorded in the manifest, then
+# the registry shall reject that publication.
+[requirements.REQ-003]
+when = "not digest-matches"
+then = "reject_artifact"
+
+# REQ-004: If a manifest entry carries no publisher signature, then the registry shall reject that
+# publication.
+[requirements.REQ-004]
+when = "not signature-present"
+then = "reject_artifact"
+
+# REQ-005: If a publisher signature is present and does not verify against a trusted publisher key,
+# then the registry shall reject that publication.
+[requirements.REQ-005]
+when = "signature-present and not signature-valid"
+then = "reject_artifact"

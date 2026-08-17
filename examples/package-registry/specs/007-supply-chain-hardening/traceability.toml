@@ -1,0 +1,193 @@
+schema_version = "1.0"
+
+[requirements.REQ-001]
+verification = "automated"
+tests = ["tests/test_digest_policy.py::test_only_sha256_and_blake3_permitted"]
+tags = ["digest-algorithm", "artifact", "registry"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-002]
+verification = "automated"
+tests = ["tests/test_publication.py::test_rejects_md5_or_sha1_digest"]
+tags = ["digest-algorithm", "manifest", "artifact"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-003]
+verification = "automated"
+tests = ["tests/test_publication.py::test_rejects_digest_mismatch"]
+tags = ["digest-matches", "manifest", "artifact"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-004]
+verification = "automated"
+tests = ["tests/test_signature.py::test_rejects_unsigned_publication"]
+tags = ["signature-present", "manifest", "artifact"]
+intent = "auditable-evidence"
+
+[requirements.REQ-005]
+verification = "automated"
+tests = ["tests/test_signature.py::test_rejects_signature_from_untrusted_key"]
+tags = ["signature-present", "signature-valid", "artifact"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-006]
+verification = "automated"
+tests = ["tests/test_publication.py::test_accepts_signed_sha256_publication"]
+tags = ["digest-matches", "signature-valid", "digest-algorithm", "publisher-authenticated", "audit-sink-available", "artifact"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-007]
+verification = "automated"
+tests = ["tests/test_storage.py::test_stores_signature_and_digest_with_artifact"]
+tags = ["artifact", "manifest", "signature-present"]
+intent = "auditable-evidence"
+
+[requirements.REQ-008]
+verification = "automated"
+tests = ["tests/test_signature.py::test_key_enrolment_predates_publication"]
+tags = ["signature-valid", "publisher-authenticated", "artifact"]
+intent = "auditable-evidence"
+
+[requirements.REQ-009]
+verification = "automated"
+tests = ["tests/test_manifest.py::test_manifest_records_key_identifier"]
+tags = ["signature-present", "manifest", "artifact"]
+intent = "auditable-evidence"
+
+[requirements.REQ-010]
+verification = "automated"
+tests = ["tests/test_signature.py::test_rejects_publication_signed_by_revoked_key"]
+tags = ["signature-valid", "publisher-authenticated", "artifact"]
+intent = "least-privilege-access"
+
+[requirements.REQ-011]
+verification = "automated"
+tests = ["tests/test_serving.py::test_withholds_md5_or_sha1_artifact"]
+tags = ["digest-algorithm", "manifest", "artifact"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-012]
+verification = "automated"
+tests = ["tests/test_serving.py::test_withholds_on_digest_mismatch"]
+tags = ["digest-matches", "manifest", "artifact"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-013]
+verification = "automated"
+tests = ["tests/test_serving.py::test_withholds_unverifiable_signature"]
+tags = ["signature-valid", "artifact"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-014]
+verification = "automated"
+tests = ["tests/test_serving.py::test_serves_verified_artifact"]
+tags = ["digest-matches", "signature-valid", "digest-algorithm", "replication-lag-seconds", "artifact"]
+intent = "available-under-load"
+
+[requirements.REQ-015]
+verification = "automated"
+tests = ["tests/test_mirror.py::test_stale_mirror_withholds_downloads"]
+tags = ["replication-lag-seconds", "mirror", "manifest"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-016]
+verification = "automated"
+tests = ["tests/test_mirror.py::test_skips_untrusted_mirror"]
+tags = ["mirror-trusted", "mirror", "artifact"]
+intent = "least-privilege-access"
+
+[requirements.REQ-017]
+verification = "automated"
+tests = ["tests/test_mirror.py::test_skips_replication_of_weak_digest"]
+tags = ["digest-algorithm", "mirror", "manifest"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-018]
+verification = "automated"
+tests = ["tests/test_incident.py::test_incident_halts_replication"]
+tags = ["incident-active", "mirror", "registry"]
+intent = "least-privilege-access"
+
+[requirements.REQ-019]
+verification = "automated"
+tests = ["tests/test_mirror.py::test_replicates_verified_artifact"]
+tags = ["mirror-trusted", "signature-valid", "digest-algorithm", "mirror", "artifact"]
+intent = "available-under-load"
+
+[requirements.REQ-020]
+verification = "automated"
+tests = ["tests/test_access.py::test_denies_publication_over_unverified_tls"]
+tags = ["tls-verified", "access-token", "registry"]
+intent = "least-privilege-access"
+
+[requirements.REQ-021]
+verification = "automated"
+tests = ["tests/test_access.py::test_denies_unauthenticated_publication"]
+tags = ["publisher-authenticated", "access-token", "registry"]
+intent = "least-privilege-access"
+
+[requirements.REQ-022]
+verification = "automated"
+tests = ["tests/test_access.py::test_allows_write_scoped_publication"]
+tags = ["tls-verified", "token-expired", "token-scope", "client-version-supported", "publisher-authenticated", "access-token"]
+intent = "least-privilege-access"
+
+[requirements.REQ-023]
+verification = "automated"
+tests = ["tests/test_incident.py::test_incident_freezes_publication"]
+tags = ["incident-active", "artifact", "registry"]
+intent = "least-privilege-access"
+
+[requirements.REQ-024]
+verification = "automated"
+tests = ["tests/test_incident.py::test_incident_suspends_deletion"]
+tags = ["incident-active", "retention-hold", "artifact"]
+intent = "auditable-evidence"
+
+[requirements.REQ-025]
+verification = "automated"
+tests = ["tests/test_incident.py::test_incident_logs_every_download"]
+tags = ["incident-active", "audit-log", "artifact"]
+intent = "auditable-evidence"
+
+[requirements.REQ-026]
+verification = "automated"
+tests = ["tests/test_audit.py::test_publication_fails_closed_without_audit_sink"]
+tags = ["audit-sink-available", "audit-log", "registry"]
+intent = "auditable-evidence"
+
+[requirements.REQ-027]
+verification = "automated"
+tests = ["tests/test_audit.py::test_audits_signature_verification_failure"]
+tags = ["signature-valid", "audit-log", "artifact"]
+intent = "auditable-evidence"
+
+[requirements.REQ-028]
+verification = "automated"
+tests = ["tests/test_audit.py::test_audit_entry_records_rejected_digest"]
+tags = ["digest-algorithm", "audit-log", "artifact"]
+intent = "auditable-evidence"
+
+[requirements.REQ-029]
+verification = "automated"
+tests = ["tests/test_policy_notice.py::test_sunset_date_announced_90_days_ahead"]
+tags = ["digest-algorithm", "artifact", "registry"]
+intent = "installable-existing-releases"
+
+[requirements.REQ-030]
+verification = "automated"
+tests = ["tests/test_docs.py::test_resigning_procedure_documented"]
+tags = ["digest-algorithm", "manifest", "artifact"]
+intent = "installable-existing-releases"
+
+[requirements.REQ-031]
+verification = "automated"
+tests = ["tests/test_serving.py::test_withheld_download_names_failed_check"]
+tags = ["digest-matches", "signature-valid", "artifact"]
+intent = "operator-convenience"
+
+[requirements.REQ-032]
+verification = "automated"
+tests = ["tests/test_reporting.py::test_weekly_report_counts_deprecated_digests"]
+tags = ["legacy-mirror-enabled", "digest-algorithm", "mirror"]
+intent = "operator-convenience"

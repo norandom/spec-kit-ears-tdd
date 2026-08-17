@@ -1,0 +1,31 @@
+# Constraint model for artifact verification.
+#
+# One axis only: does the registry accept a downloaded artifact, or reject it. Requirements about
+# constant-time comparison, cache placement, and reporting are not modelled, because they cannot
+# contradict anything on this axis. They are reported as unmodelled rather than assumed consistent.
+#
+# Only the two acceptance rules are modelled here. This feature's own rejection rules are left out
+# deliberately: 007 states the same prohibitions more broadly, and modelling both would report a
+# true but uninteresting subsumption on every one of them, burying the finding that matters.
+
+schema_version = "1.0"
+
+[effects]
+accept_artifact = { conflicts_with = ["reject_artifact"] }
+reject_artifact = {}
+
+# REQ-006: When the manifest names sha256 or blake3 as the digest algorithm and the digest
+# comparison, the signature check, and publisher authentication all succeed, the registry shall
+# accept the artifact.
+[requirements.REQ-006]
+when = "(digest-algorithm == 'sha256' or digest-algorithm == 'blake3') and digest-matches and signature-present and signature-valid and publisher-authenticated"
+then = "accept_artifact"
+
+# REQ-007: Where legacy mirror support is enabled, the registry shall accept an artifact whose sha1
+# digest comparison, signature check, and publisher authentication all succeed.
+#
+# This is the migration carve-out, written when sha1 was still the norm on the mirrors. Nothing in
+# this specification is wrong, and nothing in it mentions the newer policy.
+[requirements.REQ-007]
+when = "legacy-mirror-enabled and digest-algorithm == 'sha1' and digest-matches and signature-present and signature-valid and publisher-authenticated"
+then = "accept_artifact"

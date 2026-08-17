@@ -79,6 +79,35 @@ jobs:
       - name: Release build
         run: cargo build --release
 
+      # The examples are meant to FAIL their merged gate: each carries a contradiction the
+      # documentation quotes. Asserting the specific finding rather than an exit code is what stops
+      # a tutorial going stale silently. A change that stops detecting either one breaks the build,
+      # which is the only way a worked example stays true.
+      - name: Examples still find their contradictions
+        shell: bash
+        run: |
+          set -uo pipefail
+          fail=0
+          check() {
+            local project="$1" phase="$2" expected="$3"
+            local out
+            out=$(cargo run --release --quiet -- validate --project "$project" --phase "$phase" --all 2>&1) || true
+            local count
+            count=$(printf '%s\n' "$out" | grep -c "$expected" || true)
+            if [ "$count" -eq 0 ]; then
+              echo "::error::$project no longer reports $expected"
+              printf '%s\n' "$out" | head -20
+              fail=1
+            else
+              echo "ok: $project reports $expected ($count)"
+            fi
+          }
+          check examples/package-registry     plan  MERGE_CONFLICT_UNADJUDICATED
+          check examples/legacy-order-system  tasks MERGE_CONFLICT_UNADJUDICATED
+          # The haystack half of the claim: every requirement is individually well formed.
+          cargo run --release --quiet -- validate --project examples/package-registry --phase spec --all
+          exit $fail
+
       # Against this repository rather than a fixture. Every doctor unit test builds a synthetic
       # directory, so none of them exercises a real .specify tree, a real specs/ glob, or the path
       # handling that differs between a Windows verbatim path and a POSIX one. It must also stay

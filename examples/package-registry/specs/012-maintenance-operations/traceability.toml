@@ -1,0 +1,193 @@
+schema_version = "1.0"
+
+[requirements.REQ-001]
+verification = "automated"
+tests = ["tests/test_maintenance_reads.py::test_serves_published_releases_during_window"]
+tags = ["maintenance-window", "artifact-yanked", "digest-matches", "tls-verified", "registry", "artifact"]
+intent = "installable-existing-releases"
+
+[requirements.REQ-002]
+verification = "automated"
+tests = ["tests/test_maintenance_reads.py::test_withholds_yanked_artifact_during_window"]
+tags = ["artifact-yanked", "maintenance-window", "artifact", "registry"]
+intent = "installable-existing-releases"
+
+[requirements.REQ-003]
+verification = "automated"
+tests = ["tests/test_maintenance_reads.py::test_withholds_artifact_whose_stored_digest_drifted"]
+tags = ["digest-matches", "maintenance-window", "manifest", "artifact"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-004]
+verification = "automated"
+tests = ["tests/test_maintenance_reads.py::test_download_response_carries_window_header"]
+tags = ["maintenance-window", "registry", "artifact"]
+intent = "operator-convenience"
+
+[requirements.REQ-005]
+verification = "automated"
+tests = ["tests/test_maintenance_reads.py::test_unsupported_client_receives_upgrade_notice"]
+tags = ["client-version-supported", "maintenance-window", "registry"]
+intent = "operator-convenience"
+
+[requirements.REQ-006]
+verification = "automated"
+tests = ["tests/test_maintenance_access.py::test_allows_read_traffic_during_window"]
+tags = ["maintenance-window", "token-scope", "token-expired", "tls-verified", "rate-limit-exceeded", "access-token"]
+intent = "installable-existing-releases"
+
+[requirements.REQ-007]
+verification = "automated"
+tests = ["tests/test_maintenance_access.py::test_allows_admin_break_glass_during_incident"]
+tags = ["incident-active", "maintenance-window", "token-scope", "tls-verified", "token-expired", "access-token"]
+intent = "operator-convenience"
+
+[requirements.REQ-008]
+verification = "automated"
+tests = ["tests/test_maintenance_access.py::test_denies_write_scoped_requests_during_window"]
+tags = ["maintenance-window", "token-scope", "access-token", "registry"]
+intent = "least-privilege-access"
+
+[requirements.REQ-009]
+verification = "automated"
+tests = ["tests/test_maintenance_access.py::test_denies_expired_token_during_window"]
+tags = ["token-expired", "maintenance-window", "access-token", "registry"]
+intent = "least-privilege-access"
+
+[requirements.REQ-010]
+verification = "automated"
+tests = ["tests/test_maintenance_access.py::test_denies_rate_limited_client_during_window"]
+tags = ["rate-limit-exceeded", "token-scope", "maintenance-window", "access-token"]
+intent = "available-under-load"
+
+[requirements.REQ-011]
+verification = "automated"
+tests = ["tests/test_maintenance_access.py::test_denied_write_carries_retry_after_window_end"]
+tags = ["maintenance-window", "token-scope", "access-token", "registry"]
+intent = "operator-convenience"
+
+[requirements.REQ-012]
+verification = "automated"
+tests = ["tests/test_maintenance_audit.py::test_denied_request_is_recorded_with_scope_and_window"]
+tags = ["maintenance-window", "token-scope", "access-token", "audit-log"]
+intent = "auditable-evidence"
+
+[requirements.REQ-013]
+verification = "automated"
+tests = ["tests/test_maintenance_publish.py::test_rejects_ordinary_publish_during_window"]
+tags = ["maintenance-window", "token-scope", "artifact", "access-token"]
+intent = "installable-existing-releases"
+
+[requirements.REQ-014]
+verification = "automated"
+tests = ["tests/test_maintenance_publish.py::test_rejects_unsigned_upload_during_window"]
+tags = ["signature-present", "maintenance-window", "artifact", "registry"]
+intent = "auditable-evidence"
+
+[requirements.REQ-015]
+verification = "automated"
+tests = ["tests/test_maintenance_publish.py::test_rejects_weak_digest_algorithm_during_window"]
+tags = ["digest-algorithm", "maintenance-window", "artifact"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-016]
+verification = "automated"
+tests = ["tests/test_maintenance_publish.py::test_accepts_admin_hotfix_during_incident"]
+tags = ["maintenance-window", "incident-active", "token-scope", "publisher-authenticated", "signature-present", "signature-valid", "digest-matches", "digest-algorithm", "storage-quota-exceeded", "artifact"]
+intent = "operator-convenience"
+
+[requirements.REQ-017]
+verification = "automated"
+tests = ["tests/test_maintenance_publish.py::test_discards_upload_on_digest_mismatch"]
+tags = ["digest-matches", "maintenance-window", "manifest", "artifact"]
+intent = "collision-resistant-integrity"
+
+[requirements.REQ-018]
+verification = "automated"
+tests = ["tests/test_maintenance_audit.py::test_spools_audit_entries_while_sink_is_down"]
+tags = ["audit-sink-available", "maintenance-window", "audit-log"]
+intent = "auditable-evidence"
+
+[requirements.REQ-019]
+verification = "automated"
+tests = ["tests/test_maintenance_audit.py::test_hotfix_publish_is_attributed_to_operator_and_incident"]
+tags = ["incident-active", "publisher-authenticated", "maintenance-window", "audit-log"]
+intent = "auditable-evidence"
+
+[requirements.REQ-020]
+verification = "automated"
+tests = ["tests/test_maintenance_reclamation.py::test_deletes_eligible_yanked_artifacts"]
+tags = ["maintenance-window", "artifact-yanked", "artifact-age-days", "download-count-zero", "retention-hold", "artifact"]
+intent = "storage-cost-control"
+
+[requirements.REQ-021]
+verification = "automated"
+tests = ["tests/test_maintenance_reclamation.py::test_retains_artifact_under_retention_hold"]
+tags = ["retention-hold", "artifact-age-days", "download-count-zero", "maintenance-window", "artifact"]
+intent = "auditable-evidence"
+
+[requirements.REQ-022]
+verification = "automated"
+tests = ["tests/test_maintenance_reclamation.py::test_publishes_reclamation_dry_run_before_window"]
+tags = ["maintenance-window", "artifact-age-days", "download-count-zero", "artifact-yanked", "artifact"]
+intent = "storage-cost-control"
+
+[requirements.REQ-023]
+verification = "automated"
+tests = ["tests/test_maintenance_audit.py::test_deletion_entry_carries_digest_and_age"]
+tags = ["digest-algorithm", "artifact-age-days", "maintenance-window", "audit-log", "artifact"]
+intent = "auditable-evidence"
+
+[requirements.REQ-024]
+verification = "automated"
+tests = ["tests/test_maintenance_replication.py::test_catches_up_lagging_trusted_mirror"]
+tags = ["replication-lag-seconds", "mirror-trusted", "tls-verified", "incident-active", "maintenance-window", "mirror"]
+intent = "available-under-load"
+
+[requirements.REQ-025]
+verification = "automated"
+tests = ["tests/test_maintenance_replication.py::test_skips_untrusted_mirror_during_window"]
+tags = ["mirror-trusted", "maintenance-window", "mirror"]
+intent = "least-privilege-access"
+
+[requirements.REQ-026]
+verification = "automated"
+tests = ["tests/test_maintenance_replication.py::test_window_report_lists_skipped_legacy_mirrors"]
+tags = ["legacy-mirror-enabled", "mirror-trusted", "maintenance-window", "mirror"]
+intent = "operator-convenience"
+
+[requirements.REQ-027]
+verification = "automated"
+tests = ["tests/test_maintenance_replication.py::test_alerts_when_mirror_lag_exceeds_an_hour"]
+tags = ["replication-lag-seconds", "mirror-trusted", "maintenance-window", "mirror"]
+intent = "available-under-load"
+
+[requirements.REQ-028]
+verification = "automated"
+tests = ["tests/test_maintenance_index.py::test_defers_index_updates_during_window"]
+tags = ["maintenance-window", "incident-active", "index-stale", "registry"]
+intent = "discoverable-packages"
+
+[requirements.REQ-029]
+verification = "automated"
+tests = ["tests/test_maintenance_index.py::test_stale_search_response_reports_snapshot_age"]
+tags = ["index-stale", "maintenance-window", "registry"]
+intent = "discoverable-packages"
+
+[requirements.REQ-030]
+verification = "automated"
+tests = ["tests/test_maintenance_audit.py::test_admin_action_emits_audit_entry"]
+tags = ["maintenance-window", "token-scope", "access-token", "audit-log"]
+intent = "auditable-evidence"
+
+[requirements.REQ-031]
+verification = "automated"
+tests = ["tests/test_maintenance_schedule.py::test_window_schedule_published_in_advance"]
+tags = ["maintenance-window", "registry"]
+intent = "operator-convenience"
+
+[requirements.REQ-032]
+verification = "automated"
+tests = ["tests/test_maintenance_schedule.py::test_window_close_report_counts_each_action"]
+tags = ["maintenance-window", "registry", "audit-log"]
+intent = "operator-convenience"

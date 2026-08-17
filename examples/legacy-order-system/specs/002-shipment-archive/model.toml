@@ -1,0 +1,28 @@
+# Constraint model for the shipment archive.
+#
+# Same axis as the customer directory, which is the point. Written in 2016, three years before there
+# was a customer directory to disagree with.
+
+schema_version = "1.0"
+
+[effects]
+retain_personal_address = { conflicts_with = ["erase_personal_address"] }
+erase_personal_address = {}
+
+# REQ-002: The shipment archive shall retain a completed shipment's personal address for seven years
+# after completion.
+[requirements.REQ-002]
+when = "shipment-completed and shipment-age-years < 7"
+then = "retain_personal_address"
+
+# REQ-004: When a shipment record passes seven years since completion, the retention job shall
+# delete its recorded delivery address.
+[requirements.REQ-004]
+when = "shipment-completed and shipment-age-years >= 7 and not dispute-open"
+then = "erase_personal_address"
+
+# REQ-005: While a dispute is open against a shipment, the shipment archive shall retain that
+# shipment's personal address regardless of its age.
+[requirements.REQ-005]
+when = "dispute-open"
+then = "retain_personal_address"

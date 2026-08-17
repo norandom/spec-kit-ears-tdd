@@ -184,6 +184,28 @@ pub fn verify_witness(
     })
 }
 
+/// The same contract as `verify_witness`, for a decision procedure that hands back an assignment
+/// directly instead of an index into an enumeration.
+///
+/// ears-sdd:allow-requirement-id: citing the requirement this contract enforces
+/// REQ-024 is about the witness reproducing, not about how it was found. Re-checking it with the
+/// reference evaluator is what makes that independent of the procedure that produced it: a bug in
+/// the encoding surfaces here as a loud internal error rather than as a plausible counterexample.
+pub fn verify_assignment(
+    assignment: &BTreeMap<String, Value>,
+    must_hold: &[&ModelledRequirement],
+) -> Result<String, String> {
+    for requirement in must_hold {
+        if !evaluate(&requirement.guard, assignment) {
+            return Err(format!(
+                "witness for {} does not satisfy its own guard; the encoding is wrong",
+                requirement.identifier
+            ));
+        }
+    }
+    Ok(describe(assignment))
+}
+
 pub fn internal_error(message: String, path: &str) -> Finding {
     Finding::new("MODEL_INTERNAL", message, path.to_string())
 }
