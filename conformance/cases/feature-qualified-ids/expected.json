@@ -15,8 +15,7 @@
     "advisories": 0,
     "separation_exempted": 0,
     "modelled": 0,
-    "components": 0,
-    "merged_components": 0
+    "components": 0
   },
   "findings": [
     {

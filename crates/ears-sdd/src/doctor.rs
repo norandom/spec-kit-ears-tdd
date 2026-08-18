@@ -101,6 +101,7 @@ pub fn inspect(project: &Path) -> Vec<Check> {
     checks.push(workflow(&specify));
     checks.push(configuration(&specify));
     checks.push(specifications(project));
+    checks.push(adoption(project));
     checks.push(enforcement(project));
     checks
 }
@@ -226,6 +227,66 @@ fn configuration(specify: &Path) -> Check {
             "no .specify/ears-sdd.toml, so every setting is at its default and the separation gate \
              has no production roots to scan",
             "ears-sdd init",
+        )
+    }
+}
+
+/// Which adoption phase the project is in, and whether the phase it asked for can operate.
+///
+/// The gate refuses a configuration that cannot work. This is the softer neighbouring question: a
+/// layer may be enabled correctly and still have nothing to read, which returns clean because it
+/// found no files rather than because the files are consistent. That is worth knowing and is not
+/// worth failing a build over, so it is reported here rather than as a finding.
+fn adoption(project: &Path) -> Check {
+    let (config, _) = config::load(project);
+    let checks = &config.checks;
+
+    if !checks.vocabulary && !checks.constraints {
+        return Check::ok(
+            "Adoption",
+            "phase one: EARS form, verification, tasks and separation",
+        );
+    }
+
+    let specify = project.join(".specify");
+    let has_vocabulary =
+        specify.join("vocabulary.toml").is_file() || specify.join("intentions.toml").is_file();
+    let has_model = std::fs::read_dir(project.join("specs"))
+        .map(|entries| {
+            entries
+                .filter_map(Result::ok)
+                .any(|entry| entry.path().join("model.toml").is_file())
+        })
+        .unwrap_or(false);
+
+    let mut missing = Vec::new();
+    if checks.vocabulary && !has_vocabulary {
+        missing.push("no vocabulary or intentions are declared");
+    }
+    if checks.constraints && !has_model {
+        missing.push("no specification declares a constraint model");
+    }
+
+    if missing.is_empty() {
+        let mut added = Vec::new();
+        if checks.vocabulary {
+            added.push("grounding");
+        }
+        if checks.constraints {
+            added.push("constraints");
+        }
+        Check::ok(
+            "Adoption",
+            format!("phase two: {} as well", added.join(" and ")),
+        )
+    } else {
+        Check::warn(
+            "Adoption",
+            format!(
+                "phase two is enabled but {}, so those checks can report nothing",
+                missing.join(" and ")
+            ),
+            "author the files, or turn the layer back off in .specify/ears-sdd.toml",
         )
     }
 }
@@ -543,6 +604,41 @@ mod tests {
         std::fs::write(project.path().join("ci/build.sh"), "cargo build\n").expect("the script");
 
         assert_eq!(enforcement(project.path()).level, Level::Warn);
+    }
+
+    /// Adoption state is not a broken build, so it is reported here rather than as a finding. The
+    /// distinction that matters is between a project that has not adopted a layer and one that has
+    /// asked for it and given it nothing to read: the second returns clean because it found no
+    /// files, which is the shape of result this project exists to make impossible.
+    #[test]
+    fn adoption_reports_the_phase_and_whether_it_can_operate() {
+        let project = tempfile::tempdir().expect("a temporary directory");
+        let specify = project.path().join(".specify");
+        std::fs::create_dir_all(&specify).expect("the specify directory");
+
+        // Phase one is the default and needs nothing extra.
+        std::fs::write(specify.join("ears-sdd.toml"), "").expect("a configuration");
+        let first = adoption(project.path());
+        assert_eq!(first.level, Level::Ok);
+        assert!(first.detail.contains("phase one"), "{}", first.detail);
+
+        // Asking for the grounding layer without declaring one is the case worth naming.
+        std::fs::write(
+            specify.join("ears-sdd.toml"),
+            "[checks]
+vocabulary = true
+",
+        )
+        .expect("a configuration");
+        let asked = adoption(project.path());
+        assert_eq!(asked.level, Level::Warn);
+        assert!(asked.detail.contains("no vocabulary"), "{}", asked.detail);
+
+        // Declaring one settles it.
+        std::fs::write(specify.join("vocabulary.toml"), "").expect("a vocabulary");
+        let ready = adoption(project.path());
+        assert_eq!(ready.level, Level::Ok);
+        assert!(ready.detail.contains("grounding"), "{}", ready.detail);
     }
 
     #[test]

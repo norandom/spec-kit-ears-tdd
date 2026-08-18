@@ -18,3 +18,13 @@ production_roots = ["crates"]
 test_roots = ["crates", "conformance"]
 
 source_extensions = [".rs"]
+
+# Phase two, partially. This project declares a vocabulary and intentions and tags its requirements,
+# so the grounding layer has something to read and is enabled.
+#
+# The constraint layer is not, because no specification here declares a model. Enabling it would add
+# a check that returns clean because it found no files, which is the shape of result this project
+# exists to make impossible. The two worked examples under examples/ do declare models and do enable
+# it, which is where that layer is exercised.
+[checks]
+vocabulary = true

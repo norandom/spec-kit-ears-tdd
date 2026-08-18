@@ -37,23 +37,56 @@ state_space_budget = 1000000
 | `source_extensions` | Which files the separation scan reads |
 | `state_space_budget` | States per component before the search is refused |
 
-### Turning layers off
+### Two phases
 
 ```toml
 [checks]
+# Phase one, on by default.
 traceability = true   # verification mapping, test selectors, manual rationales
-vocabulary = true     # declared terms, the tags requirements carry, the intentions they serve
-constraints = true    # constraint models, within a specification and merged across all of them
 tasks = true          # every requirement covered by a task before implementation
 separation = true     # requirement prose and identifiers kept out of production code
+
+# Phase two, off by default.
+vocabulary = false    # declared terms, the tags requirements carry, the intentions they serve
+constraints = false   # constraint models, within a specification and merged across all of them
 ```
 
-Every one defaults to true, so omitting the table changes nothing.
+These are the defaults, so omitting the table gives you phase one.
 
-They exist because adoption is incremental. A project can gate EARS form on day one and wire
-traceability, a vocabulary, and constraint models in whatever order suits it, rather than choosing
-between all of it and none of it. A brownfield codebase with no test mapping yet can run
-`traceability = false` and still get the requirement checks that cost nothing to adopt.
+**Phase one checks artifacts a Spec Kit project already has.** Requirement form, verification
+mapping, task coverage and separation need no new files, so they work on the day you install and
+there is nothing to author first.
+
+**Phase two reads files that do not exist until someone writes them.** A vocabulary has to be
+declared before a tag can resolve, and a constraint model has to be authored before a contradiction
+can be found. Enabling them before there is anything to read produces a check that returns clean
+because it found no files, which is how a gate teaches people to ignore it.
+
+A brownfield codebase can go further and run `traceability = false` on top, keeping only the
+requirement checks, then wire the rest in whatever order suits it.
+
+### Enabling phase two
+
+The two layers go together and the validator says so:
+
+```text
+- CHECK_DEPENDENCY .specify/ears-sdd.toml: The constraint check reads guards written over
+  vocabulary terms and needs their declared domains. Enable `checks.vocabulary` alongside it,
+  or disable both.
+```
+
+A guard is written over declared terms and type-checked against their domains, so the constraint
+layer without the vocabulary layer is unsound rather than merely narrower. That combination is
+refused rather than run at half strength.
+
+Whether an enabled layer has anything to read yet is adoption state rather than a broken build, so
+`ears-sdd doctor` reports it instead:
+
+```text
+  [warn] Adoption   phase two is enabled but no specification declares a constraint model,
+                    so those checks can report nothing
+                    fix: author the files, or turn the layer back off in .specify/ears-sdd.toml
+```
 
 !!! warning "Switching a layer off never makes the run quieter about it"
 

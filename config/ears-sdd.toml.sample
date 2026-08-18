@@ -15,23 +15,34 @@ source_extensions = [
 ]
 
 
-# Which optional layers run. Every one defaults to true, so leaving this table out changes nothing.
+# Which layers run. Adoption happens in two phases and these are the defaults, so leaving the table
+# out gives you phase one.
 #
-# They exist because adoption is incremental. A project can gate EARS form on day one and wire
-# traceability, a vocabulary, and constraint models in whatever order suits it, rather than choosing
-# between all of it and none of it.
+# Phase one checks artifacts a Spec Kit project already has, so it works on the day you install.
+# Phase two reads a vocabulary and constraint models, which do not exist until someone writes them,
+# so it waits to be asked for. Enable it once there is something for it to read.
 #
-# Switching one off never makes a run quieter about it. The disabled set is printed on every run and
-# recorded in the machine-readable report, because a gate that can be narrowed silently is the
+# Turning a layer off never makes a run quieter about it. The disabled set is printed on every run
+# and recorded in the machine-readable report, because a gate that can be narrowed silently is the
 # failure this whole tool exists to prevent: a passing result indistinguishable from a checked one.
 [checks]
+
+# Phase one, on by default.
+#
 # Requirement-to-verification mapping: traceability files, test selectors, manual rationales.
 traceability = true
-# Declared terms, the tags requirements carry, and the intentions they serve.
-vocabulary = true
-# Constraint models, within a specification and merged across all of them.
-constraints = true
 # Every requirement covered by a task before implementation.
 tasks = true
 # Requirement prose and identifiers kept out of production code.
 separation = true
+
+# Phase two, off by default.
+#
+# These two go together. A guard is written over declared terms and type-checked against their
+# domains, so the constraint layer without the vocabulary layer is unsound rather than merely
+# narrower, and the validator refuses that combination.
+#
+# Declared terms, the tags requirements carry, and the intentions they serve.
+vocabulary = false
+# Constraint models, within a specification and merged across all of them.
+constraints = false

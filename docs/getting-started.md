@@ -152,9 +152,10 @@ ears-sdd 0.2.0 checking /home/you/project
   [ok  ] Workflow               ears-sdd is installed
   [ok  ] Configuration          .specify/ears-sdd.toml is present
   [ok  ] Specifications         12 found; `--all` evaluates every one
+  [ok  ] Adoption               phase one: EARS form, verification, tasks and separation
   [ok  ] Automated enforcement  .github/workflows/ears-sdd.yml runs the validator
 
-8 checks: 8 ok, 0 warning(s), 0 failure(s)
+9 checks: 9 ok, 0 warning(s), 0 failure(s)
 ```
 
 Every warning names the command that resolves it. The check worth reading twice is the last one,
@@ -226,23 +227,31 @@ specify workflow run ears-sdd
 
 ## 9. Add grounding when you are ready
 
-Everything above works without a vocabulary. Tags are optional per requirement, so a project that
-declares none is unaffected by the grounding layer, and the requirement and traceability gates carry
-their own weight from day one.
+Everything above is phase one, and it is what you get by default. It checks artifacts a Spec Kit
+project already has, so nothing needed authoring first.
 
-Add it when you want the checks that need it: comparing requirements across features, and finding
+Phase two is the grounding and constraint layers, and they are off until you ask for them. They read
+a vocabulary and constraint models, which do not exist until someone writes them, and a check
+enabled before it has anything to read returns clean because it found no files.
+
+Add them when you want what they buy: comparing requirements across features, and finding
 contradictions between them. Both depend on two specifications meaning the same thing by the same
 word, which is what a vocabulary is.
 
-If a layer is in the way before then, switch it off rather than working around it:
-
 ```toml title=".specify/ears-sdd.toml"
 [checks]
-traceability = false
+vocabulary = true
+constraints = true
 ```
 
-Every run then prints `Disabled: traceability (not checked)`, and the report records it. See
-[configuration](reference/configuration.md#turning-layers-off).
+The two go together. A guard is written over declared terms and needs their domains to be
+type-checked, so the validator refuses the constraint layer without the vocabulary layer rather than
+running it at half strength. `ears-sdd doctor` reports which phase you are in and whether the one
+you asked for can operate.
+
+If a phase-one layer is in the way, switch that off too rather than working around it. Every run
+then prints `Disabled: traceability (not checked)`, and the report records it. See
+[configuration](reference/configuration.md#two-phases).
 
 ### Two ways in, and the better one is less obvious
 

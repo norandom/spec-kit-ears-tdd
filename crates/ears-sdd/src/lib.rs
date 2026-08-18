@@ -40,6 +40,7 @@ pub struct Request<'a> {
 pub fn validate(request: Request<'_>) -> Report {
     let root = request.root;
     let (config, mut findings) = config::load(root);
+    findings.extend(config::readiness(&config));
     let discovered = discovery::discover(root, &config, request.feature, request.all);
     findings.extend(discovered.findings.clone());
 

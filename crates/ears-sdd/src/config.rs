@@ -13,11 +13,11 @@ use crate::report::{Finding, Severity};
 
 /// Which optional layers run.
 ///
-/// Every one defaults to on, so an existing project sees no change. They exist because adoption is
-/// incremental: a project can gate EARS form on day one and wire traceability, a vocabulary, and
-/// constraint models in whatever order suits it, rather than choosing between all of it and none.
+/// Adoption happens in two phases. The first checks artifacts a Spec Kit project already has and is
+/// on by default. The second reads a vocabulary and constraint models, which do not exist until
+/// someone writes them, so it waits to be asked for.
 ///
-/// Switching one off never makes the run quieter about it. The disabled set is printed on every run
+/// Switching one on or off never makes the run quieter about it. The disabled set is printed on every run
 /// and recorded in the machine-readable report, because a gate that can be silently narrowed is the
 /// failure this project exists to prevent: a passing result that looks identical to a checked one.
 #[derive(Debug, Clone, Deserialize)]
@@ -36,11 +36,23 @@ pub struct Checks {
 }
 
 impl Default for Checks {
+    /// EARS and test-first discipline are on; the grounding and constraint layers are not.
+    ///
+    /// The default is what a project gets before it has read anything, so it should be the part
+    /// that pays for itself immediately. Requirement form, verification mapping, task coverage and
+    /// separation need no vocabulary, no constraint models, and no new files: they check artifacts
+    /// a Spec Kit project already has.
+    ///
+    /// The other two need work before they say anything. A vocabulary has to be written or imported
+    /// before a tag can resolve, and a constraint model has to be authored before a contradiction
+    /// can be found. Defaulting them on means a project either does that work immediately or reads
+    /// advisories about not having done it, and the second is how a gate teaches people to ignore
+    /// it. They are one line to enable once there is something for them to check.
     fn default() -> Self {
         Self {
             traceability: true,
-            vocabulary: true,
-            constraints: true,
+            vocabulary: false,
+            constraints: false,
             tasks: true,
             separation: true,
         }
@@ -85,7 +97,7 @@ pub struct Config {
     /// than exposed as a flag, because raising it is a decision about how much the project is
     /// willing to leave unchecked, not a knob for making a red build green.
     pub state_space_budget: u64,
-    /// Which optional layers run. All default on.
+    /// Which optional layers run. The second phase is off until asked for.
     pub checks: Checks,
     #[serde(flatten)]
     pub unknown: BTreeMap<String, toml::Value>,
@@ -198,26 +210,67 @@ pub fn load(root: &Path) -> (Config, Vec<Finding>) {
     }
 }
 
+/// Whether the enabled checks can actually operate.
+///
+/// The gate refuses a configuration that cannot work. Whether a workable one has anything to read
+/// yet is a different question, and `ears-sdd doctor` answers that one.
+///
+/// The constraint layer reads guards written over vocabulary terms and needs each term's declared
+/// domain to know what values it ranges over. Enabling it without the vocabulary asks it to
+/// type-check against declarations nobody is reading, so the combination is refused rather than run
+/// at half strength. That is the whole of what enabling a phase can get wrong on its own.
+pub fn readiness(config: &Config) -> Vec<Finding> {
+    let mut findings = Vec::new();
+
+    if config.checks.constraints && !config.checks.vocabulary {
+        findings.push(Finding::new(
+            "CHECK_DEPENDENCY",
+            "The constraint check reads guards written over vocabulary terms and needs their \
+             declared domains. Enable `checks.vocabulary` alongside it, or disable both.",
+            CONFIG_RELATIVE_PATH,
+        ));
+    }
+
+    findings
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
+    /// Phase one is what a Spec Kit project can check on the day it installs this: the artifacts it
+    /// already has. Phase two needs files that do not exist yet, so it waits to be asked.
     #[test]
-    fn every_check_is_on_unless_a_project_says_otherwise() {
+    fn the_advanced_layers_are_off_until_a_project_asks_for_them() {
         let checks = Checks::default();
-        assert!(checks.disabled().is_empty());
+
+        assert!(checks.traceability && checks.tasks && checks.separation);
+        assert_eq!(checks.disabled(), vec!["vocabulary", "constraints"]);
     }
 
     #[test]
-    fn a_project_can_switch_off_the_layers_it_has_not_adopted() {
-        let parsed: Config = toml::from_str("[checks]\ntraceability = false\nvocabulary = false\n")
-            .expect("the table parses");
+    fn a_project_can_switch_off_a_layer_it_has_not_adopted() {
+        let parsed: Config =
+            toml::from_str("[checks]\ntraceability = false\n").expect("the table parses");
 
-        assert_eq!(parsed.checks.disabled(), vec!["traceability", "vocabulary"]);
-        // The rest keep their defaults rather than being dragged off with them.
-        assert!(parsed.checks.constraints);
+        // Reported in a fixed order, alongside the two that were already off by default.
+        assert_eq!(
+            parsed.checks.disabled(),
+            vec!["traceability", "vocabulary", "constraints"]
+        );
+        // Switching one off drags nothing else with it.
         assert!(parsed.checks.tasks);
         assert!(parsed.checks.separation);
+    }
+
+    /// The second phase is one line, and turning it on must not disturb the first.
+    #[test]
+    fn a_project_can_turn_the_advanced_layers_on() {
+        let parsed: Config = toml::from_str("[checks]\nvocabulary = true\nconstraints = true\n")
+            .expect("the table parses");
+
+        assert!(parsed.checks.disabled().is_empty());
+        assert!(parsed.checks.traceability && parsed.checks.tasks && parsed.checks.separation);
     }
 
     /// A mistyped switch that silently leaves a layer on is the better failure of the two, but it
@@ -227,5 +280,46 @@ mod tests {
     fn a_misspelt_check_is_refused_rather_than_ignored() {
         let parsed = toml::from_str::<Config>("[checks]\ntracability = false\n");
         assert!(parsed.is_err(), "{parsed:?}");
+    }
+}
+
+#[cfg(test)]
+mod readiness_tests {
+    use super::*;
+
+    /// A guard is written over declared terms and type-checked against their domains. Running the
+    /// constraint layer while the declarations go unread is not a narrower check, it is a different
+    /// and unsound one, so the combination is refused rather than reported as partial.
+    #[test]
+    fn the_constraint_check_is_refused_without_the_vocabulary_it_reads() {
+        let config = Config {
+            checks: Checks {
+                vocabulary: false,
+                constraints: true,
+                ..Checks::default()
+            },
+            ..Config::default()
+        };
+
+        let findings = readiness(&config);
+
+        assert_eq!(findings.len(), 1);
+        assert_eq!(findings[0].code, "CHECK_DEPENDENCY");
+        assert_eq!(findings[0].severity, Severity::Error);
+    }
+
+    #[test]
+    fn the_two_coherent_configurations_are_accepted() {
+        // Phase one, and phase two with both layers on.
+        assert!(readiness(&Config::default()).is_empty());
+        let both = Config {
+            checks: Checks {
+                vocabulary: true,
+                constraints: true,
+                ..Checks::default()
+            },
+            ..Config::default()
+        };
+        assert!(readiness(&both).is_empty());
     }
 }

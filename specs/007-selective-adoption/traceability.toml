@@ -2,37 +2,37 @@ schema_version = "1.0"
 
 [requirements.REQ-001]
 verification = "automated"
-tests = ["crates/ears-sdd/src/config.rs::tests::a_project_can_switch_off_the_layers_it_has_not_adopted"]
+tests = ["crates/ears-sdd/src/config.rs::tests::a_project_can_switch_off_a_layer_it_has_not_adopted"]
 tags = ["check", "gate"]
 intent = "adoptable-incrementally"
 
 [requirements.REQ-002]
 verification = "automated"
-tests = ["crates/ears-sdd/src/config.rs::tests::every_check_is_on_unless_a_project_says_otherwise"]
+tests = ["crates/ears-sdd/src/config.rs::tests::the_advanced_layers_are_off_until_a_project_asks_for_them"]
 tags = ["check"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-003]
 verification = "automated"
-tests = ["crates/ears-sdd/src/config.rs::tests::a_project_can_switch_off_the_layers_it_has_not_adopted"]
+tests = ["crates/ears-sdd/src/config.rs::tests::a_project_can_switch_off_a_layer_it_has_not_adopted"]
 tags = ["check", "finding"]
 intent = "adoptable-incrementally"
 
 [requirements.REQ-004]
 verification = "automated"
-tests = ["crates/ears-sdd/src/config.rs::tests::a_project_can_switch_off_the_layers_it_has_not_adopted"]
+tests = ["crates/ears-sdd/src/config.rs::tests::a_project_can_switch_off_a_layer_it_has_not_adopted"]
 tags = ["check", "provenance"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-005]
 verification = "automated"
-tests = ["crates/ears-sdd/src/config.rs::tests::a_project_can_switch_off_the_layers_it_has_not_adopted"]
+tests = ["crates/ears-sdd/src/config.rs::tests::a_project_can_switch_off_a_layer_it_has_not_adopted"]
 tags = ["check", "provenance"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-006]
 verification = "automated"
-tests = ["crates/ears-sdd/src/config.rs::tests::a_project_can_switch_off_the_layers_it_has_not_adopted"]
+tests = ["crates/ears-sdd/src/config.rs::tests::a_project_can_switch_off_a_layer_it_has_not_adopted"]
 tags = ["check", "provenance", "gate"]
 intent = "no-unearned-pass"
 
@@ -44,18 +44,42 @@ intent = "decide-nothing-for-the-author"
 
 [requirements.REQ-008]
 verification = "automated"
-tests = ["crates/ears-sdd/src/config.rs::tests::a_project_can_switch_off_the_layers_it_has_not_adopted"]
+tests = ["crates/ears-sdd/src/config.rs::tests::a_project_can_switch_off_a_layer_it_has_not_adopted"]
 tags = ["check", "constraint-model", "specification"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-009]
 verification = "automated"
-tests = ["crates/ears-sdd/src/config.rs::tests::a_project_can_switch_off_the_layers_it_has_not_adopted"]
+tests = ["crates/ears-sdd/src/config.rs::tests::a_project_can_switch_off_a_layer_it_has_not_adopted"]
 tags = ["check", "provenance"]
 intent = "reproducible-verdict"
 
 [requirements.REQ-010]
 verification = "automated"
-tests = ["crates/ears-sdd/src/config.rs::tests::a_project_can_switch_off_the_layers_it_has_not_adopted"]
+tests = ["crates/ears-sdd/src/config.rs::tests::a_project_can_switch_off_a_layer_it_has_not_adopted"]
 tags = ["check"]
 intent = "adoptable-incrementally"
+
+[requirements.REQ-011]
+verification = "automated"
+tests = ["crates/ears-sdd/src/config.rs::tests::a_project_can_turn_the_advanced_layers_on"]
+tags = ["check", "gate"]
+intent = "adoptable-incrementally"
+
+[requirements.REQ-012]
+verification = "automated"
+tests = ["crates/ears-sdd/src/config.rs::readiness_tests::the_constraint_check_is_refused_without_the_vocabulary_it_reads"]
+tags = ["check", "constraint-model", "term"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-013]
+verification = "automated"
+tests = ["crates/ears-sdd/src/doctor.rs::tests::adoption_reports_the_phase_and_whether_it_can_operate"]
+tags = ["check", "term", "finding"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-014]
+verification = "automated"
+tests = ["crates/ears-sdd/src/doctor.rs::tests::adoption_reports_the_phase_and_whether_it_can_operate"]
+tags = ["check", "constraint-model", "finding"]
+intent = "no-unearned-pass"

@@ -17,3 +17,13 @@ source_extensions = [".py"]
 # Left at the default. Twelve specifications merged is well inside it, and the tutorial's point is
 # what the gate finds rather than how large a model it can carry.
 state_space_budget = 1000000
+
+# Phase two. Both layers are off by default because they need files a new project does not have.
+# This project has them, so it asks for the checks that read them.
+#
+# They are enabled together on purpose: a guard is written over declared terms and type-checked
+# against their domains, so the constraint layer without the vocabulary layer is unsound rather than
+# merely narrower. The validator refuses that combination.
+[checks]
+vocabulary = true
+constraints = true

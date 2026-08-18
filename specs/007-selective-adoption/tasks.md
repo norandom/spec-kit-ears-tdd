@@ -27,3 +27,11 @@
 - [ ] T018 [REQ-008] Skip the constraint layer for every specification together.
 - [ ] T019 [REQ-009] Emit the disabled list in declaration-independent order.
 - [ ] T020 [REQ-010] Keep the switches independent of one another.
+- [ ] T021 [REQ-011] Write a failing test for the advanced layers defaulting off.
+- [ ] T022 [REQ-012] Write a failing test for constraints without vocabulary.
+- [ ] T023 [REQ-013] Write a failing test for an enabled vocabulary with nothing declared.
+- [ ] T024 [REQ-014] Write a failing test for an enabled constraint check with no models.
+- [ ] T025 [REQ-011] Default the vocabulary and constraint checks off.
+- [ ] T026 [REQ-012] Refuse the incoherent combination.
+- [ ] T027 [REQ-013] Report an enabled vocabulary layer with no vocabulary.
+- [ ] T028 [REQ-014] Report an enabled constraint layer with no models.
