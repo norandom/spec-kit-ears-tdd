@@ -224,6 +224,61 @@ If you installed the workflow, this sequencing is already wired:
 specify workflow run ears-sdd
 ```
 
+## 9. Add grounding when you are ready
+
+Everything above works without a vocabulary. Tags are optional per requirement, so a project that
+declares none is unaffected by the grounding layer, and the requirement and traceability gates carry
+their own weight from day one.
+
+Add it when you want the checks that need it: comparing requirements across features, and finding
+contradictions between them. Both depend on two specifications meaning the same thing by the same
+word, which is what a vocabulary is.
+
+If a layer is in the way before then, switch it off rather than working around it:
+
+```toml title=".specify/ears-sdd.toml"
+[checks]
+traceability = false
+```
+
+Every run then prints `Disabled: traceability (not checked)`, and the report records it. See
+[configuration](reference/configuration.md#turning-layers-off).
+
+### Two ways in, and the better one is less obvious
+
+**Declare first.** Write the vocabulary before the requirements, and every requirement draws its
+tags from a closed list. `init` installs `.specify/vocabulary.toml.sample` and
+`.specify/intentions.toml.sample` to start from.
+
+This is what the [twelve feature example](tutorial/needle-in-a-haystack.md) did: 28 terms fixed
+before 383 requirements were written. An undeclared tag became impossible by construction rather
+than something the gate caught afterwards. If you are starting a new feature set, prefer this.
+
+**Extract after.** Read the vocabulary out of requirements that already exist, which is the only
+option on a brownfield codebase:
+
+```sh
+ears-sdd vocab-init --all > proposed-vocabulary.toml
+```
+
+Candidates come from the conditions in `When`/`While`/`Where`/`If` clauses, the subject of each
+requirement, and anything in backticks. They are ranked by how many requirements mention each one,
+with that count printed above every entry, so the concepts your specifications turn on are at the
+top and the tail is where the extraction guessed. Definitions come out empty, and an empty
+definition fails the gate, so a scaffold cannot be committed unread.
+
+Run it again after editing and it proposes only what is new. Terms you have declared, and
+alternative labels you have already decided on, are left out.
+
+**Import.** If your domain has a published vocabulary, neither of the above is the best start:
+
+```sh
+ears-sdd vocab-import domain-concepts.ttl > .specify/vocabulary.toml
+```
+
+See [grounding](concepts/grounding.md#starting-from-a-vocabulary-that-already-exists) for what
+survives the import and what does not.
+
 ## Next
 
 [A contradiction, end to end](example.md) builds a two feature project where each specification
