@@ -118,9 +118,9 @@ indeterminate rather than passing.
 - REQ-011: If the decision procedure does not return a verdict, then the validator shall treat the run as failed rather than as passing.
 - REQ-019: The validator shall produce the same findings for one model under every decision procedure it supports.
 - REQ-020: Where a term's domain is an enumeration or a bounded integer, the validator shall encode it so that no assignment outside that domain is considered.
-- REQ-021: Before evaluating a component, the validator shall compute the size of its state space and report an over-budget component without evaluating it.
+- REQ-021: Before answering a satisfiability question, the validator shall compute the size of the space that question ranges over and report an over-budget question without answering it.
 - REQ-022: The validator shall bound every analysis by a count rather than by elapsed time.
-- REQ-023: When a component exceeds its budget, the validator shall name the component, its variable count, its state count, and the terms contributing most to that count.
+- REQ-023: When a question exceeds its budget, the validator shall name its variable count, its state count, and the terms contributing most to that count.
 - REQ-024: Before reporting a witness, the validator shall confirm that the witness satisfies the guards the finding attributes to it.
 - REQ-025: The validator shall confirm that the regions of an integer domain cover that domain exactly once.
 - REQ-026: The validator shall confirm that every modelled requirement belongs to exactly one component.
@@ -131,6 +131,10 @@ indeterminate rather than passing.
 - REQ-016: The validator shall produce one minimal conflict set for a given model irrespective of the order in which its requirements are declared.
 - REQ-017: Where an integer term is compared only against literal constants, the validator shall partition that term's domain at those constants.
 - REQ-018: The validator shall record the identity and version of the decision procedure in every result that depends on it.
+- REQ-027: The validator shall evaluate each satisfiability question over only the terms named by the requirements that question concerns.
+- REQ-028: Where two requirements declare conflicting effects, the validator shall evaluate them together irrespective of whether their guards share a term.
+- REQ-029: The validator shall encode each distinct guard once for a given component.
+- REQ-030: The validator shall confirm that no two requirements declaring conflicting effects are separated into different components.
 
 ### Key Entities
 

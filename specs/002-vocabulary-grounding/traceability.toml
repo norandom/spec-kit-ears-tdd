@@ -3,71 +3,161 @@ schema_version = "1.0"
 [requirements.REQ-001]
 verification = "automated"
 tests = ["conformance/cases/vocab-resolves/expected.json"]
+tags = ["requirement", "term"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-002]
 verification = "automated"
 tests = ["conformance/cases/vocab-resolves/expected.json"]
+tags = ["term"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-003]
 verification = "automated"
 tests = ["conformance/cases/vocab-missing-definition/expected.json"]
+tags = ["term", "finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-004]
 verification = "automated"
 tests = ["conformance/cases/vocab-undeclared-term/expected.json"]
+tags = ["requirement", "term", "finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-005]
 verification = "automated"
 tests = ["conformance/cases/vocab-resolves/expected.json"]
+tags = ["term"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-006]
 verification = "automated"
 tests = ["conformance/cases/vocab-cycle/expected.json"]
+tags = ["term", "finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-007]
 verification = "automated"
 tests = ["conformance/cases/vocab-broader-undeclared/expected.json"]
+tags = ["term", "finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-008]
 verification = "automated"
 tests = ["conformance/cases/vocab-duplicate-label/expected.json"]
+tags = ["term", "finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-009]
 verification = "automated"
 tests = ["conformance/cases/vocab-term-collision/expected.json"]
+tags = ["specification", "term", "finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-010]
 verification = "automated"
 tests = ["conformance/cases/vocab-orphan-term/expected.json"]
+tags = ["requirement", "term", "finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-011]
 verification = "automated"
 tests = ["conformance/cases/intent-orphan/expected.json"]
+tags = ["requirement", "intention"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-012]
 verification = "automated"
 tests = ["conformance/cases/intent-undeclared/expected.json"]
+tags = ["requirement", "intention", "finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-013]
 verification = "automated"
 tests = ["conformance/cases/intent-orphan/expected.json"]
+tags = ["requirement", "intention", "finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-014]
 verification = "automated"
 tests = ["conformance/cases/vocab-resolves/expected.json"]
+tags = ["intention", "precedence"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-015]
 verification = "automated"
 tests = ["conformance/cases/intent-precedence-cycle/expected.json"]
+tags = ["precedence", "finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-016]
 verification = "automated"
 tests = ["conformance/cases/vocab-deprecated-term/expected.json"]
+tags = ["term", "finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-017]
 verification = "automated"
 tests = ["crates/ears-sdd/src/vocabulary.rs::tests::scaffold_proposes_terms_from_prose"]
+tags = ["specification", "term"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-018]
 verification = "automated"
 tests = ["conformance/cases/vocab-without-model/expected.json"]
+tags = ["term", "intention", "constraint-model"]
+intent = "decide-nothing-for-the-author"
+
+[requirements.REQ-019]
+verification = "automated"
+tests = ["crates/ears-sdd/src/vocabulary.rs::tests::a_condition_is_proposed_and_defaults_to_boolean"]
+tags = ["term", "requirement"]
+intent = "actionable-finding"
+
+[requirements.REQ-020]
+verification = "automated"
+tests = ["crates/ears-sdd/src/vocabulary.rs::tests::declared_terms_are_not_proposed_again"]
+tags = ["term"]
+intent = "actionable-finding"
+
+[requirements.REQ-021]
+verification = "automated"
+tests = ["crates/ears-sdd/src/vocabulary.rs::tests::candidates_are_ordered_by_how_many_requirements_mention_them"]
+tags = ["term", "requirement"]
+intent = "actionable-finding"
+
+[requirements.REQ-022]
+verification = "automated"
+tests = ["crates/ears-sdd/src/vocabulary.rs::tests::candidates_are_ordered_by_how_many_requirements_mention_them"]
+tags = ["term", "requirement"]
+intent = "actionable-finding"
+
+[requirements.REQ-023]
+verification = "automated"
+tests = ["crates/ears-sdd/src/vocabulary.rs::tests::an_unbalanced_backtick_proposes_nothing_rather_than_prose"]
+tags = ["term"]
+intent = "decide-nothing-for-the-author"
+
+[requirements.REQ-024]
+verification = "automated"
+tests = ["crates/ears-sdd/src/skos.rs::tests::a_foreign_vocabulary_imports_without_this_project_extension"]
+tags = ["concept-scheme", "term"]
+intent = "adoptable-incrementally"
+
+[requirements.REQ-025]
+verification = "automated"
+tests = ["crates/ears-sdd/src/skos.rs::tests::a_round_trip_keeps_the_domains_skos_cannot_express"]
+tags = ["concept-scheme", "term"]
+intent = "adoptable-incrementally"
+
+[requirements.REQ-026]
+verification = "automated"
+tests = ["crates/ears-sdd/src/skos.rs::tests::a_foreign_vocabulary_imports_without_this_project_extension"]
+tags = ["concept-scheme", "term"]
+intent = "decide-nothing-for-the-author"
+
+[requirements.REQ-027]
+verification = "automated"
+tests = ["crates/ears-sdd/src/skos.rs::tests::a_foreign_vocabulary_imports_without_this_project_extension"]
+tags = ["concept-scheme", "term"]
+intent = "decide-nothing-for-the-author"

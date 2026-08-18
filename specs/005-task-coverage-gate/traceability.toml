@@ -3,14 +3,20 @@ schema_version = "1.0"
 [requirements.REQ-001]
 verification = "automated"
 tests = ["conformance/cases/tasks-full-coverage/expected.json"]
+tags = ["specification", "task-list", "gate"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-002]
 verification = "automated"
 tests = ["conformance/cases/tasks-list-missing/expected.json"]
+tags = ["specification", "task-list", "finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-003]
 verification = "automated"
 tests = ["conformance/cases/tasks-span-coverage/expected.json"]
+tags = ["requirement", "task-list"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-004]
 verification = "automated"
@@ -19,22 +25,32 @@ tests = ["conformance/cases/tasks-word-span/expected.json"]
 [requirements.REQ-005]
 verification = "automated"
 tests = ["conformance/cases/tasks-uncovered-requirement/expected.json"]
+tags = ["requirement", "task-list", "finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-006]
 verification = "automated"
 tests = ["conformance/cases/tasks-unknown-reference/expected.json"]
+tags = ["specification", "task-list", "finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-007]
 verification = "automated"
 tests = ["conformance/cases/tasks-descending-span/expected.json"]
+tags = ["finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-008]
 verification = "automated"
 tests = ["conformance/cases/tasks-fenced-reference/expected.json"]
+tags = ["requirement", "task-list"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-009]
 verification = "automated"
 tests = ["crates/ears-sdd/tests/read_only.rs::no_gate_modifies_the_project"]
+tags = ["task-list", "gate"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-010]
 verification = "automated"

@@ -1,0 +1,61 @@
+schema_version = "1.0"
+
+[requirements.REQ-001]
+verification = "automated"
+tests = ["crates/ears-sdd/src/config.rs::tests::a_project_can_switch_off_the_layers_it_has_not_adopted"]
+tags = ["check", "gate"]
+intent = "adoptable-incrementally"
+
+[requirements.REQ-002]
+verification = "automated"
+tests = ["crates/ears-sdd/src/config.rs::tests::every_check_is_on_unless_a_project_says_otherwise"]
+tags = ["check"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-003]
+verification = "automated"
+tests = ["crates/ears-sdd/src/config.rs::tests::a_project_can_switch_off_the_layers_it_has_not_adopted"]
+tags = ["check", "finding"]
+intent = "adoptable-incrementally"
+
+[requirements.REQ-004]
+verification = "automated"
+tests = ["crates/ears-sdd/src/config.rs::tests::a_project_can_switch_off_the_layers_it_has_not_adopted"]
+tags = ["check", "provenance"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-005]
+verification = "automated"
+tests = ["crates/ears-sdd/src/config.rs::tests::a_project_can_switch_off_the_layers_it_has_not_adopted"]
+tags = ["check", "provenance"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-006]
+verification = "automated"
+tests = ["crates/ears-sdd/src/config.rs::tests::a_project_can_switch_off_the_layers_it_has_not_adopted"]
+tags = ["check", "provenance", "gate"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-007]
+verification = "automated"
+tests = ["crates/ears-sdd/src/config.rs::tests::a_misspelt_check_is_refused_rather_than_ignored"]
+tags = ["check", "finding"]
+intent = "decide-nothing-for-the-author"
+
+[requirements.REQ-008]
+verification = "automated"
+tests = ["crates/ears-sdd/src/config.rs::tests::a_project_can_switch_off_the_layers_it_has_not_adopted"]
+tags = ["check", "constraint-model", "specification"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-009]
+verification = "automated"
+tests = ["crates/ears-sdd/src/config.rs::tests::a_project_can_switch_off_the_layers_it_has_not_adopted"]
+tags = ["check", "provenance"]
+intent = "reproducible-verdict"
+
+[requirements.REQ-010]
+verification = "automated"
+tests = ["crates/ears-sdd/src/config.rs::tests::a_project_can_switch_off_the_layers_it_has_not_adopted"]
+tags = ["check"]
+intent = "adoptable-incrementally"

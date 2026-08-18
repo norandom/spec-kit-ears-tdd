@@ -7,30 +7,44 @@ schema_version = "1.0"
 [requirements.REQ-001]
 verification = "automated"
 tests = ["conformance/cases/markdown-forms/expected.json"]
+tags = ["scope", "requirement"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-002]
 verification = "automated"
 tests = ["conformance/cases/fenced-code-block/expected.json"]
+tags = ["scope", "requirement"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-003]
 verification = "automated"
 tests = ["conformance/cases/duplicate-identifier/expected.json"]
+tags = ["specification", "requirement", "finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-004]
 verification = "automated"
 tests = ["conformance/cases/wide-identifier/expected.json"]
+tags = ["requirement"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-005]
 verification = "automated"
 tests = ["conformance/cases/all-features-scope/expected.json"]
+tags = ["scope", "specification"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-006]
 verification = "automated"
 tests = ["conformance/cases/stale-feature-pointer/expected.json"]
+tags = ["scope", "specification", "finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-007]
 verification = "automated"
 tests = ["conformance/cases/all-features-scope/expected.json"]
+tags = ["specification"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-008]
 verification = "automated"
@@ -39,10 +53,14 @@ tests = ["crates/ears-sdd/tests/conformance.rs::corpus_matches_expected_results"
 [requirements.REQ-009]
 verification = "automated"
 tests = ["conformance/cases/selector-traversal/expected.json"]
+tags = ["traceability-mapping", "finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-010]
 verification = "automated"
 tests = ["conformance/cases/undecodable-spec/expected.json"]
+tags = ["specification", "finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-011]
 verification = "automated"
@@ -54,14 +72,20 @@ tests = [
   "conformance/cases/modal-in-quoted-literal/expected.json",
   "crates/ears-sdd/src/ears.rs::tests::balanced_literal_is_masked",
 ]
+tags = ["requirement"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-013]
 verification = "automated"
 tests = ["conformance/cases/feature-qualified-ids/expected.json"]
+tags = ["specification", "requirement"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-014]
 verification = "automated"
 tests = ["conformance/cases/feature-qualified-ids/expected.json"]
+tags = ["requirement", "production-code", "finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-015]
 verification = "automated"
@@ -74,6 +98,8 @@ tests = ["crates/ears-sdd/tests/conformance.rs::corpus_matches_expected_results"
 [requirements.REQ-017]
 verification = "automated"
 tests = ["conformance/cases/selector-missing-test/expected.json"]
+tags = ["traceability-mapping", "finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-018]
 verification = "automated"

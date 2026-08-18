@@ -3,6 +3,8 @@ schema_version = "1.0"
 [requirements.REQ-001]
 verification = "automated"
 tests = ["conformance/cases/exempt-marked-line/expected.json"]
+tags = ["production-code", "finding"]
+intent = "decide-nothing-for-the-author"
 
 [requirements.REQ-002]
 verification = "automated"
@@ -11,6 +13,8 @@ tests = ["conformance/cases/exempt-marked-line/expected.json"]
 [requirements.REQ-003]
 verification = "automated"
 tests = ["conformance/cases/exempt-marker-without-reason/expected.json"]
+tags = ["finding"]
+intent = "decide-nothing-for-the-author"
 
 [requirements.REQ-004]
 verification = "automated"
@@ -19,18 +23,26 @@ tests = ["conformance/cases/exempt-preceding-line/expected.json"]
 [requirements.REQ-005]
 verification = "automated"
 tests = ["conformance/cases/exempt-redundant-marker/expected.json"]
+tags = ["finding"]
+intent = "decide-nothing-for-the-author"
 
 [requirements.REQ-006]
 verification = "automated"
 tests = ["conformance/cases/exempt-marked-line/expected.json"]
+tags = ["finding"]
+intent = "decide-nothing-for-the-author"
 
 [requirements.REQ-007]
 verification = "automated"
 tests = ["conformance/cases/exempt-marked-line/expected.json"]
+tags = ["finding"]
+intent = "decide-nothing-for-the-author"
 
 [requirements.REQ-008]
 verification = "automated"
 tests = ["conformance/cases/exempt-configured-path/expected.json"]
+tags = ["finding"]
+intent = "decide-nothing-for-the-author"
 
 [requirements.REQ-009]
 verification = "automated"

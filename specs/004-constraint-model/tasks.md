@@ -89,3 +89,11 @@ of them, and the differential harness lands after both.
       and REQ-011
 - [X] T026 Fail rather than pass when a procedure returns no verdict, for REQ-011 and REQ-013 in
       `crates/ears-sdd/src/analysis.rs`
+- [X] T027 Scope each satisfiability question to the terms its requirements name, for REQ-027 and
+      REQ-021 in `crates/ears-sdd/src/model.rs` and `crates/ears-sdd/src/analysis.rs`
+- [X] T028 Group requirements with conflicting effects together regardless of shared guard terms,
+      for REQ-028 in `crates/ears-sdd/src/model.rs`
+- [X] T029 Encode each distinct guard once per component, for REQ-029 in
+      `crates/ears-sdd/src/analysis.rs`
+- [X] T030 Reject a partition separating a conflicting pair, for REQ-030 in
+      `crates/ears-sdd/src/analysis.rs`

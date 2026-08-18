@@ -3,58 +3,86 @@ schema_version = "1.0"
 [requirements.REQ-001]
 verification = "automated"
 tests = ["conformance/cases/merge-cross-spec-conflict/expected.json"]
+tags = ["scope", "specification", "constraint-model", "gate"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-002]
 verification = "automated"
 tests = ["conformance/cases/merge-disjoint-terms/expected.json"]
+tags = ["requirement", "term"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-003]
 verification = "automated"
 tests = ["conformance/cases/merge-disjoint-terms/expected.json"]
+tags = ["component"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-004]
 verification = "automated"
 tests = ["conformance/cases/merge-disjoint-terms/expected.json"]
+tags = ["component"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-005]
 verification = "automated"
 tests = ["conformance/cases/merge-cross-spec-conflict/expected.json"]
+tags = ["specification", "requirement", "finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-006]
 verification = "automated"
 tests = ["conformance/cases/merge-cross-spec-conflict/expected.json"]
+tags = ["requirement", "finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-007]
 verification = "automated"
 tests = ["conformance/cases/merge-cross-spec-conflict/expected.json"]
+tags = ["requirement", "term", "finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-008]
 verification = "automated"
 tests = ["conformance/cases/merge-no-overlap/expected.json"]
+tags = ["specification", "requirement", "term", "finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-009]
 verification = "automated"
 tests = ["conformance/cases/merge-disjoint-terms/expected.json"]
+tags = ["component", "finding", "gate"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-010]
 verification = "automated"
 tests = ["conformance/cases/merge-unmerged-spec/expected.json"]
+tags = ["specification", "constraint-model", "finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-011]
 verification = "automated"
 tests = ["crates/ears-sdd/tests/read_only.rs::no_gate_modifies_the_project"]
+tags = ["specification", "constraint-model", "gate"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-012]
 verification = "automated"
 tests = ["conformance/cases/merge-conflict-adjudicated/expected.json"]
+tags = ["requirement", "intention", "precedence", "finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-013]
 verification = "automated"
 tests = ["conformance/cases/merge-conflict-unadjudicated/expected.json"]
+tags = ["requirement", "intention", "precedence", "finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-014]
 verification = "automated"
 tests = ["crates/ears-sdd/src/adjudicate.rs::tests::precedence_is_transitive"]
+tags = ["intention", "precedence", "finding"]
+intent = "no-unearned-pass"
 
 [requirements.REQ-015]
 verification = "automated"

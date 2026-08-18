@@ -64,3 +64,15 @@ declares no vocabulary and tags nothing is unaffected by any of it.
       `crates/ears-sdd/src/vocabulary.rs` and `crates/ears-sdd/src/main.rs`
 - [X] T018 Keep the layer independent of any constraint model for REQ-018 in
       `crates/ears-sdd/src/lib.rs`
+- [X] T019 Derive candidates from condition clauses as well as subjects, for REQ-019 in
+      `crates/ears-sdd/src/vocabulary.rs`
+- [X] T020 Exclude declared terms and their alternative labels from proposals, for REQ-020 in
+      `crates/ears-sdd/src/vocabulary.rs` and `crates/ears-sdd/src/lib.rs`
+- [X] T021 Rank candidates by reference count and record it, for REQ-021 and REQ-022 in
+      `crates/ears-sdd/src/vocabulary.rs`
+- [X] T022 Report phrases that reduce to one identifier, for REQ-023 in
+      `crates/ears-sdd/src/vocabulary.rs`
+- [X] T023 Convert a SKOS concept scheme into a vocabulary, for REQ-024, REQ-026 and REQ-027 in
+      `crates/ears-sdd/src/skos.rs`
+- [X] T024 Express the vocabulary as a SKOS concept scheme, for REQ-025 in
+      `crates/ears-sdd/src/skos.rs`

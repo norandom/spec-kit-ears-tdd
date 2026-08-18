@@ -119,6 +119,15 @@ proposes term stubs drawn from that feature's prose.
 - REQ-016: Where a vocabulary term is marked deprecated, the validator shall report a warning naming its replacement.
 - REQ-017: When the vocabulary scaffold runs, it shall propose term stubs derived from existing specification prose.
 - REQ-018: The validator shall evaluate the vocabulary and the intention registry without requiring any constraint model.
+- REQ-019: When proposing vocabulary, the validator shall derive candidates from the condition clause of a requirement as well as from its subject.
+- REQ-020: When proposing vocabulary, the validator shall exclude every term the project already declares, including its alternative labels.
+- REQ-021: When proposing vocabulary, the validator shall order candidates by the number of requirements that reference each one.
+- REQ-022: When proposing vocabulary, the validator shall record how many requirements reference each candidate.
+- REQ-023: Where two distinct phrases reduce to one identifier, the validator shall report both rather than choosing between them.
+- REQ-024: The validator shall convert a SKOS concept scheme into a project vocabulary.
+- REQ-025: The validator shall express the project vocabulary as a SKOS concept scheme.
+- REQ-026: Where an imported concept declares no value domain, the validator shall record that term as an entity.
+- REQ-027: Where an imported concept declares no definition, the validator shall record an empty definition rather than composing one.
 
 ### Key Entities
 

@@ -3,30 +3,44 @@ schema_version = "1.0"
 [requirements.REQ-001]
 verification = "automated"
 tests = ["conformance/cases/model-partially-modelled/expected.json"]
+tags = ["specification", "constraint-model"]
+intent = "actionable-finding"
 
 [requirements.REQ-002]
 verification = "automated"
 tests = ["conformance/cases/model-guard-invalid/expected.json"]
+tags = ["term", "guard", "constraint-model"]
+intent = "actionable-finding"
 
 [requirements.REQ-003]
 verification = "automated"
 tests = ["conformance/cases/model-guard-invalid/expected.json"]
+tags = ["guard"]
+intent = "actionable-finding"
 
 [requirements.REQ-004]
 verification = "automated"
 tests = ["conformance/cases/model-dead-guard/expected.json"]
+tags = ["requirement", "guard", "finding"]
+intent = "actionable-finding"
 
 [requirements.REQ-005]
 verification = "automated"
 tests = ["conformance/cases/model-conflict-unclassified/expected.json"]
+tags = ["requirement", "guard", "effect", "finding"]
+intent = "actionable-finding"
 
 [requirements.REQ-006]
 verification = "automated"
 tests = ["conformance/cases/model-conflict-unclassified/expected.json"]
+tags = ["requirement", "finding"]
+intent = "actionable-finding"
 
 [requirements.REQ-007]
 verification = "automated"
 tests = ["conformance/cases/model-conflict-unclassified/expected.json"]
+tags = ["requirement", "decision-procedure"]
+intent = "actionable-finding"
 
 [requirements.REQ-008]
 verification = "automated"
@@ -35,54 +49,80 @@ tests = ["conformance/cases/model-conflict-defect/expected.json"]
 [requirements.REQ-009]
 verification = "automated"
 tests = ["conformance/cases/model-conflict-defect/expected.json"]
+tags = ["specification", "requirement", "intention", "finding"]
+intent = "actionable-finding"
 
 [requirements.REQ-010]
 verification = "automated"
 tests = ["conformance/cases/model-conflict-adjudicated/expected.json"]
+tags = ["intention", "finding"]
+intent = "actionable-finding"
 
 [requirements.REQ-011]
 verification = "automated"
 tests = ["crates/ears-sdd/src/analysis.rs::tests::an_over_budget_question_reports_the_lever_rather_than_being_evaluated"]
+tags = ["decision-procedure", "gate"]
+intent = "actionable-finding"
 
 [requirements.REQ-012]
 verification = "automated"
 tests = ["conformance/cases/model-conflict-unclassified/expected.json"]
+tags = ["term", "witness", "finding"]
+intent = "actionable-finding"
 
 [requirements.REQ-013]
 verification = "automated"
 tests = ["crates/ears-sdd/src/analysis.rs::tests::an_over_budget_question_reports_the_lever_rather_than_being_evaluated"]
+tags = ["state-space-budget", "finding", "gate"]
+intent = "actionable-finding"
 
 [requirements.REQ-014]
 verification = "automated"
 tests = ["conformance/cases/model-partially-modelled/expected.json"]
+tags = ["requirement", "constraint-model", "provenance"]
+intent = "actionable-finding"
 
 [requirements.REQ-015]
 verification = "automated"
 tests = ["conformance/cases/model-subsumed/expected.json"]
+tags = ["requirement", "guard", "effect", "finding"]
+intent = "actionable-finding"
 
 [requirements.REQ-016]
 verification = "automated"
 tests = ["crates/ears-sdd/tests/differential.rs::every_two_variable_guard_agrees"]
+tags = ["requirement", "constraint-model"]
+intent = "actionable-finding"
 
 [requirements.REQ-017]
 verification = "automated"
 tests = ["conformance/cases/model-conflict-impossible/expected.json"]
+tags = ["term"]
+intent = "actionable-finding"
 
 [requirements.REQ-018]
 verification = "automated"
 tests = ["crates/ears-sdd/src/model.rs::tests::a_single_less_than_cuts_the_domain_in_two"]
+tags = ["decision-procedure", "provenance"]
+intent = "actionable-finding"
 
 [requirements.REQ-019]
 verification = "automated"
 tests = ["crates/ears-sdd/tests/differential.rs::every_two_variable_guard_agrees"]
+tags = ["decision-procedure", "constraint-model", "finding"]
+intent = "actionable-finding"
 
 [requirements.REQ-020]
 verification = "automated"
 tests = ["conformance/cases/model-type-mismatch/expected.json"]
+tags = ["term"]
+intent = "actionable-finding"
 
 [requirements.REQ-021]
 verification = "automated"
 tests = ["crates/ears-sdd/src/analysis.rs::tests::an_over_budget_question_reports_the_lever_rather_than_being_evaluated"]
+tags = ["state-space-budget", "finding"]
+intent = "actionable-finding"
 
 [requirements.REQ-022]
 verification = "automated"
@@ -91,10 +131,14 @@ tests = ["crates/ears-sdd/src/analysis.rs::tests::an_over_budget_question_report
 [requirements.REQ-023]
 verification = "automated"
 tests = ["conformance/cases/model-absent-is-silent/expected.json"]
+tags = ["term", "state-space-budget"]
+intent = "actionable-finding"
 
 [requirements.REQ-024]
 verification = "automated"
 tests = ["crates/ears-sdd/tests/read_only.rs::no_gate_modifies_the_project"]
+tags = ["guard", "witness", "finding"]
+intent = "actionable-finding"
 
 [requirements.REQ-025]
 verification = "automated"
@@ -103,3 +147,29 @@ tests = ["crates/ears-sdd/src/model.rs::tests::regions_always_cover_the_domain_e
 [requirements.REQ-026]
 verification = "automated"
 tests = ["conformance/cases/model-conflict-impossible/expected.json"]
+tags = ["requirement", "component"]
+intent = "actionable-finding"
+
+[requirements.REQ-027]
+verification = "automated"
+tests = ["crates/ears-sdd/src/bdd.rs::scaling::one_guard_costs_the_same_in_a_large_component_as_a_small_one"]
+tags = ["decision-procedure", "guard", "component"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-028]
+verification = "automated"
+tests = ["crates/ears-sdd/src/analysis.rs::tests::conflicting_effects_share_a_component_even_with_disjoint_guards"]
+tags = ["effect", "guard", "component"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-029]
+verification = "automated"
+tests = ["crates/ears-sdd/src/bdd.rs::scaling::the_domain_constraint_stays_linear_in_the_number_of_terms"]
+tags = ["guard", "decision-procedure"]
+intent = "reproducible-verdict"
+
+[requirements.REQ-030]
+verification = "automated"
+tests = ["crates/ears-sdd/src/analysis.rs::tests::the_contract_rejects_a_partition_that_separates_conflicting_requirements"]
+tags = ["effect", "component"]
+intent = "no-unearned-pass"

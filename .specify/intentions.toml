@@ -1,0 +1,81 @@
+# Why this project's own requirements exist.
+#
+# Read back out of six features after the fact, like the vocabulary beside it. Two of these
+# intentions were never written anywhere and had to be reconstructed from the reasons attached to
+# individual decisions, which is exactly the loss this layer exists to prevent.
+#
+# The single-binary property is deliberately absent. It shaped real decisions, but no requirement
+# states it, and an intention no requirement serves cannot take part in adjudicating anything. It is
+# enforced by the repository integrity job and a unit test instead, which is the honest place for a
+# property about packaging rather than about behaviour.
+
+schema_version = "1.0"
+
+[intentions.no-unearned-pass]
+statement = "A passing result means every check ran over everything in scope."
+rationale = """
+This is the project's reason for existing, so it outranks the rest. A gate that narrows itself,
+skips a file, refuses a component, or has a layer switched off produces a green result
+indistinguishable from a checked one, and a green result nobody can distinguish is worse than no
+gate at all: it is a gate plus false confidence. Everything reported as scope, provenance, disabled
+checks, unmodelled requirements, and budget refusals serves this.
+"""
+
+[intentions.decide-nothing-for-the-author]
+statement = "The validator reports what is true and leaves judgement to a person."
+rationale = """
+A contradiction between two requirements is a question about competing goals, and picking a winner
+is not a fact the tool has access to. The same applies to a term that might be two concepts, a
+vocabulary candidate that might be noise, and a definition an import did not carry. Each is
+surfaced with what is known and refused rather than guessed, because a wrong guess made
+confidently is harder to find than an open question.
+"""
+
+[intentions.reproducible-verdict]
+statement = "The same tree yields the same verdict on any machine, at any time."
+rationale = """
+Evidence that changes with load, wall-clock time, filesystem order, or solver heuristics is not
+evidence. It is also what makes a conformance corpus possible: a second implementation can only be
+held to a contract whose expected results are stable.
+"""
+
+[intentions.adoptable-incrementally]
+statement = "A project can adopt one layer without adopting all of them."
+rationale = """
+All-or-nothing is how a gate ends up switched off entirely. A brownfield codebase with no test
+mapping should be able to gate requirement form on its first day and wire the rest in whatever
+order suits it. This is in tension with no-unearned-pass and loses to it: partial adoption is
+allowed, hiding it is not.
+"""
+
+[intentions.actionable-finding]
+statement = "A finding names what to change, not merely that something is wrong."
+rationale = """
+The consumer is usually an agent, and a finding it cannot act on becomes a retry loop. A budget
+failure that says only that a budget was exceeded is a shrug; one that names the terms driving the
+size is a next step. The witness on a contradiction is the same idea: a state you can check by hand
+rather than a claim you have to trust.
+"""
+
+# ---------------------------------------------------------------------------
+# Precedence. `over` wins against `under`.
+#
+# Only the pairs that have actually collided are ordered. The rest are left open because nobody has
+# had to decide them, which is more honest than inventing a ranking that would silence a future
+# finding.
+# ---------------------------------------------------------------------------
+
+[[precedence]]
+over = "no-unearned-pass"
+under = "adoptable-incrementally"
+reason = "A layer may be switched off. It may not be switched off quietly: the disabled set is printed on every run and recorded in the report."
+
+[[precedence]]
+over = "reproducible-verdict"
+under = "actionable-finding"
+reason = "Where a more helpful answer would vary between runs, the stable one wins. A witness is chosen deterministically even when another would read better."
+
+[[precedence]]
+over = "no-unearned-pass"
+under = "actionable-finding"
+reason = "A run that could not reach a verdict reports that it could not, rather than reporting the part it managed and letting the rest look checked."

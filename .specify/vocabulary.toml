@@ -1,0 +1,143 @@
+# Vocabulary for this project's own specifications.
+#
+# Written late, which is worth admitting in the file rather than quietly. Six features and 97
+# requirements were specified before this existed, and the terms below were read back out of them.
+# That is the extract-after path this project documents, applied to itself, and it found the same
+# thing it finds elsewhere: several words were being used for one concept.
+#
+# The clearest example is `check`. The specifications variously called it a gate, a layer, and a
+# validation, and the distinction that actually matters is between a phase you invoke and a class of
+# analysis that runs inside one. Those are now two terms.
+
+schema_version = "1.0"
+
+# ---------------------------------------------------------------------------
+# The artifacts under analysis
+# ---------------------------------------------------------------------------
+
+[terms.specification]
+label = "Specification"
+definition = "One feature's spec.md, holding the normative requirements that feature declares."
+domain = { kind = "entity" }
+
+[terms.requirement]
+label = "Requirement"
+definition = "A single normative statement in EARS form, carrying an identifier unique within its specification."
+domain = { kind = "entity" }
+broader = ["specification"]
+
+[terms.traceability-mapping]
+label = "Traceability mapping"
+definition = "The per-feature record of how each requirement is verified, by named automated tests or by a justified manual check."
+domain = { kind = "entity" }
+
+[terms.task-list]
+label = "Task list"
+definition = "One feature's tasks.md, in which every requirement must be referenced by a covering task."
+domain = { kind = "entity" }
+
+[terms.production-code]
+label = "Production code"
+definition = "Source under the configured production roots, which requirement prose and identifiers must not reach."
+domain = { kind = "entity" }
+
+# ---------------------------------------------------------------------------
+# The grounding layer
+# ---------------------------------------------------------------------------
+
+[terms.term]
+label = "Vocabulary term"
+definition = "A declared concept with a stable identifier, a label, a definition, and a value domain, which requirements reference by tag."
+domain = { kind = "entity" }
+
+[terms.intention]
+label = "Intention"
+definition = "The single goal a requirement exists to serve, against which a contradiction between two requirements is adjudicated."
+domain = { kind = "entity" }
+
+[terms.precedence]
+label = "Precedence"
+definition = "A declared pairwise ordering between two intentions, recording which goal wins where they collide."
+domain = { kind = "entity" }
+broader = ["intention"]
+
+[terms.concept-scheme]
+label = "SKOS concept scheme"
+definition = "A vocabulary expressed in the SKOS standard, which this project can read from and write to without adopting it as an authoring format."
+domain = { kind = "entity" }
+broader = ["term"]
+
+# ---------------------------------------------------------------------------
+# The constraint layer
+# ---------------------------------------------------------------------------
+
+[terms.constraint-model]
+label = "Constraint model"
+definition = "A feature's model.toml, giving modelled requirements a guard and an effect over declared terms."
+domain = { kind = "entity" }
+
+[terms.guard]
+label = "Guard"
+definition = "The condition under which a modelled requirement applies, written in the restricted comparison language."
+domain = { kind = "entity" }
+broader = ["constraint-model"]
+
+[terms.effect]
+label = "Effect"
+definition = "The observable consequence a modelled requirement asserts, and the thing two requirements can declare incompatible."
+domain = { kind = "entity" }
+broader = ["constraint-model"]
+
+[terms.component]
+label = "Component"
+definition = "A group of requirements that can interact, used to bound which pairs are compared rather than to bound any single question."
+domain = { kind = "entity" }
+
+[terms.decision-procedure]
+label = "Decision procedure"
+definition = "The mechanism that answers whether a guard is satisfiable, whether two guards overlap, and whether one implies another."
+domain = { kind = "entity" }
+alt_labels = ["solver"]
+
+[terms.witness]
+label = "Witness"
+definition = "A concrete assignment of terms to values under which two contradicting requirements both apply."
+domain = { kind = "entity" }
+
+[terms.state-space-budget]
+label = "State space budget"
+definition = "The largest space a single question may range over before the validator declines to answer it."
+domain = { kind = "int", min = 0, max = 1000000000 }
+
+# ---------------------------------------------------------------------------
+# Running the gate
+# ---------------------------------------------------------------------------
+
+[terms.gate]
+label = "Gate"
+definition = "One invocation of the validator at a named phase, which either passes or fails."
+domain = { kind = "entity" }
+
+[terms.check]
+label = "Check"
+definition = "One class of analysis running inside a gate, such as traceability or separation, which a project may switch off."
+domain = { kind = "entity" }
+broader = ["gate"]
+
+[terms.scope]
+label = "Scope"
+definition = "The set of specifications a run evaluated, together with how that set was chosen."
+domain = { kind = "entity" }
+broader = ["gate"]
+
+[terms.finding]
+label = "Finding"
+definition = "One reported result, carrying a code, a location, and a severity that decides whether the gate fails."
+domain = { kind = "entity" }
+broader = ["gate"]
+
+[terms.provenance]
+label = "Provenance"
+definition = "The record of what a run actually read and what it did not, so a passing result cannot be mistaken for a broader claim than it is."
+domain = { kind = "entity" }
+broader = ["finding"]
