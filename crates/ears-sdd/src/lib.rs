@@ -73,7 +73,7 @@ pub fn validate(request: Request<'_>) -> Report {
         let (requirements, spec_findings) =
             requirements::parse(root, &location.path, &location.feature);
         findings.extend(spec_findings);
-        if request.phase.checks_traceability() {
+        if request.phase.checks_traceability() && config.checks.traceability {
             let outcome = traceability::validate(
                 root,
                 &location.path,
@@ -96,7 +96,7 @@ pub fn validate(request: Request<'_>) -> Report {
         );
         // The tasks gate is the only phase that opens tasks.md, which is what finally makes it
         // distinct from the plan gate rather than a second copy of it.
-        if request.phase == Phase::Tasks {
+        if request.phase == Phase::Tasks && config.checks.tasks {
             let outcome = tasks::validate(root, &location.path, &location.feature, &requirements);
             findings.extend(outcome.findings);
             tasks_covered += outcome.covered;
@@ -114,7 +114,9 @@ pub fn validate(request: Request<'_>) -> Report {
             .iter()
             .map(|(feature, path)| (feature.clone(), path.as_path()))
             .collect();
-        findings.extend(vocabulary::validate(root, &mappings, &borrowed));
+        if config.checks.vocabulary {
+            findings.extend(vocabulary::validate(root, &mappings, &borrowed));
+        }
 
         // The constraint model needs the same term map the vocabulary gate used, and the intention
         // layer it classifies conflicts by. Loaded once for the whole run rather than per feature,
@@ -139,28 +141,33 @@ pub fn validate(request: Request<'_>) -> Report {
             precedence: &precedence,
         };
         let mut feature_models = Vec::new();
-        for (feature, directory) in &feature_dirs {
-            let declared = declared_by_feature
-                .get(feature)
-                .cloned()
-                .unwrap_or_default();
-            let outcome = analysis::validate(root, feature, directory, &declared, &context);
-            findings.extend(outcome.findings);
-            modelled += outcome.modelled;
-            components += outcome.components;
-            feature_models.push(analysis::FeatureModel {
-                feature: feature.clone(),
-                directory: directory.clone(),
-                declared,
-            });
-        }
+        // Skipped wholesale rather than per feature: a partially merged constraint system would
+        // report contradictions between the specifications that opted in and silence about the rest,
+        // which reads as agreement.
+        if config.checks.constraints {
+            for (feature, directory) in &feature_dirs {
+                let declared = declared_by_feature
+                    .get(feature)
+                    .cloned()
+                    .unwrap_or_default();
+                let outcome = analysis::validate(root, feature, directory, &declared, &context);
+                findings.extend(outcome.findings);
+                modelled += outcome.modelled;
+                components += outcome.components;
+                feature_models.push(analysis::FeatureModel {
+                    feature: feature.clone(),
+                    directory: directory.clone(),
+                    declared,
+                });
+            }
 
-        // The merge only means anything across more than one specification. Asking for all-features
-        // scope is what asks for it: constraints never in the same room cannot contradict.
-        if feature_models.len() > 1 {
-            let merged = analysis::validate_merged(&feature_models, &context);
-            findings.extend(merged.findings);
-            merged_components = Some(merged.components);
+            // The merge only means anything across more than one specification. Asking for all-features
+            // scope is what asks for it: constraints never in the same room cannot contradict.
+            if feature_models.len() > 1 {
+                let merged = analysis::validate_merged(&feature_models, &context);
+                findings.extend(merged.findings);
+                merged_components = Some(merged.components);
+            }
         }
     }
 
@@ -174,10 +181,12 @@ pub fn validate(request: Request<'_>) -> Report {
                 config::CONFIG_RELATIVE_PATH,
             ));
         }
-        let outcome = separation::validate(root, &all_requirements, &config);
-        production_files_scanned = outcome.files_scanned;
-        separation_exempted = Some(outcome.exempted);
-        findings.extend(outcome.findings);
+        if config.checks.separation {
+            let outcome = separation::validate(root, &all_requirements, &config);
+            production_files_scanned = outcome.files_scanned;
+            separation_exempted = Some(outcome.exempted);
+            findings.extend(outcome.findings);
+        }
     }
 
     let errors = findings
@@ -205,6 +214,12 @@ pub fn validate(request: Request<'_>) -> Report {
             scope: discovered.scope,
             specs_examined: discovered.specs.len(),
             production_files_scanned,
+            disabled_checks: config
+                .checks
+                .disabled()
+                .into_iter()
+                .map(str::to_string)
+                .collect(),
         },
         summary: Summary {
             features: features.len(),
@@ -242,6 +257,15 @@ pub fn render_human(report: &Report, status_only: bool) -> String {
         ScopeSource::Glob(value) => format!("{value} (all matching specifications)"),
     };
     out.push_str(&format!("Scope: {scope}\n"));
+    // Printed on every run, not only on failure. A layer that was switched off is the one thing a
+    // green result cannot tell you about itself, and the whole point of printing scope is the same:
+    // a narrower claim must never look like a broader one.
+    if !report.provenance.disabled_checks.is_empty() {
+        out.push_str(&format!(
+            "Disabled: {} (not checked)\n",
+            report.provenance.disabled_checks.join(", ")
+        ));
+    }
     let summary = &report.summary;
     out.push_str(&format!(
         "Features: {}  Requirements: {}  Errors: {}  Warnings: {}\n",

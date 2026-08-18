@@ -137,6 +137,10 @@ pub struct Provenance {
     pub scope: ScopeSource,
     pub specs_examined: usize,
     pub production_files_scanned: usize,
+    /// Layers switched off in configuration. Recorded because a report that omits what it did not
+    /// check is indistinguishable from one that checked everything and found nothing.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub disabled_checks: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

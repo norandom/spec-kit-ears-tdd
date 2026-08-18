@@ -37,6 +37,45 @@ state_space_budget = 1000000
 | `source_extensions` | Which files the separation scan reads |
 | `state_space_budget` | States per component before the search is refused |
 
+### Turning layers off
+
+```toml
+[checks]
+traceability = true   # verification mapping, test selectors, manual rationales
+vocabulary = true     # declared terms, the tags requirements carry, the intentions they serve
+constraints = true    # constraint models, within a specification and merged across all of them
+tasks = true          # every requirement covered by a task before implementation
+separation = true     # requirement prose and identifiers kept out of production code
+```
+
+Every one defaults to true, so omitting the table changes nothing.
+
+They exist because adoption is incremental. A project can gate EARS form on day one and wire
+traceability, a vocabulary, and constraint models in whatever order suits it, rather than choosing
+between all of it and none of it. A brownfield codebase with no test mapping yet can run
+`traceability = false` and still get the requirement checks that cost nothing to adopt.
+
+!!! warning "Switching a layer off never makes the run quieter about it"
+
+    The disabled set is printed on every run, passing or failing:
+
+    ```text
+    EARS/TDD plan gate: PASS
+    Scope: specs/*/spec.md (all matching specifications)
+    Disabled: traceability, vocabulary (not checked)
+    Features: 12  Requirements: 400  Errors: 0  Warnings: 0
+    ```
+
+    and recorded in the machine-readable report as `provenance.disabled_checks`.
+
+    This is the same rule as printing the scope, for the same reason. A gate that can be narrowed
+    silently produces a passing result indistinguishable from a checked one, which is the failure
+    this tool exists to prevent. Turning a layer off is a decision, and a decision belongs in the
+    evidence.
+
+A misspelt switch is a parse error rather than a setting that quietly does nothing, because
+believing a layer is off when it is on is its own kind of wrong.
+
 ## `traceability.toml`
 
 One per feature, beside its `spec.md`.

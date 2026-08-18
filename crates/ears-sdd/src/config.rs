@@ -11,6 +11,58 @@ use std::path::Path;
 
 use crate::report::{Finding, Severity};
 
+/// Which optional layers run.
+///
+/// Every one defaults to on, so an existing project sees no change. They exist because adoption is
+/// incremental: a project can gate EARS form on day one and wire traceability, a vocabulary, and
+/// constraint models in whatever order suits it, rather than choosing between all of it and none.
+///
+/// Switching one off never makes the run quieter about it. The disabled set is printed on every run
+/// and recorded in the machine-readable report, because a gate that can be silently narrowed is the
+/// failure this project exists to prevent: a passing result that looks identical to a checked one.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct Checks {
+    /// Requirement-to-verification mapping: traceability files, test selectors, manual rationales.
+    pub traceability: bool,
+    /// Declared terms, the tags requirements carry, and the intentions they serve.
+    pub vocabulary: bool,
+    /// Constraint models, within a specification and merged across all of them.
+    pub constraints: bool,
+    /// Every requirement covered by a task before implementation.
+    pub tasks: bool,
+    /// Requirement prose and identifiers kept out of production code.
+    pub separation: bool,
+}
+
+impl Default for Checks {
+    fn default() -> Self {
+        Self {
+            traceability: true,
+            vocabulary: true,
+            constraints: true,
+            tasks: true,
+            separation: true,
+        }
+    }
+}
+
+impl Checks {
+    /// The layers switched off, in a stable order, for reporting.
+    pub fn disabled(&self) -> Vec<&'static str> {
+        [
+            (self.traceability, "traceability"),
+            (self.vocabulary, "vocabulary"),
+            (self.constraints, "constraints"),
+            (self.tasks, "tasks"),
+            (self.separation, "separation"),
+        ]
+        .into_iter()
+        .filter_map(|(enabled, name)| (!enabled).then_some(name))
+        .collect()
+    }
+}
+
 #[derive(Debug, Clone, Deserialize)]
 #[serde(default)]
 pub struct Config {
@@ -33,6 +85,8 @@ pub struct Config {
     /// than exposed as a flag, because raising it is a decision about how much the project is
     /// willing to leave unchecked, not a knob for making a red build green.
     pub state_space_budget: u64,
+    /// Which optional layers run. All default on.
+    pub checks: Checks,
     #[serde(flatten)]
     pub unknown: BTreeMap<String, toml::Value>,
 }
@@ -61,6 +115,7 @@ impl Default for Config {
             // reaches once decomposition has done its work. A component that exceeds it is
             // signalling a modelling problem rather than a performance one.
             state_space_budget: 1_000_000,
+            checks: Checks::default(),
             unknown: BTreeMap::new(),
         }
     }
@@ -140,5 +195,37 @@ pub fn load(root: &Path) -> (Config, Vec<Finding>) {
                 CONFIG_RELATIVE_PATH,
             )],
         ),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn every_check_is_on_unless_a_project_says_otherwise() {
+        let checks = Checks::default();
+        assert!(checks.disabled().is_empty());
+    }
+
+    #[test]
+    fn a_project_can_switch_off_the_layers_it_has_not_adopted() {
+        let parsed: Config = toml::from_str("[checks]\ntraceability = false\nvocabulary = false\n")
+            .expect("the table parses");
+
+        assert_eq!(parsed.checks.disabled(), vec!["traceability", "vocabulary"]);
+        // The rest keep their defaults rather than being dragged off with them.
+        assert!(parsed.checks.constraints);
+        assert!(parsed.checks.tasks);
+        assert!(parsed.checks.separation);
+    }
+
+    /// A mistyped switch that silently leaves a layer on is the better failure of the two, but it
+    /// still means the author believes something is off that is not. `deny_unknown_fields` on the
+    /// table turns that into a parse error.
+    #[test]
+    fn a_misspelt_check_is_refused_rather_than_ignored() {
+        let parsed = toml::from_str::<Config>("[checks]\ntracability = false\n");
+        assert!(parsed.is_err(), "{parsed:?}");
     }
 }

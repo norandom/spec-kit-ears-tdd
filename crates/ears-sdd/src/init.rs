@@ -115,6 +115,17 @@ pub fn run(options: &Options) -> Result<(), String> {
         &project.join(".specify").join("traceability.toml.sample"),
         assets::traceability_sample().as_bytes(),
     )?;
+    // Samples rather than live files. Writing a real `vocabulary.toml` would declare terms nobody
+    // agreed to, and every one of them would then be reported as unused; a sample is the shape
+    // without the claim.
+    write_if_absent(
+        &project.join(".specify").join("vocabulary.toml.sample"),
+        assets::vocabulary_sample().as_bytes(),
+    )?;
+    write_if_absent(
+        &project.join(".specify").join("intentions.toml.sample"),
+        assets::intentions_sample().as_bytes(),
+    )?;
 
     if options.ci {
         write_ci_workflow(&project)?;

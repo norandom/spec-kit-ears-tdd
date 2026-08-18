@@ -26,6 +26,25 @@ pub fn traceability_sample() -> &'static str {
         .expect("the traceability sample is embedded at build time")
 }
 
+/// The two files the grounding layer rests on, installed as samples.
+///
+/// A new project has no requirements to extract a vocabulary from, so `vocab-init` has nothing to
+/// read and the adopter is left to invent the file shape from documentation. Shipping the samples
+/// costs nothing and removes the first thing a greenfield project trips over.
+pub fn vocabulary_sample() -> &'static str {
+    CONFIG
+        .get_file("vocabulary.toml.sample")
+        .and_then(|file| file.contents_utf8())
+        .expect("the vocabulary sample is embedded at build time")
+}
+
+pub fn intentions_sample() -> &'static str {
+    CONFIG
+        .get_file("intentions.toml.sample")
+        .and_then(|file| file.contents_utf8())
+        .expect("the intentions sample is embedded at build time")
+}
+
 /// The consuming project's CI workflow, with the validator version pinned to this binary.
 ///
 /// Pinning to `CARGO_PKG_VERSION` rather than to a floating `latest` keeps a verdict reproducible:
