@@ -2,6 +2,7 @@ pub mod adjudicate;
 pub mod analysis;
 pub mod assets;
 pub mod bdd;
+pub mod ccsdd;
 pub mod config;
 pub mod discovery;
 pub mod doctor;
@@ -10,6 +11,7 @@ pub mod enumerate;
 pub mod exemptions;
 pub mod guard;
 pub mod init;
+pub mod kiro;
 pub mod model;
 pub mod report;
 pub mod requirements;
@@ -21,6 +23,7 @@ pub mod vocabulary;
 
 use std::path::Path;
 
+use crate::discovery::SpecFamily;
 use crate::report::{
     now_iso8601, FeatureResult, Finding, Phase, Provenance, Report, ScopeSource, Severity, Summary,
     SCHEMA_VERSION,
@@ -41,6 +44,9 @@ pub fn validate(request: Request<'_>) -> Report {
     let root = request.root;
     let (config, mut findings) = config::load(root);
     findings.extend(config::readiness(&config));
+    if kiro::tree_present(root) {
+        findings.retain(|finding| finding.code != "CONFIG_MISSING");
+    }
     let discovered = discovery::discover(root, &config, request.feature, request.all);
     findings.extend(discovered.findings.clone());
 
@@ -69,8 +75,52 @@ pub fn validate(request: Request<'_>) -> Report {
         std::collections::BTreeSet<String>,
     > = std::collections::BTreeMap::new();
     let mut feature_dirs: Vec<(String, std::path::PathBuf)> = Vec::new();
+    let mut baseline_included: Option<usize> = None;
+    let mut baseline_excluded: Option<usize> = None;
+    let mut kiro_requirements = 0usize;
+
+    let kiro_listed: Vec<kiro::Listed> = discovered
+        .specs
+        .iter()
+        .filter(|location| location.family == SpecFamily::Kiro)
+        .map(|location| kiro::Listed {
+            feature: location.feature.clone(),
+            path: location.path.clone(),
+        })
+        .collect();
+    if !kiro_listed.is_empty() {
+        findings.push(
+            Finding::new(
+                "KIRO_CHECKS_OMITTED",
+                "Spec Kit identifier, verification-mapping, task-coverage, and separation checks were not applied to Kiro specifications.",
+                kiro::TREE,
+            )
+            .severity(Severity::Advisory),
+        );
+        let evaluation = kiro::evaluate(root, &kiro_listed);
+        baseline_included = Some(evaluation.included);
+        baseline_excluded = Some(evaluation.excluded);
+        findings.extend(evaluation.findings);
+        for feature in evaluation.features {
+            kiro_requirements += feature.requirements;
+            features.push(FeatureResult {
+                feature: feature.feature,
+                spec: report::relative(&feature.spec, root),
+                requirements: feature.requirements,
+                baseline: Some(if feature.included {
+                    "included".to_string()
+                } else {
+                    "excluded".to_string()
+                }),
+                exclusion_reason: feature.exclusion_reason.map(str::to_string),
+            });
+        }
+    }
 
     for location in &discovered.specs {
+        if location.family == SpecFamily::Kiro {
+            continue;
+        }
         let (requirements, spec_findings) =
             requirements::parse(root, &location.path, &location.feature);
         findings.extend(spec_findings);
@@ -106,6 +156,8 @@ pub fn validate(request: Request<'_>) -> Report {
             feature: location.feature.clone(),
             spec: report::relative(&location.path, root),
             requirements: requirements.len(),
+            baseline: None,
+            exclusion_reason: None,
         });
         all_requirements.extend(requirements);
     }
@@ -224,7 +276,7 @@ pub fn validate(request: Request<'_>) -> Report {
         },
         summary: Summary {
             features: features.len(),
-            requirements: all_requirements.len(),
+            requirements: all_requirements.len() + kiro_requirements,
             specs_examined: discovered.specs.len(),
             errors,
             warnings,
@@ -234,6 +286,8 @@ pub fn validate(request: Request<'_>) -> Report {
             modelled: request.phase.checks_traceability().then_some(modelled),
             components: request.phase.checks_traceability().then_some(components),
             merged_components,
+            baseline_included,
+            baseline_excluded,
         },
         features,
         findings,
@@ -265,6 +319,39 @@ pub fn render_human(report: &Report, status_only: bool) -> String {
         out.push_str(&format!(
             "Disabled: {} (not checked)\n",
             report.provenance.disabled_checks.join(", ")
+        ));
+    }
+    if let (Some(included), Some(excluded)) = (
+        report.summary.baseline_included,
+        report.summary.baseline_excluded,
+    ) {
+        let mut grouped: std::collections::BTreeMap<String, Vec<String>> =
+            std::collections::BTreeMap::new();
+        for feature in &report.features {
+            if let Some(reason) = &feature.exclusion_reason {
+                grouped
+                    .entry(reason.clone())
+                    .or_default()
+                    .push(feature.feature.clone());
+            }
+        }
+        let mut detail = String::new();
+        if !grouped.is_empty() {
+            detail.push_str(" (");
+            let mut first = true;
+            for (reason, names) in grouped {
+                if !first {
+                    detail.push_str("; ");
+                }
+                first = false;
+                detail.push_str(&reason);
+                detail.push_str(": ");
+                detail.push_str(&names.join(", "));
+            }
+            detail.push(')');
+        }
+        out.push_str(&format!(
+            "Baseline: {included} included, {excluded} excluded{detail}\n"
         ));
     }
     let summary = &report.summary;

@@ -58,8 +58,11 @@ shows up as a sentence rather than as a failure you have to diagnose.
     ```
 
 These install the most recent release. Swap `latest/download` for
-`download/v0.2.0` to pin a specific version, and see
+`download/v1.0.0` to pin a specific version, and see
 [all releases](https://github.com/norandom/spec-kit-ears-tdd/releases) for what is available.
+
+To assess a Kiro tree (`.kiro/specs`) instead of a Spec Kit project, point the same binary at it.
+No `.specify/` is written into that tree. See [assess a Kiro project](reference/kiro.md).
 
 !!! note "The CI gate pins deliberately"
 
@@ -143,7 +146,7 @@ ears-sdd doctor
 ```
 
 ```text
-ears-sdd 0.2.0 checking /home/you/project
+ears-sdd 1.0.0 checking /home/you/project
 
   [ok  ] Spec Kit project       .specify is present
   [ok  ] Spec Kit version       0.16.3, within >=0.16.3,<0.17.0

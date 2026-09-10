@@ -1,0 +1,3 @@
+{
+  "args": ["validate", "--phase", "spec"]
+}

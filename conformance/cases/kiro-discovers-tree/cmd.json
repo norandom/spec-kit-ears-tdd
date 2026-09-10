@@ -1,0 +1,4 @@
+{
+  "args": ["validate", "--phase", "spec"],
+  "note": "Kiro tree, no Spec Kit config, two live features"
+}

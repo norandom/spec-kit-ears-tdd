@@ -148,6 +148,10 @@ pub struct FeatureResult {
     pub feature: String,
     pub spec: String,
     pub requirements: usize,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub baseline: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub exclusion_reason: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -178,6 +182,11 @@ pub struct Summary {
     /// specifications were in scope, because there was nothing to merge.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub merged_components: Option<usize>,
+    /// Kiro specifications in the active baseline. Present only when a Kiro tree was assessed.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub baseline_included: Option<usize>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub baseline_excluded: Option<usize>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

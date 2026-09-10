@@ -1,0 +1,160 @@
+schema_version = "1.0"
+
+[requirements.REQ-001]
+verification = "automated"
+tests = ["conformance/cases/kiro-discovers-tree/expected.json"]
+tags = ["scope", "specification"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-002]
+verification = "automated"
+tests = ["conformance/cases/kiro-discovers-tree/expected.json"]
+tags = ["scope", "provenance"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-003]
+verification = "automated"
+tests = ["conformance/cases/all-features-scope/expected.json"]
+tags = ["scope", "specification"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-004]
+verification = "automated"
+tests = ["conformance/cases/kiro-missing-requirements-md/expected.json"]
+tags = ["specification", "finding"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-005]
+verification = "automated"
+tests = ["conformance/cases/kiro-discovers-tree/expected.json"]
+tags = ["requirement", "specification"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-006]
+verification = "automated"
+tests = ["conformance/cases/kiro-discovers-tree/expected.json"]
+tags = ["requirement", "specification"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-007]
+verification = "automated"
+tests = ["conformance/cases/kiro-empty-headings/expected.json"]
+tags = ["requirement", "specification"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-008]
+verification = "automated"
+tests = ["conformance/cases/kiro-missing-criteria/expected.json"]
+tags = ["requirement", "finding"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-009]
+verification = "automated"
+tests = ["conformance/cases/kiro-fenced-example/expected.json"]
+tags = ["requirement"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-010]
+verification = "automated"
+tests = ["conformance/cases/kiro-active-baseline/expected.json"]
+tags = ["specification", "scope"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-011]
+verification = "automated"
+tests = ["conformance/cases/kiro-active-baseline/expected.json"]
+tags = ["specification", "scope"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-012]
+verification = "automated"
+tests = ["conformance/cases/kiro-active-baseline/expected.json"]
+tags = ["provenance", "scope"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-013]
+verification = "automated"
+tests = ["conformance/cases/kiro-active-baseline/expected.json"]
+tags = ["specification", "scope"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-014]
+verification = "automated"
+tests = ["conformance/cases/kiro-supersession-recut/expected.json"]
+tags = ["specification", "finding"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-015]
+verification = "automated"
+tests = [
+  "conformance/cases/kiro-supersession-unreciprocated/expected.json",
+  "conformance/cases/kiro-operational-supersede/expected.json",
+]
+tags = ["specification", "finding"]
+intent = "decide-nothing-for-the-author"
+
+[requirements.REQ-016]
+verification = "automated"
+tests = ["conformance/cases/kiro-supersession-dangling/expected.json"]
+tags = ["specification", "finding"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-017]
+verification = "automated"
+tests = ["conformance/cases/kiro-supersession-unreciprocated/expected.json"]
+tags = ["specification", "finding"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-018]
+verification = "automated"
+tests = ["conformance/cases/kiro-supersession-recut/expected.json"]
+tags = ["specification"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-019]
+verification = "automated"
+tests = ["conformance/cases/kiro-amendment-extends/expected.json"]
+tags = ["requirement", "specification"]
+intent = "decide-nothing-for-the-author"
+
+[requirements.REQ-020]
+verification = "automated"
+tests = ["conformance/cases/kiro-amendment-extends/expected.json"]
+tags = ["requirement", "specification"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-021]
+verification = "automated"
+tests = ["crates/ears-sdd/tests/read_only.rs::no_gate_modifies_the_project"]
+tags = ["gate", "production-code"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-022]
+verification = "automated"
+tests = ["conformance/cases/kiro-discovers-tree/expected.json"]
+tags = ["scope", "check"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-023]
+verification = "automated"
+tests = ["conformance/cases/kiro-discovers-tree/expected.json"]
+tags = ["check", "finding"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-024]
+verification = "automated"
+tests = ["conformance/cases/kiro-discovers-tree/expected.json"]
+tags = ["check", "provenance", "constraint-model"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-025]
+verification = "automated"
+tests = ["conformance/cases/kiro-unreadable-metadata/expected.json"]
+tags = ["specification", "finding"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-026]
+verification = "automated"
+tests = ["conformance/cases/kiro-unreadable-metadata/expected.json"]
+tags = ["specification", "scope"]
+intent = "no-unearned-pass"

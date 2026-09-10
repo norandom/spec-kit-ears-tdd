@@ -32,6 +32,10 @@ it.
 - **Contradictions surface before implementation.** Constraint models are merged across every
   specification and searched for a state where two incompatible requirements both apply. The report
   names both requirements and the exact state that reaches them.
+- **Kiro trees can be assessed without converting them.** `validate --project` on a `.kiro/specs`
+  layout parses the requirements, computes the active baseline, and checks that superseded
+  specifications have a live successor. It does not write into that project, and it does not
+  invent contradictions from English. See [assess a Kiro project](https://norandom.github.io/spec-kit-ears-tdd/reference/kiro/).
 
 The third is the one people want, and it does not work without the first two. Comparing requirements
 across features requires knowing that two features mean the same thing by the same word.

@@ -36,9 +36,12 @@ Scope resolves in this order:
 1. `--feature <path>`
 2. `SPECIFY_FEATURE_DIRECTORY`
 3. `.specify/feature.json`
-4. The configured `spec_glob`
+4. The configured `spec_glob`, unioned with `.kiro/specs/` when that tree exists
 
-`--all` overrides all four.
+`--all` overrides the first three. A Kiro-only project has no feature pointer to inherit, so the
+whole `.kiro/specs` tree is the default claim. The result names how many Kiro specifications were
+included in the active baseline and how many were excluded (superseded, reserved, initialized, or
+unreadable metadata).
 
 !!! warning "This matters more than it looks"
 

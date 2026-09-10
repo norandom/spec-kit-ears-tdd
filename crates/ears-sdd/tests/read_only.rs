@@ -47,12 +47,17 @@ fn copy_tree(from: &Path, to: &Path) {
 
 #[test]
 fn no_gate_modifies_the_project() {
+    assert_fixture_untouched("feature-qualified-ids");
+    assert_fixture_untouched("kiro-discovers-tree");
+}
+
+fn assert_fixture_untouched(case: &str) {
     let fixture = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("..")
         .join("..")
         .join("conformance")
         .join("cases")
-        .join("feature-qualified-ids")
+        .join(case)
         .join("project");
     assert!(fixture.is_dir(), "fixture missing at {}", fixture.display());
 
@@ -92,6 +97,6 @@ fn no_gate_modifies_the_project() {
 
     assert!(
         added.is_empty() && removed.is_empty() && changed.is_empty(),
-        "validation modified the project\n  added: {added:?}\n  removed: {removed:?}\n  changed: {changed:?}"
+        "{case}: validation modified the project\n  added: {added:?}\n  removed: {removed:?}\n  changed: {changed:?}"
     );
 }

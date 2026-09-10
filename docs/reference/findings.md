@@ -16,6 +16,23 @@ another production file.
 | `SPEC_UNREADABLE` | A specification could not be decoded and was not read. |
 | `SPEC_OUTSIDE_PROJECT` | `--feature` resolved outside the project and was refused. |
 
+## `KIRO_` cc-sdd trees
+
+Emitted when the run assesses `.kiro/specs`. Spec Kit identifier, verification-mapping, task, and
+separation codes are not produced against those documents.
+
+| Code | Meaning |
+| --- | --- |
+| `KIRO_NO_REQUIREMENTS` | A feature directory has no `requirements.md`. Warning. The run continues. |
+| `KIRO_NO_CRITERIA` | A baseline requirement heading produced no acceptance criteria. Warning. |
+| `KIRO_METADATA` | `spec.json` exists but could not be read. The specification is excluded from the active baseline. |
+| `KIRO_SUPERSESSION_DANGLING` | A superseded specification has no successor in the active baseline. |
+| `KIRO_SUPERSESSION_UNRECIPROCATED` | A live specification claims to supersede another that is still in the active baseline. |
+| `KIRO_CHECKS_OMITTED` | Spec Kit identifier, verification-mapping, task-coverage, and separation checks were not applied to Kiro specifications. Advisory. |
+
+`CONFIG_MISSING` is not emitted when a Kiro tree is present. `SPEC_NONE` is emitted only when both
+the Spec Kit glob and the Kiro tree are empty.
+
 ## `EARS_` requirement form
 
 | Code | Meaning |

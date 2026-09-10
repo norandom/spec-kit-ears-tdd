@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "ok": true,
+  "phase": "spec",
+  "scope": {
+    "source": "glob",
+    "value": ".kiro/specs/*/requirements.md"
+  },
+  "summary": {
+    "features": 1,
+    "requirements": 1,
+    "specs_examined": 1,
+    "errors": 0,
+    "warnings": 1,
+    "advisories": 1,
+    "baseline_included": 1,
+    "baseline_excluded": 0
+  },
+  "findings": [
+    {
+      "code": "KIRO_CHECKS_OMITTED",
+      "path": ".kiro/specs",
+      "feature": null,
+      "requirement": null,
+      "line": null,
+      "severity": "advisory"
+    },
+    {
+      "code": "KIRO_NO_CRITERIA",
+      "path": ".kiro/specs/partial/requirements.md",
+      "feature": "partial",
+      "requirement": null,
+      "line": 5,
+      "severity": "warning"
+    }
+  ]
+}

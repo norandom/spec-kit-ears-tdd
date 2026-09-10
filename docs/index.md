@@ -19,7 +19,10 @@ are individually fine and jointly impossible, at a scale where no human reads th
 ## What it does
 
 `ears-sdd` is a policy layer for [GitHub Spec Kit](https://github.com/github/spec-kit). It adds
-three checks that run as a gate, and it is a single binary with no runtime dependencies.
+three checks that run as a gate, and it is a single binary with no runtime dependencies. The same
+binary can [assess a Kiro project](reference/kiro.md) without converting it: it reads
+`.kiro/specs`, computes the active baseline, and checks that superseded specifications have a live
+successor. That path does not search English for contradictions.
 
 **Requirements hold a fixed shape.** Every normative requirement is written in EARS form: one
 trigger, one subject, one `shall`. A sentence that cannot be written that way is usually a sentence

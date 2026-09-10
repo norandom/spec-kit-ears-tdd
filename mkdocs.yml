@@ -52,6 +52,7 @@ nav:
   - Start here:
       - Why this exists: index.md
       - Install and gate a project: getting-started.md
+      - Assess a Kiro project: reference/kiro.md
       - A contradiction, end to end: example.md
   - Tutorial:
       - A needle in 383 requirements: tutorial/needle-in-a-haystack.md

@@ -12,6 +12,7 @@ use serde::Deserialize;
 use std::path::{Path, PathBuf};
 
 use crate::config::Config;
+use crate::kiro;
 use crate::report::{relative, Finding, ScopeSource, Severity};
 
 pub const FEATURE_ENVIRONMENT_VARIABLE: &str = "SPECIFY_FEATURE_DIRECTORY";
@@ -23,11 +24,18 @@ pub struct Discovered {
     pub findings: Vec<Finding>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SpecFamily {
+    SpecKit,
+    Kiro,
+}
+
 #[derive(Debug, Clone)]
 pub struct SpecLocation {
     pub path: PathBuf,
     /// The feature directory name, used to qualify requirement identifiers.
     pub feature: String,
+    pub family: SpecFamily,
 }
 
 #[derive(Deserialize)]
@@ -97,30 +105,81 @@ fn explicit(root: &Path, requested: &str, scope: ScopeSource) -> Discovered {
         };
     }
 
-    let spec_path = if candidate.is_dir() {
-        candidate.join("spec.md")
-    } else {
-        candidate.clone()
-    };
-    if !spec_path.is_file() {
+    if let Some(location) = resolve_explicit(root, &candidate, &normalized) {
         return Discovered {
-            specs: Vec::new(),
-            findings: vec![Finding::new(
-                "FEATURE_MISSING",
-                "The selected feature names a specification that does not exist.",
-                relative(&spec_path, root),
-            )],
+            specs: vec![location],
+            findings: Vec::new(),
             scope,
         };
     }
-    let feature = feature_name(root, &spec_path);
+
     Discovered {
-        specs: vec![SpecLocation {
-            path: spec_path,
-            feature,
-        }],
-        findings: Vec::new(),
+        specs: Vec::new(),
+        findings: vec![Finding::new(
+            "FEATURE_MISSING",
+            "The selected feature names a specification that does not exist.",
+            relative(&candidate, root),
+        )],
         scope,
+    }
+}
+
+fn resolve_explicit(root: &Path, candidate: &Path, requested: &str) -> Option<SpecLocation> {
+    if candidate.is_dir() {
+        let spec_md = candidate.join("spec.md");
+        if spec_md.is_file() {
+            return Some(SpecLocation {
+                feature: feature_name(root, &spec_md),
+                path: spec_md,
+                family: SpecFamily::SpecKit,
+            });
+        }
+        let requirements = candidate.join(kiro::REQUIREMENTS_FILE);
+        if requirements.is_file() {
+            return Some(kiro_location(candidate, &requirements));
+        }
+    } else if candidate.is_file() {
+        if candidate.file_name().is_some_and(|name| name == "spec.md") {
+            return Some(SpecLocation {
+                feature: feature_name(root, candidate),
+                path: candidate.to_path_buf(),
+                family: SpecFamily::SpecKit,
+            });
+        }
+        if candidate
+            .file_name()
+            .is_some_and(|name| name == kiro::REQUIREMENTS_FILE)
+        {
+            if let Some(directory) = candidate.parent() {
+                return Some(kiro_location(directory, candidate));
+            }
+        }
+    }
+
+    if !requested.contains('/') && !requested.contains('\\') {
+        let directory = kiro::tree_dir(root).join(requested);
+        let requirements = directory.join(kiro::REQUIREMENTS_FILE);
+        if directory.is_dir() {
+            let path = if requirements.is_file() {
+                requirements
+            } else {
+                directory.clone()
+            };
+            return Some(kiro_location(&directory, &path));
+        }
+    }
+    None
+}
+
+fn kiro_location(directory: &Path, path: &Path) -> SpecLocation {
+    SpecLocation {
+        feature: directory
+            .file_name()
+            .map(|name| name.to_string_lossy().into_owned())
+            .filter(|name| !name.is_empty())
+            .unwrap_or_else(|| "<root>".to_string()),
+        path: path.to_path_buf(),
+        family: SpecFamily::Kiro,
     }
 }
 
@@ -168,10 +227,27 @@ fn by_glob(root: &Path, config: &Config) -> Discovered {
             specs.push(SpecLocation {
                 feature: feature_name(root, path),
                 path: path.to_path_buf(),
+                family: SpecFamily::SpecKit,
             });
         }
     }
+
+    let kiro_listed = kiro::list(root);
+    for item in &kiro_listed {
+        specs.push(SpecLocation {
+            feature: item.feature.clone(),
+            path: item.path.clone(),
+            family: SpecFamily::Kiro,
+        });
+    }
     specs.sort_by(|a, b| a.path.cmp(&b.path));
+
+    let scope =
+        if specs.iter().all(|spec| spec.family == SpecFamily::Kiro) && !kiro_listed.is_empty() {
+            ScopeSource::Glob(kiro::SCOPE_GLOB.to_string())
+        } else {
+            scope
+        };
 
     let findings = if specs.is_empty() {
         vec![Finding::new(

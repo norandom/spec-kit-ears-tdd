@@ -28,7 +28,15 @@ state_space_budget = 1000000
 
 | Key | Meaning |
 | --- | --- |
-| `spec_glob` | Where specifications live |
+| `spec_glob` | Where Spec Kit specifications live |
+
+If the project contains `.kiro/specs/`, those feature directories are discovered as well, without
+writing a config file into the tree. Kiro feature identifiers are the directory basename. A Kiro-only
+run reports scope `.kiro/specs/*/requirements.md`. Spec Kit identifier, traceability, task, and
+separation checks are omitted on Kiro documents and named as `KIRO_CHECKS_OMITTED`.
+
+`--feature` accepts a Spec Kit `spec.md` path, a Kiro `requirements.md` path or directory, or a Kiro
+feature basename.
 | `traceability_file` | Name of the per feature mapping file |
 | `require_test_files` | Whether a named test file must exist on disk |
 | `test_command` | The project's real test command, checked as declared at the final gate |

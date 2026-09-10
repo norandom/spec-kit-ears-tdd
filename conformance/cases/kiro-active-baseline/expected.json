@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "ok": true,
+  "phase": "spec",
+  "scope": {
+    "source": "glob",
+    "value": ".kiro/specs/*/requirements.md"
+  },
+  "summary": {
+    "features": 5,
+    "requirements": 3,
+    "specs_examined": 5,
+    "errors": 0,
+    "warnings": 0,
+    "advisories": 1,
+    "baseline_included": 2,
+    "baseline_excluded": 3
+  },
+  "findings": [
+    {
+      "code": "KIRO_CHECKS_OMITTED",
+      "path": ".kiro/specs",
+      "feature": null,
+      "requirement": null,
+      "line": null,
+      "severity": "advisory"
+    }
+  ]
+}
