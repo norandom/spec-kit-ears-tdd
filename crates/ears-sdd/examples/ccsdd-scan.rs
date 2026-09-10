@@ -77,7 +77,7 @@ fn main() {
                     r.end_line,
                     r.title,
                     ext,
-                    &r.ears_text.chars().take(90).collect::<String>()
+                    r.ears_text.chars().take(90).collect::<String>()
                 );
             }
         }
