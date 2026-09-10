@@ -39,12 +39,19 @@ fn main() {
         total += reqs.len();
         grand_notes += notes.len();
 
-        let baseline = reqs.iter().filter(|r| r.kind == ears_sdd::ccsdd::ReqKind::Baseline).count();
+        let baseline = reqs
+            .iter()
+            .filter(|r| r.kind == ears_sdd::ccsdd::ReqKind::Baseline)
+            .count();
         let amend = reqs.len() - baseline;
         println!(
             "{feature:<46} {:>3} criteria ({baseline} baseline, {amend} amendment){}",
             reqs.len(),
-            if notes.is_empty() { String::new() } else { format!("  — {} notes", notes.len()) }
+            if notes.is_empty() {
+                String::new()
+            } else {
+                format!("  — {} notes", notes.len())
+            }
         );
         for n in &notes {
             println!("    note [{}] line {}: {}", n.code, n.line, n.message);
@@ -64,11 +71,19 @@ fn main() {
                 };
                 println!(
                     "    {:>6} [{:?}] L{}-{} {}{}\n           {}",
-                    r.id, r.kind, r.line, r.end_line, r.title, ext,
+                    r.id,
+                    r.kind,
+                    r.line,
+                    r.end_line,
+                    r.title,
+                    ext,
                     &r.ears_text.chars().take(90).collect::<String>()
                 );
             }
         }
     }
-    println!("\nTOTAL: {total} criteria across {} specs, {grand_notes} notes", specs.len());
+    println!(
+        "\nTOTAL: {total} criteria across {} specs, {grand_notes} notes",
+        specs.len()
+    );
 }
