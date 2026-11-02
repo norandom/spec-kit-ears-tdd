@@ -1,0 +1,13 @@
+spec_glob = "specs/*/spec.md"
+traceability_file = "traceability.toml"
+require_test_files = true
+test_command = "cargo nextest run"
+production_roots = ["src"]
+test_roots = ["tests"]
+source_extensions = [".rs"]
+
+# This fixture exercises the phase-two layers, which are off by default.
+[checks]
+vocabulary = true
+constraints = true
+containment = true

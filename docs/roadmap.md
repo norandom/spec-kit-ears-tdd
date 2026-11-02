@@ -91,7 +91,12 @@ orientation (`policy` is an upper bound, `amendment` is a refinement, `revision`
 conflict question), and US4 content checks over Kiro supersession and amendment links, building
 on feature 008's active baseline. **Exit:** all 28 tasks done, full corpus green, docs updated.
 
-### M3 — 010 envelope engine
+### M3 — 010 envelope engine ✅ (done 2026-11-02; native adapter remains blocked on a real sample)
+
+Shipped: `envelope.rs` (interchange format 1.0 reader, reserved `envelope-phase` enum, tool and
+transition effects, unmodelled-construct naming by JSON pointer, reachability-omitted advisory),
+fixed adapter registry (`adapters.rs`), envelope kind wired through the 009 engine, 8
+`contain-envelope-*` cases live in `conformance/cases/`.
 
 Tasks T001–T008 of `specs/010-envelope-containment/tasks.md` (depends on M1): `envelope.rs` reads
 versioned envelope definitions into phase/tool/transition effects with `PHASE-<name>`

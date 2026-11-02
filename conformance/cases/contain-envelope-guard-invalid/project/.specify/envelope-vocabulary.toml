@@ -1,0 +1,6 @@
+schema_version = "1.0"
+
+[terms.test-result]
+label = "Test result"
+definition = "The outcome of the last test run the agent observed."
+domain = { kind = "enum", values = ["pass", "fail"] }

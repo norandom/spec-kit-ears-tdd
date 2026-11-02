@@ -210,6 +210,15 @@ pub struct ComparisonRecord {
     pub effects_compared: usize,
     pub effects_uncompared: usize,
     pub requirements_uncompared: usize,
+    /// Envelope comparisons only: reachability was not computed over the transition relation.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reachability_computed: Option<bool>,
+    /// Envelope comparisons only: sorted JSON-pointer paths of unmodelled constructs.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unmodelled: Option<Vec<String>>,
+    /// Envelope comparisons only: the adapter identity that read the definition.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub adapter: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

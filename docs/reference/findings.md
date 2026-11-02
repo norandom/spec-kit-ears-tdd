@@ -80,6 +80,11 @@ and the contributing requirements.
 | `CONTAIN_VOCAB_DRIFT` | error | A referenced term lacks a compatible identity on the other side. |
 | `CONTAIN_UNCOMPARED` | warning | An input, effect or requirement did not participate; no unqualified claim. |
 | `CONTAIN_SUPERSESSION_GAP` | error | Fully modelled successor union loses predecessor behavior. |
+| `CONTAIN_UNDECLARED_TERM` | error | Envelope transition guard references a term the envelope vocabulary does not declare. |
+| `CONTAIN_GUARD_INVALID` | error | Unsupported envelope guard syntax or invalid type/value. |
+| `CONTAIN_UNMODELLED_CONSTRUCT` | warning | An envelope field (JSON-pointer in `detail.path`) was not modelled. |
+| `CONTAIN_REACHABILITY_OMITTED` | advisory | Phase-local envelope comparison did not compute reachability. |
+| `CONTAIN_DEFINITION_UNREADABLE` | error | Envelope definition absent, undecodable, malformed, unsupported version, or unknown format. |
 | `TRACE_TEST_NAME` | The file exists but does not contain the named test. |
 | `TRACE_TEST_ROOT` | A selector points outside the configured test roots. |
 | `TRACE_INVALID` | The file could not be parsed. |

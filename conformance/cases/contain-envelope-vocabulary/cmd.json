@@ -1,0 +1,9 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan",
+    "--all"
+  ],
+  "note": "the envelope vocabulary is its own file; an equal envelope passes and no term is flagged unused"
+}

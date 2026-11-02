@@ -54,10 +54,20 @@ struct ComparisonDecl {
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct SourceDecl {
-    feature: String,
-    spec: String,
-    model: String,
-    vocabulary: String,
+    /// Logical feature label. Optional for envelope sources, which name a definition instead.
+    #[serde(default)]
+    feature: Option<String>,
+    #[serde(default)]
+    spec: Option<String>,
+    #[serde(default)]
+    model: Option<String>,
+    #[serde(default)]
+    vocabulary: Option<String>,
+    /// Envelope sources replace spec/model with a definition file and optional format.
+    #[serde(default)]
+    definition: Option<String>,
+    #[serde(default)]
+    format: Option<String>,
     #[serde(default)]
     project: Option<String>,
 }
@@ -68,6 +78,7 @@ enum Kind {
     Policy,
     Supersession,
     Amendment,
+    Envelope,
 }
 
 impl Kind {
@@ -77,14 +88,7 @@ impl Kind {
             "policy" => Ok(Kind::Policy),
             "supersession" => Ok(Kind::Supersession),
             "amendment" => Ok(Kind::Amendment),
-            "envelope" => Err(Box::new(Finding::new(
-                "CONTAIN_INPUT_INVALID",
-                format!(
-                    "Comparison `{id}` declares kind `envelope`, which is reserved for \
-                     feature 010-envelope-containment and not implemented here."
-                ),
-                MANIFEST_RELATIVE_PATH,
-            ))),
+            "envelope" => Ok(Kind::Envelope),
             other => Err(Box::new(Finding::new(
                 "CONTAIN_INPUT_INVALID",
                 format!("Comparison `{id}` declares unknown kind `{other}`."),
@@ -99,6 +103,7 @@ impl Kind {
             Kind::Policy => "policy",
             Kind::Supersession => "supersession",
             Kind::Amendment => "amendment",
+            Kind::Envelope => "envelope",
         }
     }
 
@@ -106,7 +111,9 @@ impl Kind {
     /// differences; the kind decides which become findings. This table is code, not config.
     fn reports(self) -> Vec<String> {
         match self {
-            Kind::Revision => vec!["widening".to_string(), "narrowing".to_string()],
+            Kind::Revision | Kind::Envelope => {
+                vec!["widening".to_string(), "narrowing".to_string()]
+            }
             Kind::Policy => vec!["widening".to_string()],
             Kind::Supersession => vec!["narrowing".to_string()],
             Kind::Amendment => vec!["widening".to_string()],
@@ -114,13 +121,17 @@ impl Kind {
     }
 }
 
-struct Side {
+pub(crate) struct Side {
     feature: String,
     model_display: String,
     model: ModelFile,
     modelled: Vec<ModelledRequirement>,
     unmodelled: Vec<String>,
     terms: BTreeMap<String, (Term, String)>,
+    /// Envelope sources: JSON-pointer paths of constructs the reader did not model.
+    unmodelled_paths: Vec<String>,
+    /// Non-fatal findings the side's reader produced (e.g. withheld envelope transition effects).
+    pending_findings: Vec<Finding>,
 }
 
 pub struct Outcome {
@@ -145,8 +156,13 @@ fn normalize_relative(path: &str) -> Result<String, String> {
 }
 
 fn load_side(root: &Path, source: &SourceDecl, is_reference: bool) -> Result<Side, Box<[Finding]>> {
+    let feature = source
+        .feature
+        .clone()
+        .or_else(|| source.definition.clone())
+        .unwrap_or_else(|| "envelope".to_string());
     let bad = |code: &str, message: String| -> Box<[Finding]> {
-        vec![Finding::new(code, message, MANIFEST_RELATIVE_PATH).feature(&source.feature)]
+        vec![Finding::new(code, message, MANIFEST_RELATIVE_PATH).feature(&feature)]
             .into_boxed_slice()
     };
     let missing_code = if is_reference {
@@ -154,6 +170,72 @@ fn load_side(root: &Path, source: &SourceDecl, is_reference: bool) -> Result<Sid
     } else {
         "CONTAIN_INPUT_INVALID"
     };
+
+    // Envelope sources name a definition file instead of spec/model; the adapter registry
+    // decides whether the format is readable at all.
+    if let Some(definition) = &source.definition {
+        let format = source
+            .format
+            .as_deref()
+            .unwrap_or(crate::adapters::INTERCHANGE_FORMAT);
+        if crate::adapters::lookup(format).is_none() {
+            let finding = Finding::new(
+                "CONTAIN_DEFINITION_UNREADABLE",
+                format!("Envelope format `{format}` has no registered adapter."),
+                MANIFEST_RELATIVE_PATH,
+            )
+            .feature(&feature)
+            .detail("reason", format);
+            return Err(vec![finding].into_boxed_slice());
+        }
+        let def_rel =
+            normalize_relative(definition).map_err(|message| bad(missing_code, message))?;
+        let def_path = root.join(&def_rel);
+        if !def_path.is_file() {
+            return Err(bad(
+                missing_code,
+                format!("Envelope definition does not exist: {definition}"),
+            ));
+        }
+        let Some(vocab) = &source.vocabulary else {
+            return Err(bad(
+                "CONTAIN_INPUT_INVALID",
+                "An envelope source requires an explicit `vocabulary`.".to_string(),
+            ));
+        };
+        let vocab_rel = normalize_relative(vocab).map_err(|message| bad(missing_code, message))?;
+        let vocab_path = root.join(&vocab_rel);
+        if !vocab_path.is_file() {
+            return Err(bad(
+                "CONTAIN_INPUT_INVALID",
+                format!("Envelope vocabulary does not exist: {vocab}"),
+            ));
+        }
+        let (vocab_terms, vocab_findings) = vocabulary::load_terms_at(&vocab_path, &vocab_rel);
+        if !vocab_findings.is_empty() {
+            return Err(vocab_findings.into_boxed_slice());
+        }
+        let text = std::fs::read_to_string(&def_path).map_err(|error| {
+            bad(
+                "CONTAIN_DEFINITION_UNREADABLE",
+                format!("Envelope definition is unreadable: {error}"),
+            )
+        })?;
+        let side = match crate::envelope::read_definition(&text, vocab_terms, &def_rel) {
+            Ok(side) => side,
+            Err(errs) => return Err(errs.into_boxed_slice()),
+        };
+        return Ok(Side {
+            feature,
+            model_display: def_rel,
+            model: side.model,
+            modelled: side.modelled,
+            unmodelled: Vec::new(),
+            terms: side.terms,
+            unmodelled_paths: side.unmodelled,
+            pending_findings: side.findings,
+        });
+    }
 
     // Only the spec path resolves inside an externally assessed tree; model and vocabulary
     // paths always resolve under the assessing project, so an assessed tree is never written to.
@@ -165,31 +247,45 @@ fn load_side(root: &Path, source: &SourceDecl, is_reference: bool) -> Result<Sid
         }
         None => root.to_path_buf(),
     };
-    let spec_rel =
-        normalize_relative(&source.spec).map_err(|message| bad(missing_code, message))?;
+    let spec = source.spec.as_ref().ok_or_else(|| {
+        bad(
+            "CONTAIN_INPUT_INVALID",
+            "Source declares neither spec nor definition.".to_string(),
+        )
+    })?;
+    let model_decl = source.model.as_ref().ok_or_else(|| {
+        bad(
+            "CONTAIN_INPUT_INVALID",
+            "Source declares no model.".to_string(),
+        )
+    })?;
+    let vocab_decl = source.vocabulary.as_ref().ok_or_else(|| {
+        bad(
+            "CONTAIN_INPUT_INVALID",
+            "Source declares no vocabulary.".to_string(),
+        )
+    })?;
+    let spec_rel = normalize_relative(spec).map_err(|message| bad(missing_code, message))?;
     let spec_path = spec_root.join(&spec_rel);
-    let model_rel =
-        normalize_relative(&source.model).map_err(|message| bad(missing_code, message))?;
+    let model_rel = normalize_relative(model_decl).map_err(|message| bad(missing_code, message))?;
     let model_path = root.join(&model_rel);
-    let vocab_rel =
-        normalize_relative(&source.vocabulary).map_err(|message| bad(missing_code, message))?;
+    let vocab_rel = normalize_relative(vocab_decl).map_err(|message| bad(missing_code, message))?;
     let vocab_path = root.join(&vocab_rel);
 
     if !spec_path.is_file() {
         return Err(bad(
             missing_code,
-            format!("Source specification does not exist: {}", source.spec),
+            format!("Source specification does not exist: {spec}"),
         ));
     }
     if !model_path.is_file() {
         return Err(bad(
             missing_code,
-            format!("Source model does not exist: {}", source.model),
+            format!("Source model does not exist: {model_decl}"),
         ));
     }
 
-    let (spec_requirements, _) =
-        crate::requirements::parse(&spec_root, &spec_path, &source.feature);
+    let (spec_requirements, _) = crate::requirements::parse(&spec_root, &spec_path, &feature);
     let spec_ids: BTreeSet<String> = spec_requirements
         .iter()
         .map(|requirement| requirement.identifier.clone())
@@ -202,7 +298,7 @@ fn load_side(root: &Path, source: &SourceDecl, is_reference: bool) -> Result<Sid
             missing_code,
             format!(
                 "Source model {} does not parse: {}",
-                source.model,
+                model_decl,
                 error.message()
             ),
         )
@@ -211,7 +307,7 @@ fn load_side(root: &Path, source: &SourceDecl, is_reference: bool) -> Result<Sid
     if !vocab_path.is_file() {
         return Err(bad(
             "CONTAIN_INPUT_INVALID",
-            format!("Source vocabulary does not exist: {}", source.vocabulary),
+            format!("Source vocabulary does not exist: {vocab_decl}"),
         ));
     }
     let (terms, vocab_findings) = vocabulary::load_terms_at(&vocab_path, &vocab_rel);
@@ -225,17 +321,14 @@ fn load_side(root: &Path, source: &SourceDecl, is_reference: bool) -> Result<Sid
             Some(text) => guard::parse(text).map_err(|error| {
                 bad(
                     "CONTAIN_INPUT_INVALID",
-                    format!(
-                        "Guard for {identifier} in {} does not parse: {}",
-                        source.model, error
-                    ),
+                    format!("Guard for {identifier} in {model_decl} does not parse: {error}",),
                 )
             })?,
             None => Guard::Always,
         };
         modelled.push(ModelledRequirement {
             identifier: identifier.clone(),
-            feature: source.feature.clone(),
+            feature: feature.clone(),
             guard,
             effect: entry.then.clone(),
         });
@@ -248,12 +341,14 @@ fn load_side(root: &Path, source: &SourceDecl, is_reference: bool) -> Result<Sid
         .collect();
 
     Ok(Side {
-        feature: source.feature.clone(),
+        feature,
         model_display: model_rel,
         model,
         modelled,
         unmodelled,
         terms,
+        unmodelled_paths: Vec::new(),
+        pending_findings: Vec::new(),
     })
 }
 
@@ -529,6 +624,9 @@ fn run_comparison(
                 effects_compared: 0,
                 effects_uncompared: 0,
                 requirements_uncompared: 0,
+                reachability_computed: None,
+                unmodelled: None,
+                adapter: None,
             },
             findings,
         )
@@ -583,6 +681,13 @@ fn run_comparison(
         }
     }
     let candidate = &candidates[0];
+
+    // Non-fatal reader findings (e.g. a withheld envelope transition effect) are part of the
+    // comparison's output even though the comparison still runs.
+    findings.extend(reference.pending_findings.iter().cloned());
+    for cand in &candidates {
+        findings.extend(cand.pending_findings.iter().cloned());
+    }
 
     let mut uncompared_ids: Vec<String> = Vec::new();
     for side in std::iter::once(&reference).chain(candidates.iter()) {
@@ -788,7 +893,12 @@ fn run_comparison(
             );
         }
 
-        if widened && matches!(kind, Kind::Revision | Kind::Policy | Kind::Amendment) {
+        if widened
+            && matches!(
+                kind,
+                Kind::Revision | Kind::Policy | Kind::Amendment | Kind::Envelope
+            )
+        {
             let assignment = encoding.witness(&widening);
             let verified = assignment
                 .as_ref()
@@ -887,7 +997,7 @@ fn run_comparison(
             findings.push(finding);
         }
 
-        if narrowed && kind == Kind::Revision {
+        if narrowed && matches!(kind, Kind::Revision | Kind::Envelope) {
             let assignment = encoding.witness(&narrowing);
             let witness = assignment
                 .map(|a| witness_json(&a))
@@ -1047,6 +1157,50 @@ fn run_comparison(
         "equal"
     };
 
+    // Envelope comparisons disclose what they did not compute: reachability over the transition
+    // relation is never inferred, and every unmodelled construct is named by JSON-pointer path.
+    let (reachability_computed, unmodelled, adapter) = if kind == Kind::Envelope {
+        for path in &candidate.unmodelled_paths {
+            let mut finding = Finding::new(
+                "CONTAIN_UNMODELLED_CONSTRUCT",
+                format!(
+                    "Envelope field `{path}` is not modelled; the comparison is incomplete over it."
+                ),
+                candidate.model_display.clone(),
+            )
+            .severity(Severity::Warning)
+            .detail("comparison", decl.id.clone())
+            .detail("path", path.clone());
+            if let Some(phase) = path
+                .strip_prefix("/phases/")
+                .and_then(|rest| rest.split('/').next())
+            {
+                finding = finding.requirement(format!("PHASE-{phase}"));
+            }
+            findings.push(finding);
+        }
+        findings.push(
+            Finding::new(
+                "CONTAIN_REACHABILITY_OMITTED",
+                format!(
+                    "Comparison `{}` compared phases without computing reachability; unreachable \
+                     phases are still compared.",
+                    decl.id
+                ),
+                candidate.model_display.clone(),
+            )
+            .severity(Severity::Advisory)
+            .detail("comparison", decl.id.clone()),
+        );
+        (
+            Some(false),
+            Some(candidate.unmodelled_paths.clone()),
+            Some(crate::adapters::INTERCHANGE_FORMAT.to_string()),
+        )
+    } else {
+        (None, None, None)
+    };
+
     ComparisonRun {
         record: ComparisonRecord {
             id: decl.id.clone(),
@@ -1057,6 +1211,9 @@ fn run_comparison(
             effects_compared,
             effects_uncompared,
             requirements_uncompared: uncompared_ids.len(),
+            reachability_computed,
+            unmodelled,
+            adapter,
         },
         findings,
         effects_compared,
@@ -1187,9 +1344,12 @@ pub fn validate(
         decls
             .into_iter()
             .filter(|(decl, _)| {
-                decl.candidates
-                    .iter()
-                    .any(|c| features_in_scope.contains(&c.feature))
+                decl.candidates.iter().any(|c| {
+                    c.feature
+                        .as_ref()
+                        .map(|f| features_in_scope.contains(f))
+                        .unwrap_or(false)
+                })
             })
             .collect()
     } else {
@@ -1282,6 +1442,8 @@ mod tests {
             modelled,
             unmodelled: Vec::new(),
             terms,
+            unmodelled_paths: Vec::new(),
+            pending_findings: Vec::new(),
         }
     }
 
@@ -1291,10 +1453,16 @@ mod tests {
         let bogus = "schema_version = \"1.0\"\n[[comparisons]]\nid = \"x\"\nkind = \"revision\"\nbogus = 1\nreference = { feature = \"f\", spec = \"s\", model = \"m\", vocabulary = \"v\" }\ncandidates = [{ feature = \"f\", spec = \"s\", model = \"m\", vocabulary = \"v\" }]\n";
         assert!(toml::from_str::<Manifest>(bogus).is_err());
 
-        // The envelope kind is refused by name, not as an unknown kind.
-        let err = Kind::parse("envelope", "x").unwrap_err();
-        assert!(err.message.contains("010-envelope-containment"));
-        assert!(Kind::parse("revision", "x").is_ok());
+        // All five kinds parse; anything else is refused by name.
+        for kind in [
+            "revision",
+            "policy",
+            "supersession",
+            "amendment",
+            "envelope",
+        ] {
+            assert!(Kind::parse(kind, "x").is_ok());
+        }
         assert!(Kind::parse("nonsense", "x").is_err());
     }
 

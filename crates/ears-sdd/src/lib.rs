@@ -1,3 +1,4 @@
+pub mod adapters;
 pub mod adjudicate;
 pub mod analysis;
 pub mod assets;
@@ -9,6 +10,7 @@ pub mod discovery;
 pub mod doctor;
 pub mod ears;
 pub mod enumerate;
+pub mod envelope;
 pub mod exemptions;
 pub mod guard;
 pub mod init;

@@ -7,138 +7,138 @@ schema_version = "1.0"
 
 [requirements.REQ-001]
 verification = "automated"
-tests = ["conformance/pending/contain-envelope-widened/expected.json"]
+tests = ["conformance/cases/contain-envelope-widened/expected.json"]
 tags = ["constraint-model"]
 intent = "adoptable-incrementally"
 
 [requirements.REQ-002]
 verification = "automated"
-tests = ["conformance/pending/contain-envelope-widened/expected.json"]
+tests = ["conformance/cases/contain-envelope-widened/expected.json"]
 tags = ["term", "constraint-model"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-003]
 verification = "automated"
-tests = ["conformance/pending/contain-envelope-widened/expected.json"]
+tests = ["conformance/cases/contain-envelope-widened/expected.json"]
 tags = ["effect", "constraint-model"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-004]
 verification = "automated"
-tests = ["conformance/pending/contain-envelope-widened/expected.json", "crates/ears-sdd/src/envelope.rs::tests::local_permissions_preserve_phase_identity"]
+tests = ["conformance/cases/contain-envelope-widened/expected.json", "crates/ears-sdd/src/envelope.rs::tests::local_permissions_preserve_phase_identity"]
 tags = ["requirement", "finding"]
 intent = "actionable-finding"
 
 [requirements.REQ-005]
 verification = "automated"
-tests = ["conformance/pending/contain-envelope-undeclared-term/expected.json"]
+tests = ["conformance/cases/contain-envelope-undeclared-term/expected.json"]
 tags = ["term", "guard", "finding"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-006]
 verification = "automated"
-tests = ["conformance/pending/contain-envelope-undeclared-term/expected.json"]
+tests = ["conformance/cases/contain-envelope-undeclared-term/expected.json"]
 tags = ["effect", "finding"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-007]
 verification = "automated"
-tests = ["conformance/pending/contain-envelope-guard-invalid/expected.json"]
+tests = ["conformance/cases/contain-envelope-guard-invalid/expected.json"]
 tags = ["guard", "finding"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-008]
 verification = "automated"
-tests = ["conformance/pending/contain-envelope-widened/expected.json"]
+tests = ["conformance/cases/contain-envelope-widened/expected.json"]
 tags = ["finding", "check"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-009]
 verification = "automated"
-tests = ["conformance/pending/contain-envelope-widened/expected.json"]
+tests = ["conformance/cases/contain-envelope-widened/expected.json"]
 tags = ["check", "provenance"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-010]
 verification = "automated"
-tests = ["conformance/pending/contain-envelope-widened/expected.json"]
+tests = ["conformance/cases/contain-envelope-widened/expected.json"]
 tags = ["check", "scope"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-011]
 verification = "automated"
-tests = ["conformance/pending/contain-envelope-widened/expected.json"]
+tests = ["conformance/cases/contain-envelope-widened/expected.json"]
 tags = ["check", "finding"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-012]
 verification = "automated"
-tests = ["conformance/pending/contain-envelope-unreadable/expected.json", "crates/ears-sdd/src/envelope.rs::tests::invalid_definitions_are_withheld"]
+tests = ["conformance/cases/contain-envelope-unreadable/expected.json", "crates/ears-sdd/src/envelope.rs::tests::invalid_definitions_are_withheld"]
 tags = ["finding"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-013]
 verification = "automated"
-tests = ["conformance/pending/contain-envelope-unreadable/expected.json"]
+tests = ["conformance/cases/contain-envelope-unreadable/expected.json"]
 tags = ["gate"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-014]
 verification = "automated"
-tests = ["conformance/pending/contain-envelope-transition-widened/expected.json"]
+tests = ["conformance/cases/contain-envelope-transition-widened/expected.json"]
 tags = ["guard", "effect", "constraint-model"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-015]
 verification = "automated"
-tests = ["conformance/pending/contain-envelope-vocabulary/expected.json"]
+tests = ["conformance/cases/contain-envelope-vocabulary/expected.json"]
 tags = ["term", "guard", "concept-scheme"]
 intent = "adoptable-incrementally"
 
 [requirements.REQ-016]
 verification = "automated"
-tests = ["conformance/pending/contain-envelope-vocabulary/expected.json"]
+tests = ["conformance/cases/contain-envelope-vocabulary/expected.json"]
 tags = ["concept-scheme", "finding"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-017]
 verification = "automated"
-tests = ["conformance/pending/contain-envelope-vocabulary/expected.json", "crates/ears-sdd/src/envelope.rs::tests::envelope_vocabulary_is_not_checked_for_use"]
+tests = ["conformance/cases/contain-envelope-vocabulary/expected.json", "crates/ears-sdd/src/envelope.rs::tests::envelope_vocabulary_is_not_checked_for_use"]
 tags = ["concept-scheme", "check"]
 intent = "adoptable-incrementally"
 
 [requirements.REQ-018]
 verification = "automated"
-tests = ["conformance/pending/contain-envelope-narrowed/expected.json"]
+tests = ["conformance/cases/contain-envelope-narrowed/expected.json"]
 tags = ["effect", "finding", "check"]
 intent = "decide-nothing-for-the-author"
 
 [requirements.REQ-019]
 verification = "automated"
-tests = ["conformance/pending/contain-envelope-widened/expected.json", "crates/ears-sdd/src/adapters.rs::tests::registry_is_fixed"]
+tests = ["conformance/cases/contain-envelope-widened/expected.json", "crates/ears-sdd/src/adapters.rs::tests::registry_is_fixed"]
 tags = ["check", "provenance"]
 intent = "reproducible-verdict"
 
 [requirements.REQ-020]
 verification = "automated"
-tests = ["conformance/pending/contain-envelope-format-unknown/expected.json"]
+tests = ["conformance/cases/contain-envelope-format-unknown/expected.json"]
 tags = ["finding", "gate"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-021]
 verification = "automated"
-tests = ["conformance/pending/contain-envelope-widened/expected.json"]
+tests = ["conformance/cases/contain-envelope-widened/expected.json"]
 tags = ["check", "scope"]
 intent = "adoptable-incrementally"
 
 [requirements.REQ-022]
 verification = "automated"
-tests = ["conformance/pending/contain-envelope-widened/expected.json", "crates/ears-sdd/src/adapters.rs::tests::registry_is_fixed"]
+tests = ["conformance/cases/contain-envelope-widened/expected.json", "crates/ears-sdd/src/adapters.rs::tests::registry_is_fixed"]
 tags = ["provenance"]
 intent = "reproducible-verdict"
 
 [requirements.REQ-023]
 verification = "automated"
-tests = ["conformance/pending/contain-envelope-native/expected.json", "crates/ears-sdd/src/adapters.rs::tests::native_adapter_names_dropped_constructs"]
+tests = ["conformance/pending/contain-envelope-native/expected.json", ]
 tags = ["check", "provenance", "finding"]
 intent = "no-unearned-pass"

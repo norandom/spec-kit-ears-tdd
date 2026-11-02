@@ -1,0 +1,9 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan",
+    "--all"
+  ],
+  "note": "transition guard references undeclared term 'coverage'; the transition effect is withheld"
+}

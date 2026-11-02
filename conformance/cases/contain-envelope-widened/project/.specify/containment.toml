@@ -1,0 +1,7 @@
+schema_version = "1.0"
+
+[[comparisons]]
+id = "bugfix-envelope"
+kind = "envelope"
+reference = { definition = ".specify/envelope.reference.json", vocabulary = ".specify/envelope-vocabulary.toml" }
+candidates = [{ definition = ".specify/envelope.json", vocabulary = ".specify/envelope-vocabulary.toml", format = "ears-sdd-envelope/1.0" }]

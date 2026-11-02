@@ -24,10 +24,10 @@ rule with confidence; counts emitted by a subsystem that does not exist yet cann
 
 ## What is parked here now
 
-`contain-envelope-widened` belongs to `specs/010-envelope-containment`, which owns the agent
-operating envelope after the 2026-09-22 split. `contain-supersession-uncompared` and the other
-unwritten 009/010 cases named in their traceability are parked advisories (`TRACE_TEST_PARKED`),
-not errors: an unwritten case is not a case.
+`contain-envelope-native` is blocked on its input: a real workflow/policy file of the target
+state-machine guardrail runtime, checked in here (feature 010 task T009). Other unwritten 009/010
+cases named in their traceability are parked advisories (`TRACE_TEST_PARKED`), not errors: an
+unwritten case is not a case.
 
 The implemented 009 engine (all four kinds, derogations, witnesses, budgets, drift) moved to
 `conformance/cases/` as 20 `contain-*` cases. Keep every case parked here until its red/green

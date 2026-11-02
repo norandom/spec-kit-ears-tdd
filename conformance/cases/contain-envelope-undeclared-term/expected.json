@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0",
+  "ok": false,
+  "phase": "plan",
+  "scope": {
+    "source": "glob",
+    "value": "specs/*/spec.md"
+  },
+  "summary": {
+    "features": 1,
+    "requirements": 1,
+    "specs_examined": 1,
+    "errors": 1,
+    "warnings": 1,
+    "advisories": 1,
+    "modelled": 1,
+    "components": 1,
+    "effects_compared": 5,
+    "effects_uncompared": 0,
+    "uncompared": 0
+  },
+  "findings": [
+    {
+      "code": "CONTAIN_NARROWED",
+      "path": ".specify/envelope.json",
+      "feature": ".specify/envelope.json",
+      "requirement": "PHASE-planning",
+      "line": null,
+      "severity": "warning",
+      "detail": {
+        "comparison": "bugfix-envelope",
+        "effect": "transition:planning:implement",
+        "reference_requirements": [
+          ".specify/envelope.reference.json:PHASE-planning"
+        ],
+        "witness": {
+          "envelope-phase": "planning",
+          "test-result": "fail"
+        }
+      }
+    },
+    {
+      "code": "CONTAIN_REACHABILITY_OMITTED",
+      "path": ".specify/envelope.json",
+      "feature": null,
+      "requirement": null,
+      "line": null,
+      "severity": "advisory",
+      "detail": {
+        "comparison": "bugfix-envelope"
+      }
+    },
+    {
+      "code": "CONTAIN_UNDECLARED_TERM",
+      "path": ".specify/envelope.json",
+      "feature": null,
+      "requirement": null,
+      "line": null,
+      "severity": "error"
+    }
+  ],
+  "comparisons": [
+    {
+      "id": "bugfix-envelope",
+      "kind": "envelope",
+      "reports": [
+        "widening",
+        "narrowing"
+      ],
+      "status": "narrowed",
+      "complete": true,
+      "effects_compared": 5,
+      "effects_uncompared": 0,
+      "requirements_uncompared": 0,
+      "reachability_computed": false,
+      "unmodelled": [],
+      "adapter": "ears-sdd-envelope/1.0"
+    }
+  ]
+}
