@@ -1,0 +1,4 @@
+{
+  "args": ["validate", "--phase", "plan", "--all"],
+  "note": "the manifest names a reference model that does not exist: an error, and the comparison is withheld"
+}

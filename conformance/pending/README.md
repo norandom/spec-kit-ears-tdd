@@ -24,22 +24,15 @@ rule with confidence; counts emitted by a subsystem that does not exist yet cann
 
 ## What is parked here now
 
-`contain-*` — seven cases for `specs/009-baseline-containment`: containment of a revision against
-its reference (equal, widened, narrowed), declared and stale derogations, vocabulary drift, and
-`contain-policy-upper-bound`, a `kind = "policy"` comparison whose candidate is narrower on one
-effect and wider on another. Further cases named in that feature's traceability are not written at
-all; those are reported as missing files rather than parked here, because an unwritten case is not
-a case.
+`contain-widened-declared` and `contain-derogation-stale` — derogation cases for
+`specs/009-baseline-containment` (US3, not yet implemented). `contain-envelope-widened` belongs to
+`specs/010-envelope-containment`, which owns the agent operating envelope after the 2026-09-22
+split.
 
-`contain-envelope-widened` belongs to `specs/010-envelope-containment`, which owns the agent
-operating envelope after the 2026-09-22 split. Its selectors live in that feature's traceability.
-
-The design and test-first work breakdown live in each feature's `plan.md` and `tasks.md`.
-
-The six older fixtures predate the input/report contracts. Their upgrade tasks add explicit
-comparison manifests, reference vocabularies, schema versions, witness details and comparison
-provenance, and correct the effect counts to include declared-but-unasserted effects.
-`contain-policy-upper-bound` was written to the contract and shows the target shape, including a
-`comparisons` record and a `detail` block on the finding; the runner currently drops both, which is
-what task T002/T003 of feature 009 changes. A passing file-existence check does not establish any
-of these properties. Keep every case parked until its red/green implementation cycle is complete.
+The implemented 009 slice (revision and policy kinds, witnesses, budgets, drift) moved to
+`conformance/cases/` as `contain-equal`, `contain-widened`, `contain-narrowed`,
+`contain-vocab-drift`, `contain-policy-upper-bound`, `contain-reference-missing`,
+`contain-budget-exceeded`, `contain-unmodelled`, `contain-unguarded`, `contain-effect-new`, and
+`contain-baseline-conflict`. Further cases named in 009/010 traceability are not written at all;
+those are parked advisories (`TRACE_TEST_PARKED`) rather than errors, because an unwritten case is
+not a case. Keep every case parked here until its red/green implementation cycle is complete.

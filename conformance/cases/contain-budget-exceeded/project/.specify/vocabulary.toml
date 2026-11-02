@@ -1,0 +1,16 @@
+schema_version = "1.0"
+
+[terms.depth]
+label = "Queue depth"
+definition = "How many records are waiting in the queue."
+domain = { kind = "int", min = 0, max = 10 }
+
+[terms.load]
+label = "Load"
+definition = "Current workstation load."
+domain = { kind = "int", min = 0, max = 10 }
+
+[terms.retention-days]
+label = "Retention days"
+definition = "How long records are kept."
+domain = { kind = "int", min = 0, max = 10 }

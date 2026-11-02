@@ -29,6 +29,9 @@ pub struct Checks {
     pub vocabulary: bool,
     /// Constraint models, within a specification and merged across all of them.
     pub constraints: bool,
+    /// Containment comparisons of candidate models against reference models. Needs the
+    /// vocabulary and constraint layers, because it reads models over declared terms.
+    pub containment: bool,
     /// Every requirement covered by a task before implementation.
     pub tasks: bool,
     /// Requirement prose and identifiers kept out of production code.
@@ -53,6 +56,7 @@ impl Default for Checks {
             traceability: true,
             vocabulary: false,
             constraints: false,
+            containment: false,
             tasks: true,
             separation: true,
         }
@@ -66,6 +70,7 @@ impl Checks {
             (self.traceability, "traceability"),
             (self.vocabulary, "vocabulary"),
             (self.constraints, "constraints"),
+            (self.containment, "containment"),
             (self.tasks, "tasks"),
             (self.separation, "separation"),
         ]
@@ -253,6 +258,15 @@ pub fn readiness(config: &Config) -> Vec<Finding> {
         ));
     }
 
+    if config.checks.containment && !(config.checks.vocabulary && config.checks.constraints) {
+        findings.push(Finding::new(
+            "CHECK_DEPENDENCY",
+            "The containment check compares constraint models over declared vocabulary terms. \
+             Enable `checks.vocabulary` and `checks.constraints` alongside it, or disable it.",
+            CONFIG_RELATIVE_PATH,
+        ));
+    }
+
     findings
 }
 
@@ -267,7 +281,10 @@ mod tests {
         let checks = Checks::default();
 
         assert!(checks.traceability && checks.tasks && checks.separation);
-        assert_eq!(checks.disabled(), vec!["vocabulary", "constraints"]);
+        assert_eq!(
+            checks.disabled(),
+            vec!["vocabulary", "constraints", "containment"]
+        );
     }
 
     #[test]
@@ -275,10 +292,10 @@ mod tests {
         let parsed: Config =
             toml::from_str("[checks]\ntraceability = false\n").expect("the table parses");
 
-        // Reported in a fixed order, alongside the two that were already off by default.
+        // Reported in a fixed order, alongside the ones that were already off by default.
         assert_eq!(
             parsed.checks.disabled(),
-            vec!["traceability", "vocabulary", "constraints"]
+            vec!["traceability", "vocabulary", "constraints", "containment"]
         );
         // Switching one off drags nothing else with it.
         assert!(parsed.checks.tasks);
@@ -288,8 +305,9 @@ mod tests {
     /// The second phase is one line, and turning it on must not disturb the first.
     #[test]
     fn a_project_can_turn_the_advanced_layers_on() {
-        let parsed: Config = toml::from_str("[checks]\nvocabulary = true\nconstraints = true\n")
-            .expect("the table parses");
+        let parsed: Config =
+            toml::from_str("[checks]\nvocabulary = true\nconstraints = true\ncontainment = true\n")
+                .expect("the table parses");
 
         assert!(parsed.checks.disabled().is_empty());
         assert!(parsed.checks.traceability && parsed.checks.tasks && parsed.checks.separation);

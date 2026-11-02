@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0",
+  "ok": false,
+  "phase": "plan",
+  "scope": {
+    "source": "glob",
+    "value": "specs/*/spec.md"
+  },
+  "summary": {
+    "features": 1,
+    "requirements": 1,
+    "specs_examined": 1,
+    "errors": 1,
+    "warnings": 0,
+    "advisories": 0,
+    "modelled": 1,
+    "components": 1,
+    "effects_compared": 0,
+    "effects_uncompared": 1,
+    "uncompared": 0
+  },
+  "findings": [
+    {
+      "code": "CONTAIN_BUDGET_EXCEEDED",
+      "path": "specs/001-alpha/model.toml",
+      "feature": "specs/001-alpha",
+      "requirement": null,
+      "line": null,
+      "severity": "error",
+      "detail": {
+        "budget": 4,
+        "comparison": "alpha-revision",
+        "effect": "allow_write",
+        "largest_contributors": [
+          {
+            "term": "depth",
+            "values": 2
+          },
+          {
+            "term": "load",
+            "values": 2
+          },
+          {
+            "term": "retention-days",
+            "values": 2
+          }
+        ],
+        "states": 8
+      }
+    }
+  ],
+  "comparisons": [
+    {
+      "id": "alpha-revision",
+      "kind": "revision",
+      "reports": [
+        "widening",
+        "narrowing"
+      ],
+      "status": "indeterminate",
+      "complete": false,
+      "effects_compared": 0,
+      "effects_uncompared": 1,
+      "requirements_uncompared": 0
+    }
+  ]
+}

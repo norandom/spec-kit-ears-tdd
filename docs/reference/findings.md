@@ -58,6 +58,28 @@ the Spec Kit glob and the Kiro tree are empty.
 | `TRACE_TESTS` | Automated verification with no test selectors. |
 | `TRACE_TEST_FILE` | A named test file does not exist. |
 | `TRACE_TEST_PARKED` | Advisory: the selector sits under a parked prefix (default `conformance/pending/`) and its file is not yet written. Declared staging, not a pass and not an error. |
+
+## `CONTAIN_` comparisons (checks.containment)
+
+Emitted only when the containment layer runs. `detail` carries `comparison`, `effect`, `witness`,
+and the contributing requirements.
+
+| Code | Severity | Meaning |
+| --- | --- | --- |
+| `CONTAIN_REFERENCE_MISSING` | error | Requested reference absent or unreadable. |
+| `CONTAIN_INPUT_INVALID` | error | Malformed comparison/source model or unsupported input version. |
+| `CONTAIN_WIDENED` | error | Candidate permits an effect in states the reference does not. |
+| `CONTAIN_WIDENED_DECLARED` | advisory | Every widening contributor covered by a valid derogation. |
+| `CONTAIN_NARROWED` | warning | Dropped activation region for review (`revision` kind). |
+| `CONTAIN_EFFECT_NEW` | advisory | Candidate declares an effect absent from the reference. |
+| `CONTAIN_BASELINE_CONFLICT` | error | Opposing effects active across sides; `policy` kind only. |
+| `CONTAIN_DEROGATION_UNKNOWN` | error | Unknown reference target. |
+| `CONTAIN_DEROGATION_INVALID` | error | Invalid candidate target, effect or reason. |
+| `CONTAIN_DEROGATION_STALE` | warning | Completed question has no widening for this exception. |
+| `CONTAIN_BUDGET_EXCEEDED` | error | Question refused before any state was evaluated. |
+| `CONTAIN_VOCAB_DRIFT` | error | A referenced term lacks a compatible identity on the other side. |
+| `CONTAIN_UNCOMPARED` | warning | An input, effect or requirement did not participate; no unqualified claim. |
+| `CONTAIN_SUPERSESSION_GAP` | error | Fully modelled successor union loses predecessor behavior. |
 | `TRACE_TEST_NAME` | The file exists but does not contain the named test. |
 | `TRACE_TEST_ROOT` | A selector points outside the configured test roots. |
 | `TRACE_INVALID` | The file could not be parsed. |

@@ -58,6 +58,7 @@ separation = true     # requirement prose and identifiers kept out of production
 # Phase two, off by default.
 vocabulary = false    # declared terms, the tags requirements carry, the intentions they serve
 constraints = false   # constraint models, within a specification and merged across all of them
+containment = false   # containment comparisons of candidate models against reference models
 ```
 
 These are the defaults, so omitting the table gives you phase one.

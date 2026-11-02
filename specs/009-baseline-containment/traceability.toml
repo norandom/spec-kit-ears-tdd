@@ -13,25 +13,25 @@ schema_version = "1.0"
 
 [requirements.REQ-001]
 verification = "automated"
-tests = ["conformance/pending/contain-equal/expected.json"]
+tests = ["conformance/cases/contain-equal/expected.json"]
 tags = ["constraint-model", "scope"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-002]
 verification = "automated"
-tests = ["conformance/pending/contain-reference-missing/expected.json"]
+tests = ["conformance/cases/contain-reference-missing/expected.json"]
 tags = ["constraint-model", "finding"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-003]
 verification = "automated"
-tests = ["conformance/pending/contain-reference-missing/expected.json"]
+tests = ["conformance/cases/contain-reference-missing/expected.json"]
 tags = ["constraint-model", "gate"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-004]
 verification = "automated"
-tests = ["conformance/pending/contain-equal/expected.json", "crates/ears-sdd/tests/conformance.rs::containment_evidence_is_not_discarded"]
+tests = ["conformance/cases/contain-equal/expected.json", "crates/ears-sdd/tests/conformance.rs::containment_evidence_is_not_discarded"]
 tags = ["provenance", "scope"]
 intent = "no-unearned-pass"
 
@@ -55,43 +55,43 @@ intent = "reproducible-verdict"
 
 [requirements.REQ-008]
 verification = "automated"
-tests = ["conformance/pending/contain-equal/expected.json"]
+tests = ["conformance/cases/contain-equal/expected.json"]
 tags = ["effect", "constraint-model"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-009]
 verification = "automated"
-tests = ["conformance/pending/contain-unguarded/expected.json"]
+tests = ["conformance/cases/contain-unguarded/expected.json"]
 tags = ["guard", "effect"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-010]
 verification = "automated"
-tests = ["conformance/pending/contain-widened/expected.json"]
+tests = ["conformance/cases/contain-widened/expected.json"]
 tags = ["effect", "finding"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-011]
 verification = "automated"
-tests = ["conformance/pending/contain-narrowed/expected.json"]
+tests = ["conformance/cases/contain-narrowed/expected.json"]
 tags = ["effect", "finding"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-012]
 verification = "automated"
-tests = ["conformance/pending/contain-widened/expected.json", "crates/ears-sdd/tests/conformance.rs::containment_evidence_is_not_discarded"]
+tests = ["conformance/cases/contain-widened/expected.json", "crates/ears-sdd/tests/conformance.rs::containment_evidence_is_not_discarded"]
 tags = ["witness", "finding"]
 intent = "actionable-finding"
 
 [requirements.REQ-013]
 verification = "automated"
-tests = ["conformance/pending/contain-widened/expected.json"]
+tests = ["conformance/cases/contain-widened/expected.json"]
 tags = ["requirement", "finding"]
 intent = "actionable-finding"
 
 [requirements.REQ-014]
 verification = "automated"
-tests = ["conformance/pending/contain-narrowed/expected.json"]
+tests = ["conformance/cases/contain-narrowed/expected.json"]
 tags = ["requirement", "finding"]
 intent = "actionable-finding"
 
@@ -109,13 +109,13 @@ intent = "no-unearned-pass"
 
 [requirements.REQ-017]
 verification = "automated"
-tests = ["conformance/pending/contain-effect-new/expected.json"]
+tests = ["conformance/cases/contain-effect-new/expected.json"]
 tags = ["effect", "finding"]
 intent = "actionable-finding"
 
 [requirements.REQ-018]
 verification = "automated"
-tests = ["conformance/pending/contain-baseline-conflict/expected.json", "conformance/pending/contain-policy-upper-bound/expected.json"]
+tests = ["conformance/cases/contain-baseline-conflict/expected.json", "conformance/cases/contain-policy-upper-bound/expected.json"]
 tags = ["effect", "finding"]
 intent = "no-unearned-pass"
 
@@ -145,31 +145,31 @@ intent = "decide-nothing-for-the-author"
 
 [requirements.REQ-023]
 verification = "automated"
-tests = ["conformance/pending/contain-budget-exceeded/expected.json"]
+tests = ["conformance/cases/contain-budget-exceeded/expected.json"]
 tags = ["state-space-budget"]
 intent = "reproducible-verdict"
 
 [requirements.REQ-024]
 verification = "automated"
-tests = ["conformance/pending/contain-budget-exceeded/expected.json"]
+tests = ["conformance/cases/contain-budget-exceeded/expected.json"]
 tags = ["state-space-budget", "finding"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-025]
 verification = "automated"
-tests = ["conformance/pending/contain-budget-exceeded/expected.json"]
+tests = ["conformance/cases/contain-budget-exceeded/expected.json"]
 tags = ["state-space-budget", "gate"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-026]
 verification = "automated"
-tests = ["conformance/pending/contain-vocab-drift/expected.json"]
+tests = ["conformance/cases/contain-vocab-drift/expected.json"]
 tags = ["term", "finding"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-027]
 verification = "automated"
-tests = ["conformance/pending/contain-vocab-drift/expected.json"]
+tests = ["conformance/cases/contain-vocab-drift/expected.json"]
 tags = ["effect", "finding"]
 intent = "no-unearned-pass"
 
@@ -181,13 +181,13 @@ intent = "adoptable-incrementally"
 
 [requirements.REQ-029]
 verification = "automated"
-tests = ["conformance/pending/contain-unmodelled/expected.json"]
+tests = ["conformance/cases/contain-unmodelled/expected.json"]
 tags = ["requirement", "constraint-model", "finding"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-030]
 verification = "automated"
-tests = ["conformance/pending/contain-equal/expected.json", "crates/ears-sdd/tests/conformance.rs::containment_evidence_is_not_discarded"]
+tests = ["conformance/cases/contain-equal/expected.json", "crates/ears-sdd/tests/conformance.rs::containment_evidence_is_not_discarded"]
 tags = ["effect", "requirement", "provenance"]
 intent = "no-unearned-pass"
 
@@ -229,13 +229,13 @@ intent = "no-unearned-pass"
 
 [requirements.REQ-037]
 verification = "automated"
-tests = ["conformance/pending/contain-policy-upper-bound/expected.json"]
+tests = ["conformance/cases/contain-policy-upper-bound/expected.json"]
 tags = ["effect", "finding", "check"]
 intent = "decide-nothing-for-the-author"
 
 [requirements.REQ-038]
 verification = "automated"
-tests = ["conformance/pending/contain-policy-upper-bound/expected.json", "crates/ears-sdd/src/contain.rs::tests::conflict_questions_only_under_policy"]
+tests = ["conformance/cases/contain-policy-upper-bound/expected.json", "crates/ears-sdd/src/contain.rs::tests::conflict_questions_only_under_policy"]
 tags = ["effect", "check", "state-space-budget"]
 intent = "no-unearned-pass"
 
@@ -247,7 +247,7 @@ intent = "decide-nothing-for-the-author"
 
 [requirements.REQ-040]
 verification = "automated"
-tests = ["conformance/pending/contain-policy-upper-bound/expected.json", "conformance/pending/contain-equal/expected.json"]
+tests = ["conformance/cases/contain-policy-upper-bound/expected.json", "conformance/cases/contain-equal/expected.json"]
 tags = ["provenance", "check"]
 intent = "actionable-finding"
 

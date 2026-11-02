@@ -143,9 +143,6 @@ pub fn load_terms(
     root: &Path,
     feature_dirs: &[(String, &Path)],
 ) -> (BTreeMap<String, (Term, String)>, Vec<Finding>) {
-    let mut findings = Vec::new();
-    let mut terms: BTreeMap<String, (Term, String)> = BTreeMap::new();
-
     // Project vocabulary first, then any feature-local one. A feature may add terms only it uses;
     // redeclaring a project term with a different domain is the drift this file exists to prevent.
     let mut sources: Vec<(String, std::path::PathBuf)> = vec![(
@@ -158,8 +155,25 @@ pub fn load_terms(
             directory.join("vocabulary.toml"),
         ));
     }
+    load_terms_from_sources(&sources)
+}
 
-    for (display, path) in &sources {
+/// Load one explicitly named vocabulary file. Containment sides each name their own vocabulary,
+/// so there is no implicit fallback to the project one.
+pub fn load_terms_at(
+    path: &Path,
+    display: &str,
+) -> (BTreeMap<String, (Term, String)>, Vec<Finding>) {
+    load_terms_from_sources(&[(display.to_string(), path.to_path_buf())])
+}
+
+fn load_terms_from_sources(
+    sources: &[(String, std::path::PathBuf)],
+) -> (BTreeMap<String, (Term, String)>, Vec<Finding>) {
+    let mut findings = Vec::new();
+    let mut terms: BTreeMap<String, (Term, String)> = BTreeMap::new();
+
+    for (display, path) in sources {
         match read_toml::<VocabularyFile>(path, display, "VOCAB_INVALID") {
             Err(finding) => findings.push(*finding),
             Ok(None) => {}

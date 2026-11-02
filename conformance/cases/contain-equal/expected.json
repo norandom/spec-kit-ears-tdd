@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "ok": true,
+  "phase": "plan",
+  "scope": {
+    "source": "glob",
+    "value": "specs/*/spec.md"
+  },
+  "summary": {
+    "features": 1,
+    "requirements": 1,
+    "specs_examined": 1,
+    "errors": 0,
+    "warnings": 0,
+    "advisories": 0,
+    "modelled": 1,
+    "components": 1,
+    "effects_compared": 2,
+    "effects_uncompared": 0,
+    "uncompared": 0
+  },
+  "findings": [],
+  "comparisons": [
+    {
+      "id": "alpha-revision",
+      "kind": "revision",
+      "reports": [
+        "widening",
+        "narrowing"
+      ],
+      "status": "equal",
+      "complete": true,
+      "effects_compared": 2,
+      "effects_uncompared": 0,
+      "requirements_uncompared": 0
+    }
+  ]
+}

@@ -39,6 +39,15 @@ pub struct RequirementEntry {
     pub then: String,
 }
 
+/// A deliberate widening a candidate model declares against a same-effect reference requirement.
+/// Validated during containment; the merge gate ignores the table.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Derogation {
+    pub reference: String,
+    pub reason: String,
+}
+
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ModelFile {
@@ -48,6 +57,8 @@ pub struct ModelFile {
     pub effects: BTreeMap<String, EffectDeclaration>,
     #[serde(default)]
     pub requirements: BTreeMap<String, RequirementEntry>,
+    #[serde(default)]
+    pub derogations: BTreeMap<String, Derogation>,
 }
 
 /// One concrete value a variable may take.

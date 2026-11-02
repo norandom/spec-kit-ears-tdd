@@ -1,0 +1,4 @@
+{
+  "args": ["validate", "--phase", "plan", "--all"],
+  "note": "the approved revision was unconditional; the candidate added a guard, so a region was dropped"
+}

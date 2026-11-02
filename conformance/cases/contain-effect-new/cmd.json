@@ -1,0 +1,4 @@
+{
+  "args": ["validate", "--phase", "plan", "--all"],
+  "note": "the candidate declares an effect the approved revision never had: advisory plus an undeclared widening"
+}

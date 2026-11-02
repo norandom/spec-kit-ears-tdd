@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0",
+  "ok": false,
+  "phase": "plan",
+  "scope": {
+    "source": "glob",
+    "value": "specs/*/spec.md"
+  },
+  "summary": {
+    "features": 1,
+    "requirements": 2,
+    "specs_examined": 1,
+    "errors": 1,
+    "warnings": 0,
+    "advisories": 1,
+    "modelled": 2,
+    "components": 2,
+    "effects_compared": 2,
+    "effects_uncompared": 0,
+    "uncompared": 0
+  },
+  "findings": [
+    {
+      "code": "CONTAIN_EFFECT_NEW",
+      "path": "specs/001-alpha/model.toml",
+      "feature": "specs/001-alpha",
+      "requirement": null,
+      "line": null,
+      "severity": "advisory",
+      "detail": {
+        "comparison": "alpha-revision",
+        "effect": "allow_delete"
+      }
+    },
+    {
+      "code": "CONTAIN_WIDENED",
+      "path": "specs/001-alpha/model.toml",
+      "feature": "specs/001-alpha",
+      "requirement": "REQ-002",
+      "line": null,
+      "severity": "error",
+      "detail": {
+        "candidate_requirements": [
+          "specs/001-alpha:REQ-002"
+        ],
+        "comparison": "alpha-revision",
+        "effect": "allow_delete",
+        "witness": {
+          "maintenance-window": true
+        }
+      }
+    }
+  ],
+  "comparisons": [
+    {
+      "id": "alpha-revision",
+      "kind": "revision",
+      "reports": [
+        "widening",
+        "narrowing"
+      ],
+      "status": "widened",
+      "complete": true,
+      "effects_compared": 2,
+      "effects_uncompared": 0,
+      "requirements_uncompared": 0
+    }
+  ]
+}

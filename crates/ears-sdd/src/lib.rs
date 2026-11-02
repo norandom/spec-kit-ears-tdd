@@ -4,6 +4,7 @@ pub mod assets;
 pub mod bdd;
 pub mod ccsdd;
 pub mod config;
+pub mod contain;
 pub mod discovery;
 pub mod doctor;
 pub mod ears;
@@ -78,6 +79,10 @@ pub fn validate(request: Request<'_>) -> Report {
     let mut baseline_included: Option<usize> = None;
     let mut baseline_excluded: Option<usize> = None;
     let mut kiro_requirements = 0usize;
+    let mut comparisons: Option<Vec<report::ComparisonRecord>> = None;
+    let mut effects_compared: Option<usize> = None;
+    let mut effects_uncompared: Option<usize> = None;
+    let mut uncompared: Option<usize> = None;
 
     let kiro_listed: Vec<kiro::Listed> = discovered
         .specs
@@ -222,6 +227,27 @@ pub fn validate(request: Request<'_>) -> Report {
                 merged_components = Some(merged.components);
             }
         }
+
+        // Containment runs wherever the traceability-bearing phases run, same as the model layer
+        // it reads. A disabled layer is named in disabled_checks, never silent.
+        if config.checks.containment {
+            let features_in_scope: std::collections::BTreeSet<String> = discovered
+                .specs
+                .iter()
+                .map(|location| location.feature.clone())
+                .collect();
+            let outcome = contain::validate(
+                root,
+                &config,
+                &features_in_scope,
+                discovered.scope.is_narrowed(),
+            );
+            findings.extend(outcome.findings);
+            comparisons = Some(outcome.comparisons);
+            effects_compared = Some(outcome.effects_compared);
+            effects_uncompared = Some(outcome.effects_uncompared);
+            uncompared = Some(outcome.uncompared);
+        }
     }
 
     let mut production_files_scanned = 0usize;
@@ -288,9 +314,13 @@ pub fn validate(request: Request<'_>) -> Report {
             merged_components,
             baseline_included,
             baseline_excluded,
+            effects_compared,
+            effects_uncompared,
+            uncompared,
         },
         features,
         findings,
+        comparisons,
     }
 }
 
@@ -359,6 +389,20 @@ pub fn render_human(report: &Report, status_only: bool) -> String {
         "Features: {}  Requirements: {}  Errors: {}  Warnings: {}\n",
         summary.features, summary.requirements, summary.errors, summary.warnings
     ));
+    if let Some(comparisons) = &report.comparisons {
+        for comparison in comparisons {
+            out.push_str(&format!(
+                "Containment {} [{}] status={} reports={} effects={}/{} complete={}\n",
+                comparison.id,
+                comparison.kind,
+                comparison.status,
+                comparison.reports.join("+"),
+                comparison.effects_compared,
+                comparison.effects_uncompared,
+                comparison.complete
+            ));
+        }
+    }
     if status_only && report.findings.is_empty() {
         return out;
     }

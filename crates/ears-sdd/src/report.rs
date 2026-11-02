@@ -187,6 +187,29 @@ pub struct Summary {
     pub baseline_included: Option<usize>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub baseline_excluded: Option<usize>,
+    /// Containment effect questions completed / refused. Present only when the containment
+    /// layer ran, so "nothing compared" is distinguishable from "the layer did not run".
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub effects_compared: Option<usize>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub effects_uncompared: Option<usize>,
+    /// Requirements that did not participate in any comparison, deduplicated across comparisons.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub uncompared: Option<usize>,
+}
+
+/// One containment comparison result. `status` describes the computed differences; `kind`
+/// decides which of them became findings. `reports` names the directions the kind reports.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ComparisonRecord {
+    pub id: String,
+    pub kind: String,
+    pub reports: Vec<String>,
+    pub status: String,
+    pub complete: bool,
+    pub effects_compared: usize,
+    pub effects_uncompared: usize,
+    pub requirements_uncompared: usize,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -199,6 +222,10 @@ pub struct Report {
     pub features: Vec<FeatureResult>,
     pub summary: Summary,
     pub findings: Vec<Finding>,
+    /// Containment comparison records, sorted by comparison ID. Present only when the
+    /// containment layer ran; older reports retain their shape.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub comparisons: Option<Vec<ComparisonRecord>>,
 }
 
 /// An absolute path as a user would type it back.

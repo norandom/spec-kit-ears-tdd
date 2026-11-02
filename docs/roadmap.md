@@ -64,7 +64,13 @@ holds the gate red — which conflicts with keeping `main` green for everyone el
 declared-parked (advisory, never an error), so an in-progress feature never holds `main` red.
 **Exit:** `validate --phase final --all` green with 009/010 selectors parked and named.
 
-### M1 — 009 foundations, first usable slice
+### M1 — 009 foundations, first usable slice ✅ (done 2026-11-02)
+
+Shipped: `contain.rs` engine (manifest, per-effect shared BDD encodings with side-domain masks,
+budget preflight, widening/narrowing witnesses verified by the independent enumerator, policy
+conflict questions), `revision`/`policy` kinds, report `comparisons` records + summary counts,
+human output, and 11 blessed conformance cases now in `conformance/cases/`. `supersession` and
+`amendment` are accepted but reported `uncompared` until M2.
 
 Tasks T004–T015 of `specs/009-baseline-containment/tasks.md`: the `contain.rs` engine — typed
 comparison manifest with source provenance, one shared `bdd::Encoding` per effect question with

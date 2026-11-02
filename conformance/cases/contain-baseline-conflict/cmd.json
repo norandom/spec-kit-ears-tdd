@@ -1,0 +1,4 @@
+{
+  "args": ["validate", "--phase", "plan", "--all"],
+  "note": "kind = policy asks the conflicting-effect question: candidate block_write and reference allow_write are both active when an operator is present"
+}

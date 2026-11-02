@@ -1,0 +1,4 @@
+{
+  "args": ["validate", "--phase", "plan", "--all"],
+  "note": "the shared question has 8 states against a budget of 4: refused before any state is evaluated"
+}

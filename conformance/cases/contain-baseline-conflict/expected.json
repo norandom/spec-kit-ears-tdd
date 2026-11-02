@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0",
+  "ok": false,
+  "phase": "plan",
+  "scope": {
+    "source": "glob",
+    "value": "specs/*/spec.md"
+  },
+  "summary": {
+    "features": 1,
+    "requirements": 2,
+    "specs_examined": 1,
+    "errors": 2,
+    "warnings": 0,
+    "advisories": 0,
+    "modelled": 2,
+    "components": 1,
+    "effects_compared": 2,
+    "effects_uncompared": 0,
+    "uncompared": 0
+  },
+  "findings": [
+    {
+      "code": "CONTAIN_BASELINE_CONFLICT",
+      "path": "specs/001-alpha/model.toml",
+      "feature": "specs/001-alpha",
+      "requirement": null,
+      "line": null,
+      "severity": "error",
+      "detail": {
+        "comparison": "alpha-policy",
+        "conflicts_with": "block_write",
+        "effect": "allow_write",
+        "witness": {
+          "operator-present": true
+        }
+      }
+    },
+    {
+      "code": "MODEL_CONFLICT",
+      "path": "specs/001-alpha/model.toml",
+      "feature": "specs/001-alpha",
+      "requirement": "REQ-001",
+      "line": null,
+      "severity": "error"
+    }
+  ],
+  "comparisons": [
+    {
+      "id": "alpha-policy",
+      "kind": "policy",
+      "reports": [
+        "widening"
+      ],
+      "status": "equal",
+      "complete": true,
+      "effects_compared": 2,
+      "effects_uncompared": 0,
+      "requirements_uncompared": 0
+    }
+  ]
+}

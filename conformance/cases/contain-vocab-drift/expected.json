@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0",
+  "ok": false,
+  "phase": "plan",
+  "scope": {
+    "source": "glob",
+    "value": "specs/*/spec.md"
+  },
+  "summary": {
+    "features": 1,
+    "requirements": 1,
+    "specs_examined": 1,
+    "errors": 2,
+    "warnings": 0,
+    "advisories": 0,
+    "modelled": 1,
+    "components": 1,
+    "effects_compared": 0,
+    "effects_uncompared": 0,
+    "uncompared": 0
+  },
+  "findings": [
+    {
+      "code": "CONTAIN_VOCAB_DRIFT",
+      "path": "specs/001-alpha/reference.toml",
+      "feature": null,
+      "requirement": null,
+      "line": null,
+      "severity": "error",
+      "detail": {
+        "comparison": "alpha-revision"
+      }
+    },
+    {
+      "code": "CONTAIN_VOCAB_DRIFT",
+      "path": "specs/001-alpha/reference.toml",
+      "feature": null,
+      "requirement": null,
+      "line": null,
+      "severity": "error",
+      "detail": {
+        "comparison": "alpha-revision"
+      }
+    }
+  ],
+  "comparisons": [
+    {
+      "id": "alpha-revision",
+      "kind": "revision",
+      "reports": [
+        "widening",
+        "narrowing"
+      ],
+      "status": "uncompared",
+      "complete": false,
+      "effects_compared": 0,
+      "effects_uncompared": 0,
+      "requirements_uncompared": 0
+    }
+  ]
+}

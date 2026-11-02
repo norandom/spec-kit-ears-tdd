@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0",
+  "ok": true,
+  "phase": "plan",
+  "scope": {
+    "source": "glob",
+    "value": "specs/*/spec.md"
+  },
+  "summary": {
+    "features": 1,
+    "requirements": 1,
+    "specs_examined": 1,
+    "errors": 0,
+    "warnings": 1,
+    "advisories": 0,
+    "modelled": 1,
+    "components": 1,
+    "effects_compared": 1,
+    "effects_uncompared": 0,
+    "uncompared": 0
+  },
+  "findings": [
+    {
+      "code": "CONTAIN_NARROWED",
+      "path": "specs/001-alpha/model.toml",
+      "feature": "specs/001-alpha",
+      "requirement": "REQ-001",
+      "line": null,
+      "severity": "warning",
+      "detail": {
+        "comparison": "alpha-revision",
+        "effect": "allow_write",
+        "reference_requirements": [
+          "specs/001-alpha:REQ-001"
+        ],
+        "witness": {
+          "operator-present": false
+        }
+      }
+    }
+  ],
+  "comparisons": [
+    {
+      "id": "alpha-revision",
+      "kind": "revision",
+      "reports": [
+        "widening",
+        "narrowing"
+      ],
+      "status": "narrowed",
+      "complete": true,
+      "effects_compared": 1,
+      "effects_uncompared": 0,
+      "requirements_uncompared": 0
+    }
+  ]
+}

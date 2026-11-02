@@ -1,0 +1,7 @@
+schema_version = "1.0"
+
+[[comparisons]]
+id = "alpha-policy"
+kind = "policy"
+reference = { feature = ".specify/policy", spec = ".specify/policy/spec.md", model = ".specify/policy/model.toml", vocabulary = ".specify/vocabulary.toml" }
+candidates = [{ feature = "specs/001-alpha", spec = "specs/001-alpha/spec.md", model = "specs/001-alpha/model.toml", vocabulary = ".specify/vocabulary.toml" }]

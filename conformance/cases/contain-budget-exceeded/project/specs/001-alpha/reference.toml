@@ -1,0 +1,9 @@
+schema_version = "1.0"
+
+[effects]
+allow_write = { conflicts_with = [] }
+
+# The approved revision also bounded retention; the shared question ranges over all three terms.
+[requirements.REQ-001]
+when = "depth > 3 and load > 2 and retention-days > 5"
+then = "allow_write"

@@ -1,0 +1,10 @@
+schema_version = "1.0"
+
+# The reference revision names its term `maintenance-window` (declared in the reference
+# vocabulary); the candidate revision renamed it to `service-window`. No label matching is done,
+# so the comparison is withheld as vocabulary drift.
+[[comparisons]]
+id = "alpha-revision"
+kind = "revision"
+reference = { feature = "specs/001-alpha", spec = "specs/001-alpha/reference.md", model = "specs/001-alpha/reference.toml", vocabulary = ".specify/reference-vocabulary.toml" }
+candidates = [{ feature = "specs/001-alpha", spec = "specs/001-alpha/spec.md", model = "specs/001-alpha/model.toml", vocabulary = ".specify/vocabulary.toml" }]

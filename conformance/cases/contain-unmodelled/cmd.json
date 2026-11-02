@@ -1,0 +1,4 @@
+{
+  "args": ["validate", "--phase", "plan", "--all"],
+  "note": "REQ-002 has no model entry: the models are equal, and the unmodelled requirement is counted, not ignored"
+}

@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "ok": false,
+  "phase": "plan",
+  "scope": {
+    "source": "glob",
+    "value": "specs/*/spec.md"
+  },
+  "summary": {
+    "features": 1,
+    "requirements": 1,
+    "specs_examined": 1,
+    "errors": 1,
+    "warnings": 0,
+    "advisories": 0,
+    "modelled": 1,
+    "components": 1,
+    "effects_compared": 0,
+    "effects_uncompared": 0,
+    "uncompared": 0
+  },
+  "findings": [
+    {
+      "code": "CONTAIN_REFERENCE_MISSING",
+      "path": ".specify/containment.toml",
+      "feature": "specs/001-alpha",
+      "requirement": null,
+      "line": null,
+      "severity": "error"
+    }
+  ],
+  "comparisons": [
+    {
+      "id": "alpha-revision",
+      "kind": "revision",
+      "reports": [
+        "widening",
+        "narrowing"
+      ],
+      "status": "uncompared",
+      "complete": false,
+      "effects_compared": 0,
+      "effects_uncompared": 0,
+      "requirements_uncompared": 0
+    }
+  ]
+}
