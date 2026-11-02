@@ -1,0 +1,4 @@
+{
+  "args": ["validate", "--phase", "spec", "--all"],
+  "note": "the assessed project also contains a Spec Kit tree; each family is discovered under its own rules"
+}

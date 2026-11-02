@@ -6,7 +6,7 @@
 
 ## Summary
 
-`ears-sdd validate` discovers a Kiro specification tree (`.kiro/specs/<feature>/requirements.md`), parses the four requirement grammars already sketched in `ccsdd.rs`, computes an active baseline from phase metadata, and checks that every superseded specification has a live successor. The assessed project is not modified. Spec Kit discovery is unchanged when no Kiro tree is present. Contradiction search is not added; when it does not run, the result says so.
+`ears-sdd validate` discovers a Kiro specification tree (`.kiro/specs/<feature>/requirements.md`), parses the G1–G4 requirement grammars already implemented in `ccsdd.rs` (G1 canonical and dotted, G2 R-style, G3 amendments, G4 empty/prose), computes an active baseline from phase metadata, and checks that every superseded specification has a live successor. The assessed project is not modified. Spec Kit discovery is unchanged when no Kiro tree is present. Contradiction search is not added; when it does not run, the result says so.
 
 ## Technical Context
 
@@ -26,19 +26,19 @@
 
 **Constraints**: Validation writes nothing. No sidecar config in the assessed tree. No prose-level contradiction search. No EARS-form lint of Kiro criteria in this feature.
 
-**Scale/Scope**: One crate, one CLI entry. ~12 conformance fixtures plus parser unit tests. Does not open `../facdrone` in CI.
+**Scale/Scope**: One crate, one CLI entry. ~17 conformance fixtures plus parser unit tests. Does not open `../facdrone` in CI.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-`.specify/memory/constitution.md` is still the Spec Kit placeholder and is not an enforceable gate. The project’s real constraints are in `docs/architecture.md` and `docs/design/decisions.md`:
+`.specify/memory/constitution.md` is ratified (v1.0.0, 2026-11-02); its principles restate the constraints in `docs/architecture.md` and `docs/design/decisions.md`:
 
-- Validation is read-only and never runs project tests.
-- Scope is part of the claim; a check that did not run is named.
-- Behavioural contract lives in `conformance/cases/` as data.
-- Production code must not contain requirement IDs or copied EARS sentences.
-- Single static binary; no new interpreter or solver.
+- Validation is read-only and never runs project tests (Principle II).
+- Scope is part of the claim; a check that did not run is named (Principle III).
+- The behavioural contract lives in `conformance/cases/` as data (Principle IV).
+- Production code must not contain requirement IDs or copied EARS sentences (Principle V).
+- Single static binary; no new interpreter or solver (Principles I and VI).
 
 This design satisfies those. No complexity-tracking row.
 
@@ -86,11 +86,16 @@ conformance/cases/
 ├── kiro-empty-headings/
 ├── kiro-missing-criteria/
 ├── kiro-fenced-example/
+├── kiro-mixed-tree/
 ├── kiro-active-baseline/
 ├── kiro-supersession-recut/
 ├── kiro-supersession-dangling/
 ├── kiro-supersession-unreciprocated/
+├── kiro-supersession-unknown-successor/
+├── kiro-passing-mention/
+├── kiro-supersession-shared-predecessor/
 ├── kiro-amendment-extends/
+├── kiro-amendment-in-superseded/
 ├── kiro-operational-supersede/
 └── kiro-unreadable-metadata/
 

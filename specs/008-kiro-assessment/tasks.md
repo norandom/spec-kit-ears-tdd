@@ -62,8 +62,8 @@ P1 supersession, P2 disclosure). Each story: failing contract → implementation
 - [X] T011 [US1] [REQ-022] Suppress `CONFIG_MISSING` when a Kiro tree is present in `crates/ears-sdd/src/lib.rs`
 - [X] T012 [US1] [REQ-003] Leave the Spec Kit glob path in `crates/ears-sdd/src/discovery.rs` unchanged when `.kiro/specs` is absent
 - [X] T013 [US1] [REQ-021] Snapshot `conformance/cases/kiro-discovers-tree/project` in `crates/ears-sdd/tests/read_only.rs` so a Kiro assessment cannot write
-- [X] T014 [US1] Resolve `--feature` for a Kiro basename or `requirements.md` path in `crates/ears-sdd/src/discovery.rs` per `specs/008-kiro-assessment/contracts/cli.md`
-- [X] T015 [US1] [REQ-001] [REQ-002] [REQ-004] [REQ-006] [REQ-007] [REQ-008] [REQ-009] [REQ-022] Make `conformance/cases/kiro-discovers-tree/expected.json`, `kiro-missing-requirements-md/expected.json`, `kiro-empty-headings/expected.json`, `kiro-missing-criteria/expected.json`, and `kiro-fenced-example/expected.json` pass
+- [X] T014 [US1] [REQ-001] Resolve `--feature` for a Kiro basename or `requirements.md` path in `crates/ears-sdd/src/discovery.rs` per `specs/008-kiro-assessment/contracts/cli.md`
+- [X] T015 [US1] [REQ-001] [REQ-002] [REQ-004] [REQ-006] [REQ-007] [REQ-008] [REQ-009] [REQ-022] Make `conformance/cases/kiro-discovers-tree/expected.json`, `kiro-missing-requirements-md/expected.json`, `kiro-empty-headings/expected.json`, `kiro-missing-criteria/expected.json`, `kiro-fenced-example/expected.json`, and `kiro-mixed-tree/expected.json` pass
 
 **Checkpoint**: Pointing `validate` at a Kiro fixture parses criteria and does not touch the tree. Spec Kit projects still match `all-features-scope`.
 
@@ -111,7 +111,7 @@ P1 supersession, P2 disclosure). Each story: failing contract → implementation
 - [X] T028 [US3] [REQ-015] Collect spec-level claims from requirements prose outside acceptance criteria (supersede lemma + feature name) in `crates/ears-sdd/src/kiro.rs`
 - [X] T029 [US3] [REQ-016] [REQ-017] [REQ-018] Emit `KIRO_SUPERSESSION_DANGLING` and `KIRO_SUPERSESSION_UNRECIPROCATED`; accept a recut in `crates/ears-sdd/src/kiro.rs`
 - [X] T030 [US3] [REQ-019] [REQ-020] Do not treat amendment `extends` as a supersession; assign amendment criteria to the parent feature in `crates/ears-sdd/src/kiro.rs`
-- [X] T031 [US3] [REQ-014] [REQ-015] [REQ-016] [REQ-017] [REQ-018] [REQ-019] [REQ-020] Make `conformance/cases/kiro-supersession-recut/expected.json`, `kiro-supersession-dangling/expected.json`, `kiro-supersession-unreciprocated/expected.json`, `kiro-amendment-extends/expected.json`, and `kiro-operational-supersede/expected.json` pass
+- [X] T031 [US3] [REQ-014] [REQ-015] [REQ-016] [REQ-017] [REQ-018] [REQ-019] [REQ-020] Make `conformance/cases/kiro-supersession-recut/expected.json`, `kiro-supersession-dangling/expected.json`, `kiro-supersession-unreciprocated/expected.json`, `kiro-amendment-extends/expected.json`, `kiro-operational-supersede/expected.json`, `kiro-supersession-unknown-successor/expected.json`, `kiro-passing-mention/expected.json`, `kiro-supersession-shared-predecessor/expected.json`, and `kiro-amendment-in-superseded/expected.json` pass
 
 **Checkpoint**: Notes and relationship prose create links; acceptance-criteria "supersede" and `extends` do not.
 

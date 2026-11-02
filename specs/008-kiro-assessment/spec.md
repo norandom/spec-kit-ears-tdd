@@ -4,7 +4,7 @@
 
 **Created**: 2026-09-10
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: A validator that only reads Spec Kit `spec.md` files cannot assess a Kiro project.
 Kiro stores one feature per directory, writes EARS into `requirements.md`, and records lifecycle
@@ -173,7 +173,7 @@ examples do not apply to this project.
 - REQ-011: When a specification's recorded phase is superseded, reserved, or initialized, the validator shall exclude that specification from the active baseline.
 - REQ-012: When the active baseline is computed, the validator shall report the number of included specifications, the number of excluded specifications, and the reason for each exclusion.
 - REQ-013: Where a specification records no phase, the validator shall include that specification in the active baseline.
-- REQ-014: When a specification is excluded as superseded, the validator shall collect successor names as discovered feature names that appear in that specification's phase notes.
+- REQ-014: When a specification is excluded as superseded, the validator shall collect successor names as discovered feature names that appear in that specification's phase notes, matching the longest names first so that a name which is a prefix of another does not steal the match.
 - REQ-015: If a specification in the active baseline claims to supersede a discovered specification, then the validator shall record a supersession linking the claiming specification to the named specification.
 - REQ-016: If a superseded specification has no supersession linking it to a specification in the active baseline, then the validator shall report a dangling-supersession finding.
 - REQ-017: If a specification in the active baseline claims to supersede a discovered specification that is not excluded as superseded, then the validator shall report an unreciprocated-supersession finding.

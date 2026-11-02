@@ -1,0 +1,4 @@
+{
+  "args": ["validate", "--phase", "spec"],
+  "note": "a live specification mentions a superseded predecessor in passing without claiming to replace it"
+}

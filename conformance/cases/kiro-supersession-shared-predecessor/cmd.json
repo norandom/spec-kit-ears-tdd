@@ -1,0 +1,4 @@
+{
+  "args": ["validate", "--phase", "spec"],
+  "note": "two live specifications both name the same superseded predecessor; the predecessor is not dangling"
+}

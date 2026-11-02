@@ -2,7 +2,10 @@ schema_version = "1.0"
 
 [requirements.REQ-001]
 verification = "automated"
-tests = ["conformance/cases/kiro-discovers-tree/expected.json"]
+tests = [
+  "conformance/cases/kiro-discovers-tree/expected.json",
+  "conformance/cases/kiro-mixed-tree/expected.json",
+]
 tags = ["scope", "specification"]
 intent = "no-unearned-pass"
 
@@ -89,13 +92,17 @@ verification = "automated"
 tests = [
   "conformance/cases/kiro-supersession-unreciprocated/expected.json",
   "conformance/cases/kiro-operational-supersede/expected.json",
+  "conformance/cases/kiro-passing-mention/expected.json",
 ]
 tags = ["specification", "finding"]
 intent = "decide-nothing-for-the-author"
 
 [requirements.REQ-016]
 verification = "automated"
-tests = ["conformance/cases/kiro-supersession-dangling/expected.json"]
+tests = [
+  "conformance/cases/kiro-supersession-dangling/expected.json",
+  "conformance/cases/kiro-supersession-unknown-successor/expected.json",
+]
 tags = ["specification", "finding"]
 intent = "no-unearned-pass"
 
@@ -107,19 +114,28 @@ intent = "no-unearned-pass"
 
 [requirements.REQ-018]
 verification = "automated"
-tests = ["conformance/cases/kiro-supersession-recut/expected.json"]
+tests = [
+  "conformance/cases/kiro-supersession-recut/expected.json",
+  "conformance/cases/kiro-supersession-shared-predecessor/expected.json",
+]
 tags = ["specification"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-019]
 verification = "automated"
-tests = ["conformance/cases/kiro-amendment-extends/expected.json"]
+tests = [
+  "conformance/cases/kiro-amendment-extends/expected.json",
+  "conformance/cases/kiro-amendment-in-superseded/expected.json",
+]
 tags = ["requirement", "specification"]
 intent = "decide-nothing-for-the-author"
 
 [requirements.REQ-020]
 verification = "automated"
-tests = ["conformance/cases/kiro-amendment-extends/expected.json"]
+tests = [
+  "conformance/cases/kiro-amendment-extends/expected.json",
+  "conformance/cases/kiro-amendment-in-superseded/expected.json",
+]
 tags = ["requirement", "specification"]
 intent = "no-unearned-pass"
 

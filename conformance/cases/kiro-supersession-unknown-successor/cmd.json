@@ -1,0 +1,4 @@
+{
+  "args": ["validate", "--phase", "spec"],
+  "note": "phase notes name a feature directory that is not in the discovered tree; the supersession is still dangling"
+}

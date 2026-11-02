@@ -1,0 +1,5 @@
+{
+  "feature_name": "leftover",
+  "phase": "superseded",
+  "notes": "Superseded by ghost-store. Retained for history."
+}

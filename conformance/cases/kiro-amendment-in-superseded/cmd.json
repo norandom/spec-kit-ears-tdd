@@ -1,0 +1,4 @@
+{
+  "args": ["validate", "--phase", "spec"],
+  "note": "an amendment extends a requirement in a superseded specification; the amendment leaves the baseline with its parent"
+}
