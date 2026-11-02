@@ -69,5 +69,6 @@ nav:
   - Design notes:
       - Architecture: architecture.md
       - Decisions and their reasons: design/decisions.md
+      - Roadmap: roadmap.md
 
 strict: true
