@@ -2,6 +2,25 @@
 
 Local source review, 2026-09-18. These are design decisions, not implementation claims.
 
+## External source (attribution)
+
+The origin of the idea this feature implements is:
+
+- Alex Watson (OpenShell Team @ NVIDIA), "What we have learned applying formal methods to control
+  AI agents," OpenShell Research Dev Notes, published 2026-09-10.
+  <https://nvidia.github.io/OpenShell-Research/dev-notes/posts/2026-09-10-learning-formal-methods-agent-policy-prover/>
+  (repository: <https://github.com/NVIDIA/OpenShell-Research>; tags: formal-methods, z3,
+  agent-security; accessed 2026-11-02)
+
+Concepts attributed to that source: the containment query
+`Allowed(candidate) ∖ Allowed(reference) = ∅` answered `sat` (witness counterexample named in the
+report), `unsat` (contained), `unknown` (fail closed); and the use of a previously approved
+reference policy as the maximum against which a candidate is compared. Related material cited by
+that post: the maximum-policy envelope spike
+(<https://github.com/NVIDIA/OpenShell/blob/spike/maximal-policy-prover-subset/crates/openshell-prover/MAXIMUM_POLICY_ENVELOPE_SPIKE.md>)
+and the adversarial follow-up
+(<https://nvidia.github.io/OpenShell-Research/dev-notes/posts/2026-08-27-adversarial-policy-review-long-horizon-agents/>).
+
 ## Reuse the finite model and both decision procedures
 
 **Decision:** Build one shared `model::Component` per effect question. Form each side's activation

@@ -2,6 +2,24 @@
 
 Decisions recorded at the 2026-09-22 split from 009. Design decisions, not implementation claims.
 
+## External source (attribution)
+
+The origin of the idea this feature implements is:
+
+- Alex Watson (OpenShell Team @ NVIDIA), "What we have learned applying formal methods to control
+  AI agents," OpenShell Research Dev Notes, published 2026-09-10.
+  <https://nvidia.github.io/OpenShell-Research/dev-notes/posts/2026-09-10-learning-formal-methods-agent-policy-prover/>
+  (repository: <https://github.com/NVIDIA/OpenShell-Research>; tags: formal-methods, z3,
+  agent-security; accessed 2026-11-02)
+
+Concepts attributed to that source: an agent's permissions are a policy envelope (a "maximum
+policy") that the operator approved, and any permission change proposed later — by a human or by
+the agent itself — is proved to stay inside that envelope (`Allowed(candidate) ∖ Allowed(reference)
+= ∅`) before approval, with a concrete counterexample as witness and fail-closed on `unknown`.
+The same post's expert queries (`l7_bypass_credentialed`, `credential_reach_expansion`,
+`capability_expansion`, `link_local_reach`) are the model for declaring findings per comparison
+kind rather than guessing.
+
 ## Own vocabulary, not the product's
 
 **Decision:** An envelope source names its own vocabulary file. Guard terms resolve against it
