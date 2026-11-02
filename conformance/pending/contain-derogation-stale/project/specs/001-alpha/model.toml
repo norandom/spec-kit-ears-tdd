@@ -1,0 +1,14 @@
+schema_version = "1.0"
+
+[effects]
+allow_write = { conflicts_with = ["block_write"] }
+block_write = { conflicts_with = [] }
+
+[requirements.REQ-001]
+when = "maintenance-window"
+then = "allow_write"
+
+# A widening somebody decided on, named and reasoned so it stays reviewable.
+[derogations.REQ-001]
+reference = "REQ-001"
+reason = "permitting writes without an operator was agreed in review"

@@ -1,0 +1,9 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan",
+    "--all"
+  ],
+  "note": "the term was renamed between revisions, so the two sides are not comparable and the verdict is withheld"
+}

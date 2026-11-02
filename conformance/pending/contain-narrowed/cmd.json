@@ -1,0 +1,9 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan",
+    "--all"
+  ],
+  "note": "the guard gained a conjunct, so an obligation the approved revision carried no longer applies"
+}

@@ -1,0 +1,9 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan",
+    "--all"
+  ],
+  "note": "the guard lost a conjunct, so the revision permits a state the approved one excluded"
+}
