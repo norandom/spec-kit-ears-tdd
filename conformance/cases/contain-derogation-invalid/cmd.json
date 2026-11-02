@@ -1,0 +1,9 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan",
+    "--all"
+  ],
+  "note": "derogation with a too-short reason is invalid, and the widening stays an error"
+}

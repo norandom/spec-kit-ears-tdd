@@ -1,0 +1,9 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan",
+    "--all"
+  ],
+  "note": "candidate vocabulary adds an enum member; the shared encoding keeps the states distinct and the masks keep the extra member out of any widening"
+}

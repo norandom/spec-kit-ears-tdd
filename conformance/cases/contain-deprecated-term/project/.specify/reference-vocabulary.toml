@@ -1,0 +1,8 @@
+schema_version = "1.0"
+
+[terms.operator-present]
+label = "Operator present"
+definition = "Whether a named operator is signed in at the workstation."
+domain = { kind = "bool" }
+deprecated = true
+replaced_by = "operator-signed-in"

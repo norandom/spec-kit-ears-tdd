@@ -1,0 +1,12 @@
+schema_version = "1.0"
+
+[effects]
+allow_write = { conflicts_with = [] }
+
+[requirements.REQ-001]
+when = "maintenance-window"
+then = "allow_write"
+
+[derogations.REQ-001]
+reference = "REQ-999"
+reason = "agreed in review with the platform team"

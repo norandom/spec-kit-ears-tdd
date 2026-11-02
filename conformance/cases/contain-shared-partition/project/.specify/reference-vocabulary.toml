@@ -1,0 +1,6 @@
+schema_version = "1.0"
+
+[terms.mode]
+label = "Mode"
+definition = "Workstation mode."
+domain = { kind = "enum", values = ["normal", "maintenance"] }

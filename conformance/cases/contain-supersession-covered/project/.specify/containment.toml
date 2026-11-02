@@ -1,0 +1,10 @@
+schema_version = "1.0"
+
+[[comparisons]]
+id = "ledger-supersession"
+kind = "supersession"
+reference = { feature = "specs/000-old", spec = "specs/000-old/spec.md", model = "specs/000-old/model.toml", vocabulary = ".specify/vocabulary.toml" }
+candidates = [
+  { feature = "specs/001-alpha", spec = "specs/001-alpha/spec.md", model = "specs/001-alpha/model.toml", vocabulary = ".specify/vocabulary.toml" },
+  { feature = "specs/002-beta", spec = "specs/002-beta/spec.md", model = "specs/002-beta/model.toml", vocabulary = ".specify/vocabulary.toml" },
+]

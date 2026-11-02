@@ -1,0 +1,9 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan",
+    "--all"
+  ],
+  "note": "amendment kind compares the declared pair; a narrower amendment is a refinement and produces no finding"
+}

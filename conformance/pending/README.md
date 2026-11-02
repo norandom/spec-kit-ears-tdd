@@ -24,15 +24,11 @@ rule with confidence; counts emitted by a subsystem that does not exist yet cann
 
 ## What is parked here now
 
-`contain-widened-declared` and `contain-derogation-stale` — derogation cases for
-`specs/009-baseline-containment` (US3, not yet implemented). `contain-envelope-widened` belongs to
-`specs/010-envelope-containment`, which owns the agent operating envelope after the 2026-09-22
-split.
+`contain-envelope-widened` belongs to `specs/010-envelope-containment`, which owns the agent
+operating envelope after the 2026-09-22 split. `contain-supersession-uncompared` and the other
+unwritten 009/010 cases named in their traceability are parked advisories (`TRACE_TEST_PARKED`),
+not errors: an unwritten case is not a case.
 
-The implemented 009 slice (revision and policy kinds, witnesses, budgets, drift) moved to
-`conformance/cases/` as `contain-equal`, `contain-widened`, `contain-narrowed`,
-`contain-vocab-drift`, `contain-policy-upper-bound`, `contain-reference-missing`,
-`contain-budget-exceeded`, `contain-unmodelled`, `contain-unguarded`, `contain-effect-new`, and
-`contain-baseline-conflict`. Further cases named in 009/010 traceability are not written at all;
-those are parked advisories (`TRACE_TEST_PARKED`) rather than errors, because an unwritten case is
-not a case. Keep every case parked here until its red/green implementation cycle is complete.
+The implemented 009 engine (all four kinds, derogations, witnesses, budgets, drift) moved to
+`conformance/cases/` as 20 `contain-*` cases. Keep every case parked here until its red/green
+implementation cycle is complete.

@@ -79,7 +79,12 @@ reverse differences with canonical witnesses, JSON and human reporting. Bless an
 `contain-*` case from `conformance/pending/` into `conformance/cases/` as it goes green (T026).
 **Exit:** US5+US1+US2 cases green in the live corpus; `final --all` green for the 009 scope.
 
-### M2 — 009 completion
+### M2 — 009 completion ✅ (engine done 2026-11-02; Kiro-graph auto-resolution and Kiro amendment headings remain as follow-ups)
+
+Shipped: derogations with validation/coverage/staleness, supersession as a masked union over
+explicit candidate lists, Spec Kit amendment pairs, full kind orientation, shared-partition and
+deprecated-term fixtures, determinism + differential witness tests; 20 `contain-*` cases live in
+`conformance/cases/`.
 
 Tasks T016–T028: derogations (deliberate widening, fully covered ⇒ advisory only), kind
 orientation (`policy` is an upper bound, `amendment` is a refinement, `revision` asks no

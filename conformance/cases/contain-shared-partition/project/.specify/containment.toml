@@ -1,0 +1,7 @@
+schema_version = "1.0"
+
+[[comparisons]]
+id = "alpha-revision"
+kind = "revision"
+reference = { feature = "specs/001-alpha", spec = "specs/001-alpha/reference.md", model = "specs/001-alpha/reference.toml", vocabulary = ".specify/reference-vocabulary.toml" }
+candidates = [{ feature = "specs/001-alpha", spec = "specs/001-alpha/spec.md", model = "specs/001-alpha/model.toml", vocabulary = ".specify/vocabulary.toml" }]

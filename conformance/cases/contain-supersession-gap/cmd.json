@@ -1,0 +1,9 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan",
+    "--all"
+  ],
+  "note": "the successor union (maintenance-window OR change-approved) loses operator-present-without-maintenance: a gap with witness"
+}

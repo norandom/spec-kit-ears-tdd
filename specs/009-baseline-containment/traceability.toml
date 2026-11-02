@@ -37,7 +37,7 @@ intent = "no-unearned-pass"
 
 [requirements.REQ-005]
 verification = "automated"
-tests = ["conformance/pending/contain-shared-partition/expected.json"]
+tests = ["conformance/cases/contain-shared-partition/expected.json"]
 tags = ["guard", "decision-procedure"]
 intent = "reproducible-verdict"
 
@@ -121,25 +121,25 @@ intent = "no-unearned-pass"
 
 [requirements.REQ-019]
 verification = "automated"
-tests = ["conformance/pending/contain-widened-declared/expected.json"]
+tests = ["conformance/cases/contain-widened-declared/expected.json"]
 tags = ["effect", "finding"]
 intent = "decide-nothing-for-the-author"
 
 [requirements.REQ-020]
 verification = "automated"
-tests = ["conformance/pending/contain-derogation-unknown/expected.json"]
+tests = ["conformance/cases/contain-derogation-unknown/expected.json"]
 tags = ["requirement", "finding"]
 intent = "actionable-finding"
 
 [requirements.REQ-021]
 verification = "automated"
-tests = ["conformance/pending/contain-derogation-stale/expected.json"]
+tests = ["conformance/cases/contain-derogation-stale/expected.json"]
 tags = ["finding"]
 intent = "actionable-finding"
 
 [requirements.REQ-022]
 verification = "automated"
-tests = ["conformance/pending/contain-widened-declared/expected.json", "conformance/pending/contain-derogation-invalid/expected.json"]
+tests = ["conformance/cases/contain-widened-declared/expected.json", "conformance/cases/contain-derogation-invalid/expected.json"]
 tags = ["finding"]
 intent = "decide-nothing-for-the-author"
 
@@ -175,7 +175,7 @@ intent = "no-unearned-pass"
 
 [requirements.REQ-028]
 verification = "automated"
-tests = ["conformance/pending/contain-deprecated-term/expected.json"]
+tests = ["conformance/cases/contain-deprecated-term/expected.json"]
 tags = ["term", "concept-scheme"]
 intent = "adoptable-incrementally"
 
@@ -193,13 +193,13 @@ intent = "no-unearned-pass"
 
 [requirements.REQ-031]
 verification = "automated"
-tests = ["conformance/pending/contain-supersession-gap/expected.json"]
+tests = ["conformance/cases/contain-supersession-gap/expected.json"]
 tags = ["specification", "constraint-model"]
 intent = "no-unearned-pass"
 
 [requirements.REQ-032]
 verification = "automated"
-tests = ["conformance/pending/contain-supersession-gap/expected.json"]
+tests = ["conformance/cases/contain-supersession-gap/expected.json"]
 tags = ["specification", "effect", "finding"]
 intent = "actionable-finding"
 
@@ -211,7 +211,7 @@ intent = "no-unearned-pass"
 
 [requirements.REQ-034]
 verification = "automated"
-tests = ["conformance/pending/contain-amendment-refines/expected.json"]
+tests = ["conformance/cases/contain-amendment-refines/expected.json"]
 tags = ["requirement", "specification"]
 intent = "no-unearned-pass"
 
@@ -241,7 +241,7 @@ intent = "no-unearned-pass"
 
 [requirements.REQ-039]
 verification = "automated"
-tests = ["conformance/pending/contain-amendment-refines/expected.json"]
+tests = ["conformance/cases/contain-amendment-refines/expected.json"]
 tags = ["requirement", "finding", "check"]
 intent = "decide-nothing-for-the-author"
 

@@ -172,6 +172,48 @@ fn mixed_domains_agree() {
     ));
 }
 
+/// The containment question is a set difference: candidate ∧ ¬reference. The diagram's answer
+/// must agree with exhaustive enumeration over the same finite space, for every guard pair.
+#[test]
+fn containment_regions_agree() {
+    let atoms = ["a", "b", "not a", "not b", "a and b", "a or b"];
+    let component = component(vec![boolean("a"), boolean("b")], &atoms);
+    let encoding = Encoding::new(&component);
+    let diagrams: Vec<_> = component
+        .requirements
+        .iter()
+        .map(|r| encoding.encode(&r.guard))
+        .collect();
+    let states = component.state_space();
+
+    for (left, left_bdd) in diagrams.iter().enumerate() {
+        for (right, right_bdd) in diagrams.iter().enumerate() {
+            let bdd_widening = !left_bdd
+                .and(&right_bdd.not())
+                .and(encoding.domain())
+                .is_false();
+            let mut enum_widening = false;
+            for index in 0..states {
+                let assignment = ears_sdd::enumerate::assignment_at(index, &component.variables);
+                if ears_sdd::enumerate::evaluate(&component.requirements[left].guard, &assignment)
+                    && !ears_sdd::enumerate::evaluate(
+                        &component.requirements[right].guard,
+                        &assignment,
+                    )
+                {
+                    enum_widening = true;
+                    break;
+                }
+            }
+            assert_eq!(
+                bdd_widening, enum_widening,
+                "widening disagrees for {:?} vs {:?}",
+                component.requirements[left].guard, component.requirements[right].guard
+            );
+        }
+    }
+}
+
 /// Exhaustive over a small space: every guard expressible from two booleans, so a systematic
 /// encoding error cannot hide in a case nobody thought to write by hand.
 #[test]

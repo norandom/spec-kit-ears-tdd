@@ -1,0 +1,9 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan",
+    "--all"
+  ],
+  "note": "the reference side declares the term deprecated; without a matching replacement identity the comparison is withheld"
+}

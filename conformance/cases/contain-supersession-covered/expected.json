@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "ok": true,
+  "phase": "plan",
+  "scope": {
+    "source": "glob",
+    "value": "specs/*/spec.md"
+  },
+  "summary": {
+    "features": 3,
+    "requirements": 3,
+    "specs_examined": 3,
+    "errors": 0,
+    "warnings": 1,
+    "advisories": 0,
+    "modelled": 3,
+    "components": 3,
+    "merged_components": 2,
+    "effects_compared": 1,
+    "effects_uncompared": 0,
+    "uncompared": 0
+  },
+  "findings": [
+    {
+      "code": "MERGE_SHADOW",
+      "path": ".specify/ears-sdd.toml",
+      "feature": "specs/000-old",
+      "requirement": "REQ-001",
+      "line": null,
+      "severity": "warning"
+    }
+  ],
+  "comparisons": [
+    {
+      "id": "ledger-supersession",
+      "kind": "supersession",
+      "reports": [
+        "narrowing"
+      ],
+      "status": "equal",
+      "complete": true,
+      "effects_compared": 1,
+      "effects_uncompared": 0,
+      "requirements_uncompared": 0
+    }
+  ]
+}

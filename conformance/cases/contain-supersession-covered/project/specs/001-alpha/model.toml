@@ -1,0 +1,8 @@
+schema_version = "1.0"
+
+[effects]
+allow_write = { conflicts_with = [] }
+
+[requirements.REQ-001]
+when = "operator-present"
+then = "allow_write"

@@ -554,22 +554,20 @@ fn run_comparison(
         return uncompared_record(findings);
     }
 
-    // The supersession and amendment orientations land with US4; until then they are named as
-    // uncompared rather than silently skipped.
-    if kind == Kind::Supersession || kind == Kind::Amendment {
-        findings.push(
-            Finding::new(
-                "CONTAIN_UNCOMPARED",
-                format!(
-                    "Comparison `{}` of kind `{}` is not implemented in this build; no verdict was \
-                     produced.",
-                    decl.id,
-                    kind.as_str()
-                ),
-                MANIFEST_RELATIVE_PATH,
-            )
-            .severity(Severity::Warning),
-        );
+    // An amendment compares exactly one requirement pair; without it the comparison would
+    // silently widen to whole files.
+    if kind == Kind::Amendment
+        && (decl.reference_requirement.is_none() || decl.candidate_requirement.is_none())
+    {
+        findings.push(Finding::new(
+            "CONTAIN_INPUT_INVALID",
+            format!(
+                "Comparison `{}` of kind `amendment` needs both reference_requirement and \
+                 candidate_requirement.",
+                decl.id
+            ),
+            MANIFEST_RELATIVE_PATH,
+        ));
         return uncompared_record(findings);
     }
 
@@ -608,21 +606,103 @@ fn run_comparison(
         effects.extend(candidate.model.effects.keys().cloned());
     }
 
+    // Derogation entries are validated up front: an unknown target or a malformed entry is an
+    // input error, not something a completed question can excuse. No exception can waive a
+    // genuinely new effect, because there is no same-effect reference requirement to point at.
+    // Only entries that pass every check may cover a widening.
+    let mut valid_derogations: BTreeSet<String> = BTreeSet::new();
+    for (cand_id, derogation) in &candidate.model.derogations {
+        let Some(cand_entry) = candidate.model.requirements.get(cand_id) else {
+            findings.push(
+                Finding::new(
+                    "CONTAIN_DEROGATION_INVALID",
+                    format!(
+                        "Derogation names unknown candidate requirement `{cand_id}` in \
+                         comparison `{}`.",
+                        decl.id
+                    ),
+                    candidate.model_display.clone(),
+                )
+                .feature(&candidate.feature)
+                .detail("comparison", decl.id.clone()),
+            );
+            continue;
+        };
+        let Some(ref_entry) = reference.model.requirements.get(&derogation.reference) else {
+            findings.push(
+                Finding::new(
+                    "CONTAIN_DEROGATION_UNKNOWN",
+                    format!(
+                        "Derogation for `{cand_id}` in comparison `{}` names unknown reference \
+                         requirement `{}`.",
+                        decl.id, derogation.reference
+                    ),
+                    candidate.model_display.clone(),
+                )
+                .feature(&candidate.feature)
+                .detail("comparison", decl.id.clone()),
+            );
+            continue;
+        };
+        if ref_entry.then != cand_entry.then {
+            findings.push(
+                Finding::new(
+                    "CONTAIN_DEROGATION_INVALID",
+                    format!(
+                        "Derogation for `{cand_id}` in comparison `{}` targets `{}`, which asserts \
+                         effect `{}` rather than `{}`.",
+                        decl.id, derogation.reference, ref_entry.then, cand_entry.then
+                    ),
+                    candidate.model_display.clone(),
+                )
+                .feature(&candidate.feature)
+                .detail("comparison", decl.id.clone()),
+            );
+            continue;
+        }
+        if derogation.reason.trim().chars().count() < 10 {
+            findings.push(
+                Finding::new(
+                    "CONTAIN_DEROGATION_INVALID",
+                    format!(
+                        "Derogation reason for `{cand_id}` in comparison `{}` is too short; a real \
+                         reason is at least 10 characters.",
+                        decl.id
+                    ),
+                    candidate.model_display.clone(),
+                )
+                .feature(&candidate.feature)
+                .detail("comparison", decl.id.clone()),
+            );
+            continue;
+        }
+        valid_derogations.insert(cand_id.clone());
+    }
+
     let mut effects_compared = 0usize;
     let mut effects_uncompared = 0usize;
     let mut any_widening = false;
     let mut any_narrowing = false;
 
     for effect in &effects {
+        // An amendment compares exactly the declared requirement pair on each side.
         let cand_contributors: Vec<&ModelledRequirement> = candidate
             .modelled
             .iter()
             .filter(|r| r.effect == *effect)
+            .filter(|r| {
+                kind != Kind::Amendment
+                    || Some(&r.identifier) == decl.candidate_requirement.as_ref()
+            })
             .collect();
         let ref_contributors: Vec<&ModelledRequirement> = reference
             .modelled
             .iter()
             .filter(|r| r.effect == *effect)
+            .filter(|r| {
+                kind != Kind::Amendment
+                    || Some(&r.identifier) == decl.reference_requirement.as_ref()
+            })
             .collect();
         let mut contributors: Vec<&ModelledRequirement> = ref_contributors.clone();
         contributors.extend(cand_contributors.iter().copied());
@@ -661,7 +741,18 @@ fn run_comparison(
         let ref_mask = side_mask(&encoding, &reference, &component.variables);
         let cand_mask = side_mask(&encoding, candidate, &component.variables);
         let ref_region = region(&encoding, &ref_mask, &domain, &reference, effect);
-        let cand_region = region(&encoding, &cand_mask, &domain, candidate, effect);
+        // A supersession compares the union of all live successors, each masked by its own
+        // domain, against the predecessor.
+        let cand_region = if kind == Kind::Supersession {
+            let mut union = encoding.encode(&Guard::Always).not();
+            for cand in &candidates {
+                let mask = side_mask(&encoding, cand, &component.variables);
+                union = union.or(&region(&encoding, &mask, &domain, cand, effect));
+            }
+            union
+        } else {
+            region(&encoding, &cand_mask, &domain, candidate, effect)
+        };
         let widening = cand_region.and(&ref_region.not());
         let narrowing = ref_region.and(&cand_region.not());
         let widened = !widening.is_false();
@@ -697,7 +788,7 @@ fn run_comparison(
             );
         }
 
-        if widened && matches!(kind, Kind::Revision | Kind::Policy) {
+        if widened && matches!(kind, Kind::Revision | Kind::Policy | Kind::Amendment) {
             let assignment = encoding.witness(&widening);
             let verified = assignment
                 .as_ref()
@@ -717,11 +808,67 @@ fn run_comparison(
             let witness = assignment
                 .map(|a| witness_json(&a))
                 .unwrap_or(serde_json::Value::Null);
+            // A widening is declared only if every contributor with a nonempty widening region
+            // has a valid derogation. Usage is evaluated over the whole region, not the witness.
+            let mut any_contrib_widening = false;
+            let mut all_covered = true;
+            for contributor in &cand_contributors {
+                let q = encoding
+                    .encode(&contributor.guard)
+                    .and(&cand_mask)
+                    .and(&domain)
+                    .and(&ref_region.not());
+                if !q.is_false() {
+                    any_contrib_widening = true;
+                    if !valid_derogations.contains(&contributor.identifier) {
+                        all_covered = false;
+                    }
+                }
+            }
+            let (code, severity) = if all_covered && any_contrib_widening {
+                ("CONTAIN_WIDENED_DECLARED", Severity::Advisory)
+            } else {
+                ("CONTAIN_WIDENED", Severity::Error)
+            };
             let mut finding = Finding::new(
-                "CONTAIN_WIDENED",
+                code,
                 format!(
                     "Comparison `{}`: candidate permits effect `{effect}` in states the reference \
-                     does not.",
+                     does not{}.",
+                    decl.id,
+                    if code == "CONTAIN_WIDENED_DECLARED" {
+                        ", fully covered by declared derogations"
+                    } else {
+                        ""
+                    }
+                ),
+                candidate.model_display.clone(),
+            )
+            .feature(&candidate.feature)
+            .severity(severity)
+            .detail("comparison", decl.id.clone())
+            .detail("effect", effect.clone())
+            .detail("witness", witness)
+            .detail(
+                "candidate_requirements",
+                serde_json::json!(qualified(&cand_contributors)),
+            );
+            if let Some(first) = cand_contributors.first() {
+                finding = finding.requirement(&first.identifier);
+            }
+            findings.push(finding);
+        }
+
+        if narrowed && kind == Kind::Supersession {
+            let assignment = encoding.witness(&narrowing);
+            let witness = assignment
+                .map(|a| witness_json(&a))
+                .unwrap_or(serde_json::Value::Null);
+            let mut finding = Finding::new(
+                "CONTAIN_SUPERSESSION_GAP",
+                format!(
+                    "Comparison `{}`: the successor union loses effect `{effect}` in states the \
+                     predecessor obligated.",
                     decl.id
                 ),
                 candidate.model_display.clone(),
@@ -731,10 +878,10 @@ fn run_comparison(
             .detail("effect", effect.clone())
             .detail("witness", witness)
             .detail(
-                "candidate_requirements",
-                serde_json::json!(qualified(&cand_contributors)),
+                "reference_requirements",
+                serde_json::json!(qualified(&ref_contributors)),
             );
-            if let Some(first) = cand_contributors.first() {
+            if let Some(first) = ref_contributors.first() {
                 finding = finding.requirement(&first.identifier);
             }
             findings.push(finding);
@@ -767,6 +914,39 @@ fn run_comparison(
                 finding = finding.requirement(&first.identifier);
             }
             findings.push(finding);
+        }
+
+        // A valid derogation whose candidate has no widening in this completed question is
+        // stale: it records a decision that no longer matches the models.
+        for cand_id in &valid_derogations {
+            if let Some(c) = candidate
+                .modelled
+                .iter()
+                .find(|r| &r.identifier == cand_id && r.effect == *effect)
+            {
+                let q = encoding
+                    .encode(&c.guard)
+                    .and(&cand_mask)
+                    .and(&domain)
+                    .and(&ref_region.not());
+                if q.is_false() {
+                    findings.push(
+                        Finding::new(
+                            "CONTAIN_DEROGATION_STALE",
+                            format!(
+                                "Derogation for `{cand_id}` in comparison `{}` covers no widening \
+                                 of effect `{effect}`.",
+                                decl.id
+                            ),
+                            candidate.model_display.clone(),
+                        )
+                        .feature(&candidate.feature)
+                        .severity(Severity::Warning)
+                        .detail("comparison", decl.id.clone())
+                        .detail("effect", effect.clone()),
+                    );
+                }
+            }
         }
     }
 

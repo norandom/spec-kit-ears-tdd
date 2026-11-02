@@ -1,0 +1,8 @@
+schema_version = "1.0"
+
+[effects]
+allow_write = { conflicts_with = [] }
+
+[requirements.REQ-001]
+when = "maintenance-window and operator-present and change-approved"
+then = "allow_write"
