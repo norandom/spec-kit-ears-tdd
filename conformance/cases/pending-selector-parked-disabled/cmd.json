@@ -1,0 +1,4 @@
+{
+  "args": ["validate", "--phase", "plan"],
+  "note": "an empty parked_selector_prefixes list parks nothing: the same missing file is an error"
+}

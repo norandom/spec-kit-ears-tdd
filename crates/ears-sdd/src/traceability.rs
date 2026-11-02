@@ -10,7 +10,7 @@ use std::collections::BTreeMap;
 use std::path::Path;
 
 use crate::config::Config;
-use crate::report::{relative, Finding};
+use crate::report::{relative, Finding, Severity};
 use crate::requirements::Requirement;
 
 #[derive(Debug, Deserialize)]
@@ -203,11 +203,27 @@ pub fn validate(
                     if config.require_test_files {
                         let full = root.join(&candidate);
                         if !full.is_file() {
-                            findings.push(finding(
-                                "TRACE_TEST_FILE",
-                                format!("Referenced test file does not exist: {candidate}"),
-                                Some(identifier),
-                            ));
+                            // A selector under a parked prefix is declared staging, not a
+                            // failure: advisory, so the run stays green but the gap stays
+                            // visible. Everything else that is missing stays an error.
+                            if config.is_parked_selector(&candidate) {
+                                findings.push(
+                                    finding(
+                                        "TRACE_TEST_PARKED",
+                                        format!(
+                                            "Referenced test file is parked and not yet written: {candidate}"
+                                        ),
+                                        Some(identifier),
+                                    )
+                                    .severity(Severity::Advisory),
+                                );
+                            } else {
+                                findings.push(finding(
+                                    "TRACE_TEST_FILE",
+                                    format!("Referenced test file does not exist: {candidate}"),
+                                    Some(identifier),
+                                ));
+                            }
                         } else if let Some(name) = selector_name(selector) {
                             // Checking only that the file exists lets a renamed or deleted test keep
                             // its mapping green forever, which is the difference between recording a

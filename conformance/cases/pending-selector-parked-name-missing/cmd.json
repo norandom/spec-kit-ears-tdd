@@ -1,0 +1,4 @@
+{
+  "args": ["validate", "--phase", "plan"],
+  "note": "parking never weakens the named-test check on a file that exists"
+}

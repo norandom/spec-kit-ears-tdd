@@ -1,0 +1,43 @@
+schema_version = "1.0"
+
+[requirements.REQ-001]
+verification = "automated"
+tests = ["conformance/cases/pending-selector-parked/expected.json"]
+tags = ["traceability-mapping", "finding"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-002]
+verification = "automated"
+tests = [
+  "conformance/cases/selector-missing-test/expected.json",
+  "conformance/cases/pending-selector-parked-disabled/expected.json",
+]
+tags = ["traceability-mapping", "finding"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-003]
+verification = "automated"
+tests = [
+  "conformance/cases/pending-selector-parked-present/expected.json",
+  "conformance/cases/pending-selector-parked-name-missing/expected.json",
+]
+tags = ["traceability-mapping"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-004]
+verification = "automated"
+tests = ["conformance/cases/pending-selector-parked/expected.json"]
+tags = ["scope", "provenance"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-005]
+verification = "automated"
+tests = ["conformance/cases/pending-selector-parked-disabled/expected.json"]
+tags = ["scope"]
+intent = "no-unearned-pass"
+
+[requirements.REQ-006]
+verification = "automated"
+tests = ["conformance/cases/selector-traversal/expected.json"]
+tags = ["traceability-mapping", "gate"]
+intent = "no-unearned-pass"

@@ -1,0 +1,4 @@
+{
+  "args": ["validate", "--phase", "plan"],
+  "note": "a missing selector file under the default parked prefix is an advisory, not an error"
+}

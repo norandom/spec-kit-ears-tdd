@@ -42,6 +42,7 @@ feature basename.
 | `test_command` | The project's real test command, checked as declared at the final gate |
 | `production_roots` | Scanned for leaked requirement prose and identifiers |
 | `test_roots` | Allowed to name requirement identifiers, for traceability |
+| `parked_selector_prefixes` | Selector paths whose missing files are `TRACE_TEST_PARKED` advisories instead of `TRACE_TEST_FILE` errors — a directory prefix (`conformance/pending/`) or a planned file path; default `["conformance/pending/"]`, empty list parks nothing |
 | `source_extensions` | Which files the separation scan reads |
 | `state_space_budget` | States per component before the search is refused |
 

@@ -1,0 +1,4 @@
+{
+  "args": ["validate", "--phase", "plan"],
+  "note": "a parked selector whose file exists is checked like any other selector: no finding"
+}

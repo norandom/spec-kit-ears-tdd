@@ -57,6 +57,7 @@ the Spec Kit glob and the Kiro tree are empty.
 | `TRACE_MANUAL` | Manual verification without a concrete rationale. |
 | `TRACE_TESTS` | Automated verification with no test selectors. |
 | `TRACE_TEST_FILE` | A named test file does not exist. |
+| `TRACE_TEST_PARKED` | Advisory: the selector sits under a parked prefix (default `conformance/pending/`) and its file is not yet written. Declared staging, not a pass and not an error. |
 | `TRACE_TEST_NAME` | The file exists but does not contain the named test. |
 | `TRACE_TEST_ROOT` | A selector points outside the configured test roots. |
 | `TRACE_INVALID` | The file could not be parsed. |

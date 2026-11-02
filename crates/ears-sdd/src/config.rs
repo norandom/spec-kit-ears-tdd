@@ -89,6 +89,10 @@ pub struct Config {
     /// reach. Kept separate from the marker so a broad exemption is visible in configuration rather
     /// than scattered through source.
     pub separation_exempt: Vec<String>,
+    /// Selector prefixes whose missing files are parked (advisory `TRACE_TEST_PARKED`) rather
+    /// than errors, for staged corpora whose cases are written before their feature lands.
+    /// Defaults to the pending-corpus layout; an empty list parks nothing.
+    pub parked_selector_prefixes: Vec<String>,
     /// The largest state space a single component may have before the validator declines to
     /// evaluate it.
     ///
@@ -123,6 +127,7 @@ impl Default for Config {
             .map(|s| s.to_string())
             .collect(),
             separation_exempt: Vec::new(),
+            parked_selector_prefixes: vec!["conformance/pending/".to_string()],
             // A million states is microseconds to enumerate and far above anything a component
             // reaches once decomposition has done its work. A component that exceeds it is
             // signalling a modelling problem rather than a performance one.
@@ -143,6 +148,23 @@ impl Config {
                 format!("{}/", normalized.trim_end_matches('/'))
             })
             .collect()
+    }
+
+    /// Parked selector prefixes as POSIX paths. A prefix matches a candidate when it equals the
+    /// candidate (a planned file) or is a directory prefix of it (`prefix/`).
+    pub fn parked_prefixes(&self) -> Vec<String> {
+        self.parked_selector_prefixes
+            .iter()
+            .map(|prefix| prefix.replace('\\', "/").trim_end_matches('/').to_string())
+            .collect()
+    }
+
+    /// Whether a normalized selector path is parked: under a parked prefix or equal to a parked
+    /// planned file.
+    pub fn is_parked_selector(&self, candidate: &str) -> bool {
+        self.parked_prefixes()
+            .iter()
+            .any(|prefix| candidate == prefix || candidate.starts_with(&format!("{prefix}/")))
     }
 
     pub fn matches_source_extension(&self, path: &Path) -> bool {

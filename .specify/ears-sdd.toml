@@ -19,6 +19,17 @@ test_roots = ["crates", "conformance"]
 
 source_extensions = [".rs"]
 
+# Selectors whose backing files are staged but not yet written are parked advisories
+# (TRACE_TEST_PARKED), not errors. The pending corpus plus the planned 009/010 implementation
+# files, which land with those features and then get their normal name checks.
+parked_selector_prefixes = [
+  "conformance/pending/",
+  "crates/ears-sdd/src/contain.rs",
+  "crates/ears-sdd/src/envelope.rs",
+  "crates/ears-sdd/src/adapters.rs",
+  "crates/ears-sdd/tests/determinism.rs",
+]
+
 # Phase two, partially. This project declares a vocabulary and intentions and tags its requirements,
 # so the grounding layer has something to read and is enabled.
 #

@@ -46,9 +46,15 @@ unions, and amendments.
 
 ## Milestones
 
-### M0 — Restore a green main
+### M0 — Restore a green main ✅ (done 2026-11-02, feature `011-parked-selectors`)
 
-The 009/010 merge left `validate --phase plan|tasks|final --all` red: their `traceability.toml`
+Implemented as spec 011: missing selector files under configured `parked_selector_prefixes`
+(default `conformance/pending/`; this repo also lists the four planned 009/010 implementation
+files) are `TRACE_TEST_PARKED` advisories, not `TRACE_TEST_FILE` errors. Existing files, named-test
+checks, and root/traversal checks are unchanged. `validate --phase final --all` is green with the
+parked selectors named as advisories.
+
+The 009/010 merge had left `validate --phase plan|tasks|final --all` red: their `traceability.toml`
 files name selectors that do not exist yet (unwritten `conformance/pending/*/expected.json`,
 `src/contain.rs`, `src/envelope.rs`, `src/adapters.rs`, `tests/determinism.rs`). The pending-corpus
 README states unwritten cases are "reported as missing files," so by design an in-progress feature
