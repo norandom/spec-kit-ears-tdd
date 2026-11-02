@@ -1,0 +1,6 @@
+schema_version = "1.0"
+
+[terms.service-window]
+label = "Service window"
+definition = "Whether the workstation is inside a scheduled service window."
+domain = { kind = "bool" }

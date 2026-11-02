@@ -1,0 +1,9 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan",
+    "--all"
+  ],
+  "note": "the same widening, named by a derogation, is a recorded decision rather than an error"
+}

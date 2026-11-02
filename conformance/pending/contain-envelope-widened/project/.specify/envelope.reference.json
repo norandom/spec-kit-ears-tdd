@@ -1,0 +1,30 @@
+{
+  "id": "bugfix",
+  "initial": "planning",
+  "phases": {
+    "planning": {
+      "allowed_tools": [
+        "Read",
+        "Grep"
+      ],
+      "transitions": [
+        {
+          "to": "implement",
+          "when": "test-result == 'fail'"
+        }
+      ]
+    },
+    "implement": {
+      "allowed_tools": [
+        "Read",
+        "Edit"
+      ],
+      "transitions": [
+        {
+          "to": "planning",
+          "when": "test-result == 'pass'"
+        }
+      ]
+    }
+  }
+}

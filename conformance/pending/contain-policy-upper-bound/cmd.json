@@ -1,0 +1,9 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan",
+    "--all"
+  ],
+  "note": "kind = policy: the candidate is narrower than the policy on allow_write (no finding, narrowing is not reported under this kind) and wider on allow_delete (one widening with witness operator-present = true, change-approved = false)"
+}

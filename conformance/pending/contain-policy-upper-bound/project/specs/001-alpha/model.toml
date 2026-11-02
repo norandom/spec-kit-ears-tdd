@@ -1,0 +1,15 @@
+schema_version = "1.0"
+
+[effects]
+allow_write = { conflicts_with = [] }
+allow_delete = { conflicts_with = [] }
+
+# Narrower than the policy: inside the upper bound, so under kind = "policy" this is not a finding.
+[requirements.REQ-001]
+when = "maintenance-window and operator-present and change-approved"
+then = "allow_write"
+
+# Wider than the policy: permits a delete with an operator present but no approval.
+[requirements.REQ-002]
+when = "change-approved or operator-present"
+then = "allow_delete"

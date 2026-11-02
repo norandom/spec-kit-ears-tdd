@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "ok": false,
+  "phase": "plan",
+  "scope": {
+    "source": "glob",
+    "value": "specs/*/spec.md"
+  },
+  "summary": {
+    "features": 1,
+    "requirements": 1,
+    "specs_examined": 1,
+    "errors": 1,
+    "warnings": 1,
+    "advisories": 1,
+    "modelled": 1,
+    "components": 1,
+    "effects_compared": 3,
+    "uncompared": 0
+  },
+  "findings": [
+    {
+      "code": "CONTAIN_REACHABILITY_OMITTED",
+      "path": ".specify/envelope.json",
+      "feature": null,
+      "requirement": null,
+      "line": null,
+      "severity": "advisory"
+    },
+    {
+      "code": "CONTAIN_UNMODELLED_CONSTRUCT",
+      "path": ".specify/envelope.json",
+      "feature": null,
+      "requirement": "PHASE-implement",
+      "line": null,
+      "severity": "warning"
+    },
+    {
+      "code": "CONTAIN_WIDENED",
+      "path": ".specify/envelope.json",
+      "feature": null,
+      "requirement": "PHASE-implement",
+      "line": null,
+      "severity": "error"
+    }
+  ]
+}

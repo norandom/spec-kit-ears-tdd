@@ -1,0 +1,10 @@
+schema_version = "1.0"
+
+# One comparison of kind "policy": the feature's current model is measured against the project
+# maximum kept under .specify/policy/, which is outside spec_glob on purpose so that the merge gate
+# never reads the policy as a feature.
+[[comparisons]]
+id = "alpha-policy"
+kind = "policy"
+reference = { feature = ".specify/policy", spec = ".specify/policy/spec.md", model = ".specify/policy/model.toml", vocabulary = ".specify/vocabulary.toml" }
+candidates = [{ feature = "specs/001-alpha", spec = "specs/001-alpha/spec.md", model = "specs/001-alpha/model.toml", vocabulary = ".specify/vocabulary.toml" }]

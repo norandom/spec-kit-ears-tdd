@@ -1,0 +1,9 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan",
+    "--all"
+  ],
+  "note": "the implement phase gained Bash; the fork construct is not modelled and is named rather than skipped"
+}

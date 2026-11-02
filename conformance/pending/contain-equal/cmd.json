@@ -1,0 +1,9 @@
+{
+  "args": [
+    "validate",
+    "--phase",
+    "plan",
+    "--all"
+  ],
+  "note": "an unchanged revision permits exactly what the approved one permitted, and reports nothing"
+}
